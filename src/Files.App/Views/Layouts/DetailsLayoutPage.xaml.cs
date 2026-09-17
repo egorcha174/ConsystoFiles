@@ -97,6 +97,9 @@ namespace Files.App.Views.Layouts
 
 			UpdateSortOptionsCommand = new RelayCommand<string>(x =>
 			{
+				// Consysto fork: releasing a dragged column header must not sort by it
+				if (isDraggingColumn || suppressSortAfterColumnDrag)
+					return;
 				if (!Enum.TryParse<SortOption>(x, out var val))
 					return;
 				var folderSettings = FolderSettings
@@ -111,6 +114,8 @@ namespace Files.App.Views.Layouts
 					folderSettings.DirectorySortDirection = SortDirection.Ascending;
 				}
 			});
+
+			InitializeColumnReordering();
 		}
 
 		// Methods
@@ -181,6 +186,14 @@ namespace Files.App.Views.Layouts
 				ColumnsViewModel.IconColumn.Update(FolderSettings.ColumnsViewModel.IconColumn);
 				ColumnsViewModel.ItemTypeColumn.Update(FolderSettings.ColumnsViewModel.ItemTypeColumn);
 				ColumnsViewModel.NameColumn.Update(FolderSettings.ColumnsViewModel.NameColumn);
+				ColumnsViewModel.ExtensionColumn.Update(FolderSettings.ColumnsViewModel.ExtensionColumn);
+			ColumnsViewModel.BookAuthorColumn.Update(FolderSettings.ColumnsViewModel.BookAuthorColumn);
+			ColumnsViewModel.BookSeriesColumn.Update(FolderSettings.ColumnsViewModel.BookSeriesColumn);
+			ColumnsViewModel.CadPartNumberColumn.Update(FolderSettings.ColumnsViewModel.CadPartNumberColumn);
+			ColumnsViewModel.CadMaterialColumn.Update(FolderSettings.ColumnsViewModel.CadMaterialColumn);
+			ColumnsViewModel.CadMassColumn.Update(FolderSettings.ColumnsViewModel.CadMassColumn);
+			ColumnsViewModel.CadVersionColumn.Update(FolderSettings.ColumnsViewModel.CadVersionColumn);
+			ColumnsViewModel.ColumnOrder = FolderSettings.ColumnsViewModel.ColumnOrder;
 				ColumnsViewModel.PathColumn.Update(FolderSettings.ColumnsViewModel.PathColumn);
 				ColumnsViewModel.OriginalPathColumn.Update(FolderSettings.ColumnsViewModel.OriginalPathColumn);
 				ColumnsViewModel.SizeColumn.Update(FolderSettings.ColumnsViewModel.SizeColumn);
@@ -200,8 +213,11 @@ namespace Files.App.Views.Layouts
 			folderSettings.SortOptionPreferenceUpdated += FolderSettings_SortOptionPreferenceUpdated;
 			shellViewModel.PageTypeUpdated += FilesystemViewModel_PageTypeUpdated;
 			shellViewModel.ItemLoadStatusChanged += ShellViewModel_ItemLoadStatusChanged;
+			shellViewModel.HasBookItemsChanged += ShellViewModel_HasBookItemsChanged;
+			shellViewModel.HasCadItemsChanged += ShellViewModel_HasCadItemsChanged;
 			UserSettingsService.LayoutSettingsService.PropertyChanged += LayoutSettingsService_PropertyChanged;
 			FileList.Items.VectorChanged += FileListItems_VectorChanged;
+			ActualThemeChanged += DetailsLayoutPage_ActualThemeChanged;
 
 			var parameters = (NavigationArguments)eventArgs.Parameter;
 			if (parameters.IsLayoutSwitch)
@@ -214,6 +230,9 @@ namespace Files.App.Views.Layouts
 				IsTypeGitRepository = InstanceViewModel?.IsGitRepository ?? false,
 				IsTypeSearchResults = InstanceViewModel?.IsPageTypeSearchResults ?? false
 			});
+			UpdateBookColumns();
+			UpdateCadColumns();
+			UpdateColumnOffsets();
 
 			RootGrid_SizeChanged(null, null);
 
@@ -231,8 +250,11 @@ namespace Files.App.Views.Layouts
 			var shellViewModel = ParentShellPageInstance.GetRequiredShellViewModel();
 			shellViewModel.PageTypeUpdated -= FilesystemViewModel_PageTypeUpdated;
 			shellViewModel.ItemLoadStatusChanged -= ShellViewModel_ItemLoadStatusChanged;
+			shellViewModel.HasBookItemsChanged -= ShellViewModel_HasBookItemsChanged;
+			shellViewModel.HasCadItemsChanged -= ShellViewModel_HasCadItemsChanged;
 			UserSettingsService.LayoutSettingsService.PropertyChanged -= LayoutSettingsService_PropertyChanged;
 			FileList.Items.VectorChanged -= FileListItems_VectorChanged;
+			ActualThemeChanged -= DetailsLayoutPage_ActualThemeChanged;
 			_autoFitColumnsTimer?.Stop();
 		}
 
@@ -249,9 +271,12 @@ namespace Files.App.Views.Layouts
 			{
 				shellViewModel.PageTypeUpdated -= FilesystemViewModel_PageTypeUpdated;
 				shellViewModel.ItemLoadStatusChanged -= ShellViewModel_ItemLoadStatusChanged;
+				shellViewModel.HasBookItemsChanged -= ShellViewModel_HasBookItemsChanged;
+				shellViewModel.HasCadItemsChanged -= ShellViewModel_HasCadItemsChanged;
 			}
 			UserSettingsService.LayoutSettingsService.PropertyChanged -= LayoutSettingsService_PropertyChanged;
 			FileList.Items.VectorChanged -= FileListItems_VectorChanged;
+			ActualThemeChanged -= DetailsLayoutPage_ActualThemeChanged;
 			_autoFitColumnsTimer?.Stop();
 			base.Dispose();
 		}
@@ -264,6 +289,7 @@ namespace Files.App.Views.Layouts
 				var previousOffset = ContentScroller?.VerticalOffset;
 
 				NotifyPropertyChanged(nameof(RowHeight));
+				QueueEmptyRowStripesUpdate();
 
 				// Update the container style to match the item size
 				SetItemContainerStyle();
@@ -295,6 +321,27 @@ namespace Files.App.Views.Layouts
 							break;
 						case nameof(ILayoutSettingsService.ShowTypeColumn):
 							ColumnsViewModel.ItemTypeColumn.UserCollapsed = !settings.ShowTypeColumn;
+							break;
+						case nameof(ILayoutSettingsService.ShowExtensionColumn):
+							ColumnsViewModel.ExtensionColumn.UserCollapsed = !settings.ShowExtensionColumn;
+							break;
+						case nameof(ILayoutSettingsService.ShowBookAuthorColumn):
+							ColumnsViewModel.BookAuthorColumn.UserCollapsed = !settings.ShowBookAuthorColumn;
+							break;
+						case nameof(ILayoutSettingsService.ShowBookSeriesColumn):
+							ColumnsViewModel.BookSeriesColumn.UserCollapsed = !settings.ShowBookSeriesColumn;
+							break;
+						case nameof(ILayoutSettingsService.ShowCadPartNumberColumn):
+							ColumnsViewModel.CadPartNumberColumn.UserCollapsed = !settings.ShowCadPartNumberColumn;
+							break;
+						case nameof(ILayoutSettingsService.ShowCadMaterialColumn):
+							ColumnsViewModel.CadMaterialColumn.UserCollapsed = !settings.ShowCadMaterialColumn;
+							break;
+						case nameof(ILayoutSettingsService.ShowCadMassColumn):
+							ColumnsViewModel.CadMassColumn.UserCollapsed = !settings.ShowCadMassColumn;
+							break;
+						case nameof(ILayoutSettingsService.ShowCadVersionColumn):
+							ColumnsViewModel.CadVersionColumn.UserCollapsed = !settings.ShowCadVersionColumn;
 							break;
 						case nameof(ILayoutSettingsService.ShowDateCreatedColumn):
 							ColumnsViewModel.DateCreatedColumn.UserCollapsed = !settings.ShowDateCreatedColumn;
@@ -353,6 +400,13 @@ namespace Files.App.Views.Layouts
 				?? throw new InvalidOperationException("The details layout does not have folder settings.");
 
 			NameHeader.ColumnSortOption = folderSettings.DirectorySortOption == SortOption.Name ? folderSettings.DirectorySortDirection : null;
+			ExtensionHeader.ColumnSortOption = folderSettings.DirectorySortOption == SortOption.FileExtension ? folderSettings.DirectorySortDirection : null;
+			BookAuthorHeader.ColumnSortOption = folderSettings.DirectorySortOption == SortOption.BookAuthor ? folderSettings.DirectorySortDirection : null;
+			BookSeriesHeader.ColumnSortOption = folderSettings.DirectorySortOption == SortOption.BookSeries ? folderSettings.DirectorySortDirection : null;
+			CadPartNumberHeader.ColumnSortOption = folderSettings.DirectorySortOption == SortOption.CadPartNumber ? folderSettings.DirectorySortDirection : null;
+			CadMaterialHeader.ColumnSortOption = folderSettings.DirectorySortOption == SortOption.CadMaterial ? folderSettings.DirectorySortDirection : null;
+			CadMassHeader.ColumnSortOption = folderSettings.DirectorySortOption == SortOption.CadMass ? folderSettings.DirectorySortDirection : null;
+			CadVersionHeader.ColumnSortOption = folderSettings.DirectorySortOption == SortOption.CadVersion ? folderSettings.DirectorySortDirection : null;
 			TagHeader.ColumnSortOption = folderSettings.DirectorySortOption == SortOption.FileTag ? folderSettings.DirectorySortDirection : null;
 			PathHeader.ColumnSortOption = folderSettings.DirectorySortOption == SortOption.Path ? folderSettings.DirectorySortDirection : null;
 			OriginalPathHeader.ColumnSortOption = folderSettings.DirectorySortOption == SortOption.OriginalFolder ? folderSettings.DirectorySortDirection : null;
@@ -405,6 +459,40 @@ namespace Files.App.Views.Layouts
 				ColumnsViewModel.PathColumn.Hide();
 
 			UpdateSortIndicator();
+		}
+
+		// Consysto fork: like the Git columns outside a repository, the book columns stay hidden in folders without books.
+		private void ShellViewModel_HasBookItemsChanged(object? sender, EventArgs e)
+			=> UpdateBookColumns();
+
+		private void UpdateBookColumns()
+		{
+			if (ParentShellPageInstance?.ShellViewModel?.HasBookItems == true)
+			{
+				ColumnsViewModel.BookAuthorColumn.Show();
+				ColumnsViewModel.BookSeriesColumn.Show();
+			}
+			else
+			{
+				ColumnsViewModel.BookAuthorColumn.Hide();
+				ColumnsViewModel.BookSeriesColumn.Hide();
+			}
+		}
+
+		// Consysto fork: the Inventor columns stay hidden in folders without Inventor documents, like the book columns.
+		private void ShellViewModel_HasCadItemsChanged(object? sender, EventArgs e)
+			=> UpdateCadColumns();
+
+		private void UpdateCadColumns()
+		{
+			var hasDocuments = ParentShellPageInstance?.ShellViewModel?.HasCadItems == true;
+			foreach (var column in new[] { ColumnsViewModel.CadPartNumberColumn, ColumnsViewModel.CadMaterialColumn, ColumnsViewModel.CadMassColumn, ColumnsViewModel.CadVersionColumn })
+			{
+				if (hasDocuments)
+					column.Show();
+				else
+					column.Hide();
+			}
 		}
 
 		private void FolderSettings_LayoutModeChangeRequested(object? sender, LayoutModeEventArgs e)
@@ -770,7 +858,14 @@ namespace Files.App.Views.Layouts
 			while (item is not ListViewItem)
 				item = VisualTreeHelper.GetParent(item);
 			if (item is ListViewItem itemContainer)
+			{
 				itemContainer.ContextFlyout = ItemContextMenuFlyout;
+
+				// Consysto fork: the row panel may not exist yet when ContainerContentChanging runs, so stripe it once it loads.
+				ApplyRowStripe(itemContainer, FileList.IndexFromContainer(itemContainer));
+				ApplyRowOffsets(itemContainer);
+				QueueEmptyRowStripesUpdate();
+			}
 		}
 
 		private void Grid_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -797,8 +892,17 @@ namespace Files.App.Views.Layouts
 
 		private void UpdateColumnLayout()
 		{
+			QueueEmptyRowStripesUpdate();
+
 			ColumnsViewModel.IconColumn.UserLength = Column2.Width;
 			ColumnsViewModel.NameColumn.UserLength = Column3.Width;
+			ColumnsViewModel.ExtensionColumn.UserLength = ExtensionColumnDefinition.Width;
+			ColumnsViewModel.BookAuthorColumn.UserLength = BookAuthorColumnDefinition.Width;
+			ColumnsViewModel.BookSeriesColumn.UserLength = BookSeriesColumnDefinition.Width;
+			ColumnsViewModel.CadPartNumberColumn.UserLength = CadPartNumberColumnDefinition.Width;
+			ColumnsViewModel.CadMaterialColumn.UserLength = CadMaterialColumnDefinition.Width;
+			ColumnsViewModel.CadMassColumn.UserLength = CadMassColumnDefinition.Width;
+			ColumnsViewModel.CadVersionColumn.UserLength = CadVersionColumnDefinition.Width;
 
 			// Git
 			ColumnsViewModel.GitStatusColumn.UserLength = GitStatusColumnDefinition.Width;
@@ -896,6 +1000,10 @@ namespace Files.App.Views.Layouts
 		private void FileListItems_VectorChanged(IObservableVector<object> sender, IVectorChangedEventArgs e)
 		{
 			AutoFitColumnsIfEnabled();
+
+			// Consysto fork: inserts, removals and sorting shift row indexes without re-raising ContainerContentChanging
+			// for rows that stay realized, so the zebra parity is re-applied once the list settles.
+			DispatcherQueue.TryEnqueue(RefreshRowStripes);
 		}
 
 		protected override async Task CommitRenameAsync(TextBox textBox)
@@ -913,18 +1021,25 @@ namespace Files.App.Views.Layouts
 			{
 				1 => 40, // Check all items columns
 				2 => FileList.Items.Cast<ListedItem>().Select(x => x.Name?.Length ?? 0).Max(), // file name column
-				4 => FileList.Items.Cast<ListedItem>().Select(x => (x as IGitItem)?.GitLastCommitDateHumanized?.Length ?? 0).Max(), // git
-				5 => FileList.Items.Cast<ListedItem>().Select(x => (x as IGitItem)?.GitLastCommitMessage?.Length ?? 0).Max(), // git
-				6 => FileList.Items.Cast<ListedItem>().Select(x => (x as IGitItem)?.GitLastCommitAuthor?.Length ?? 0).Max(), // git
-				7 => FileList.Items.Cast<ListedItem>().Select(x => (x as IGitItem)?.GitLastCommitSha?.Length ?? 0).Max(), // git
-				8 => FileList.Items.Cast<ListedItem>().Select(x => x.FileTagsUI?.Sum(x => x?.Name?.Length ?? 0) ?? 0).Max(), // file tag column
-				9 => FileList.Items.Cast<ListedItem>().Select(x => x.ItemPath?.Length ?? 0).Max(), // path column
-				10 => FileList.Items.Cast<ListedItem>().Select(x => (x as RecycleBinItem)?.ItemOriginalPath?.Length ?? 0).Max(), // original path column
-				11 => FileList.Items.Cast<ListedItem>().Select(x => (x as RecycleBinItem)?.ItemDateDeleted?.Length ?? 0).Max(), // date deleted column
-				12 => FileList.Items.Cast<ListedItem>().Select(x => x.ItemDateModified?.Length ?? 0).Max(), // date modified column
-				13 => FileList.Items.Cast<ListedItem>().Select(x => x.ItemDateCreated?.Length ?? 0).Max(), // date created column
-				14 => FileList.Items.Cast<ListedItem>().Select(x => x.ItemType?.Length ?? 0).Max(), // item type column
-				15 => FileList.Items.Cast<ListedItem>().Select(x => x.FileSize?.Length ?? 0).Max(), // item size column
+				3 => FileList.Items.Cast<ListedItem>().Select(x => x.FileExtensionDisplay?.Length ?? 0).Max(), // Consysto fork: extension column
+				4 => FileList.Items.Cast<ListedItem>().Select(x => x.BookAuthor?.Length ?? 0).Max(), // Consysto fork: book author column
+				5 => FileList.Items.Cast<ListedItem>().Select(x => x.BookSeries?.Length ?? 0).Max(), // Consysto fork: book series column
+				6 => FileList.Items.Cast<ListedItem>().Select(x => x.CadPartNumber?.Length ?? 0).Max(), // Consysto fork: Inventor part number column
+				7 => FileList.Items.Cast<ListedItem>().Select(x => x.CadMaterial?.Length ?? 0).Max(), // Consysto fork: Inventor material column
+				8 => FileList.Items.Cast<ListedItem>().Select(x => x.CadMass?.Length ?? 0).Max(), // Consysto fork: Inventor mass column (the book and Inventor columns shift later indexes by five)
+				9 => FileList.Items.Cast<ListedItem>().Select(x => x.CadVersion?.Length ?? 0).Max(), // Consysto fork: program version column
+				11 => FileList.Items.Cast<ListedItem>().Select(x => (x as IGitItem)?.GitLastCommitDateHumanized?.Length ?? 0).Max(), // git
+				12 => FileList.Items.Cast<ListedItem>().Select(x => (x as IGitItem)?.GitLastCommitMessage?.Length ?? 0).Max(), // git
+				13 => FileList.Items.Cast<ListedItem>().Select(x => (x as IGitItem)?.GitLastCommitAuthor?.Length ?? 0).Max(), // git
+				14 => FileList.Items.Cast<ListedItem>().Select(x => (x as IGitItem)?.GitLastCommitSha?.Length ?? 0).Max(), // git
+				15 => FileList.Items.Cast<ListedItem>().Select(x => x.FileTagsUI?.Sum(x => x?.Name?.Length ?? 0) ?? 0).Max(), // file tag column
+				16 => FileList.Items.Cast<ListedItem>().Select(x => x.ItemPath?.Length ?? 0).Max(), // path column
+				17 => FileList.Items.Cast<ListedItem>().Select(x => (x as RecycleBinItem)?.ItemOriginalPath?.Length ?? 0).Max(), // original path column
+				18 => FileList.Items.Cast<ListedItem>().Select(x => (x as RecycleBinItem)?.ItemDateDeleted?.Length ?? 0).Max(), // date deleted column
+				19 => FileList.Items.Cast<ListedItem>().Select(x => x.ItemDateModified?.Length ?? 0).Max(), // date modified column
+				20 => FileList.Items.Cast<ListedItem>().Select(x => x.ItemDateCreated?.Length ?? 0).Max(), // date created column
+				21 => FileList.Items.Cast<ListedItem>().Select(x => x.ItemType?.Length ?? 0).Max(), // item type column
+				22 => FileList.Items.Cast<ListedItem>().Select(x => x.FileSize?.Length ?? 0).Max(), // item size column
 				_ => 20 // cloud status column
 			};
 
@@ -940,19 +1055,26 @@ namespace Files.App.Views.Layouts
 				var column = columnToResize switch
 				{
 					2 => ColumnsViewModel.NameColumn,
-					3 => ColumnsViewModel.GitStatusColumn,
-					4 => ColumnsViewModel.GitLastCommitDateColumn,
-					5 => ColumnsViewModel.GitLastCommitMessageColumn,
-					6 => ColumnsViewModel.GitCommitAuthorColumn,
-					7 => ColumnsViewModel.GitLastCommitShaColumn,
-					8 => ColumnsViewModel.TagColumn,
-					9 => ColumnsViewModel.PathColumn,
-					10 => ColumnsViewModel.OriginalPathColumn,
-					11 => ColumnsViewModel.DateDeletedColumn,
-					12 => ColumnsViewModel.DateModifiedColumn,
-					13 => ColumnsViewModel.DateCreatedColumn,
-					14 => ColumnsViewModel.ItemTypeColumn,
-					15 => ColumnsViewModel.SizeColumn,
+					3 => ColumnsViewModel.ExtensionColumn,
+					4 => ColumnsViewModel.BookAuthorColumn,
+					5 => ColumnsViewModel.BookSeriesColumn,
+					6 => ColumnsViewModel.CadPartNumberColumn,
+					7 => ColumnsViewModel.CadMaterialColumn,
+					8 => ColumnsViewModel.CadMassColumn,
+					9 => ColumnsViewModel.CadVersionColumn,
+					10 => ColumnsViewModel.GitStatusColumn,
+					11 => ColumnsViewModel.GitLastCommitDateColumn,
+					12 => ColumnsViewModel.GitLastCommitMessageColumn,
+					13 => ColumnsViewModel.GitCommitAuthorColumn,
+					14 => ColumnsViewModel.GitLastCommitShaColumn,
+					15 => ColumnsViewModel.TagColumn,
+					16 => ColumnsViewModel.PathColumn,
+					17 => ColumnsViewModel.OriginalPathColumn,
+					18 => ColumnsViewModel.DateDeletedColumn,
+					19 => ColumnsViewModel.DateModifiedColumn,
+					20 => ColumnsViewModel.DateCreatedColumn,
+					21 => ColumnsViewModel.ItemTypeColumn,
+					22 => ColumnsViewModel.SizeColumn,
 					_ => ColumnsViewModel.StatusColumn
 				};
 
@@ -972,10 +1094,11 @@ namespace Files.App.Views.Layouts
 
 		private double MeasureColumnEstimate(int columnIndex, int measureItemsCount, int maxItemLength)
 		{
-			if (columnIndex == 15) // sync status
+			// Consysto fork: indexes shifted by three for the extension and book columns
+			if (columnIndex == 18) // sync status
 				return maxItemLength;
 
-			if (columnIndex == 8) // file tag
+			if (columnIndex == 11) // file tag
 				return MeasureTagColumnEstimate(columnIndex);
 
 			return MeasureTextColumnEstimate(columnIndex, measureItemsCount, maxItemLength);
@@ -1040,20 +1163,27 @@ namespace Files.App.Views.Layouts
 			int columnIndexFromName = element.Name switch
 			{
 				"ItemName" => 2,
-				"ItemGitStatusTextBlock" => 3,
-				"ItemGitLastCommitDateTextBlock" => 4,
-				"ItemGitLastCommitMessageTextBlock" => 5,
-				"ItemGitCommitAuthorTextBlock" => 6,
-				"ItemGitLastCommitShaTextBlock" => 7,
-				"ItemTagGrid" => 8,
-				"ItemPathTextBlock" => 9,
-				"ItemOriginalPath" => 10,
-				"ItemDateDeleted" => 11,
-				"ItemDateModifiedTextBlock" => 12,
-				"ItemDateCreatedTextBlock" => 13,
-				"ItemTypeTextBlock" => 14,
-				"ItemSize" => 15,
-				"ItemStatus" => 16,
+				"ItemExtensionTextBlock" => 3, // Consysto fork: extension and book columns, later indexes shifted by three
+				"ItemBookAuthorTextBlock" => 4,
+				"ItemBookSeriesTextBlock" => 5,
+				"ItemCadPartNumberTextBlock" => 6,
+				"ItemCadMaterialTextBlock" => 7,
+				"ItemCadMassTextBlock" => 8,
+				"ItemCadVersionTextBlock" => 9,
+				"ItemGitStatusTextBlock" => 10,
+				"ItemGitLastCommitDateTextBlock" => 11,
+				"ItemGitLastCommitMessageTextBlock" => 12,
+				"ItemGitCommitAuthorTextBlock" => 13,
+				"ItemGitLastCommitShaTextBlock" => 14,
+				"ItemTagGrid" => 15,
+				"ItemPathTextBlock" => 16,
+				"ItemOriginalPath" => 17,
+				"ItemDateDeleted" => 18,
+				"ItemDateModifiedTextBlock" => 19,
+				"ItemDateCreatedTextBlock" => 20,
+				"ItemTypeTextBlock" => 21,
+				"ItemSize" => 22,
+				"ItemStatus" => 23,
 				_ => -1,
 			};
 
@@ -1063,6 +1193,16 @@ namespace Files.App.Views.Layouts
 		private void FileList_Loaded(object sender, RoutedEventArgs e)
 		{
 			ContentScroller = FileList.FindDescendant<ScrollViewer>(x => x.Name == "ScrollViewer");
+
+			// Consysto fork: keep the empty-space stripes in step with scrolling and resizing
+			if (ContentScroller is not null)
+			{
+				ContentScroller.ViewChanged -= ContentScroller_ViewChanged;
+				ContentScroller.ViewChanged += ContentScroller_ViewChanged;
+			}
+			FileList.SizeChanged -= FileList_SizeChanged;
+			FileList.SizeChanged += FileList_SizeChanged;
+
 			const double OffsetCorrection = 88; // HeaderGrid (40) + ListViewHeaderItem (44 + 4 margin)
 
 			RootGridZoom.ViewChangeStarted += (_, args) =>
@@ -1124,11 +1264,123 @@ namespace Files.App.Views.Layouts
 				return;
 
 			SetCheckboxSelectionState(args.Item, args.ItemContainer as ListViewItem);
+			ApplyRowStripe(args.ItemContainer, args.ItemIndex);
+			ApplyRowOffsets(args.ItemContainer);
 
 			selectionCheckbox.PointerEntered += SelectionCheckbox_PointerEntered;
 			selectionCheckbox.PointerExited += SelectionCheckbox_PointerExited;
 			selectionCheckbox.PointerCanceled += SelectionCheckbox_PointerCanceled;
 		}
+
+		// Consysto fork: macOS-like zebra rows. Every other row gets a faint plate as its resting background; hover and
+		// selection keep their own brushes, so they still win over the stripe.
+		private readonly Microsoft.UI.Xaml.Media.SolidColorBrush _rowStripeLightBrush = new(Windows.UI.Color.FromArgb(0x0A, 0x00, 0x00, 0x00));
+		private readonly Microsoft.UI.Xaml.Media.SolidColorBrush _rowStripeDarkBrush = new(Windows.UI.Color.FromArgb(0x0D, 0xFF, 0xFF, 0xFF));
+
+		// ListViewItemPresenter never paints a resting background (the container's Background is not template-bound), and it
+		// must stay the root of the container template, so the stripe is the background of the row's own panel from the item
+		// template. The presenter draws hover and selection underneath the content; a 4-5% stripe over them is barely visible.
+		[WinRT.DynamicWindowsRuntimeCast(typeof(UserControl))]
+		[WinRT.DynamicWindowsRuntimeCast(typeof(Microsoft.UI.Xaml.Controls.Panel))]
+		private void ApplyRowStripe(SelectorItem container, int index)
+		{
+			if (container.ContentTemplateRoot is not UserControl { Content: Microsoft.UI.Xaml.Controls.Panel row })
+				return;
+
+			if (index % 2 == 1)
+				row.Background = ActualTheme == Microsoft.UI.Xaml.ElementTheme.Dark ? _rowStripeDarkBrush : _rowStripeLightBrush;
+			else
+				row.ClearValue(Microsoft.UI.Xaml.Controls.Panel.BackgroundProperty);
+		}
+
+		[WinRT.DynamicWindowsRuntimeCast(typeof(SelectorItem))]
+		private void RefreshRowStripes()
+		{
+			if (FileList?.ItemsPanelRoot is not { } panel)
+				return;
+
+			foreach (var child in panel.Children)
+			{
+				if (child is SelectorItem container && FileList.IndexFromContainer(container) is var index and >= 0)
+					ApplyRowStripe(container, index);
+			}
+
+			QueueEmptyRowStripesUpdate();
+		}
+
+		private void DetailsLayoutPage_ActualThemeChanged(FrameworkElement sender, object args)
+			=> RefreshRowStripes();
+
+		// Consysto fork: like Finder, the stripes go on below the last row down to the bottom of the list. They are drawn
+		// on a non-hit-testable canvas, measured from the last realized row so they line up with the real ones.
+		private bool _emptyRowStripesQueued;
+
+		private void QueueEmptyRowStripesUpdate()
+		{
+			if (_emptyRowStripesQueued)
+				return;
+
+			_emptyRowStripesQueued = true;
+			DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
+			{
+				_emptyRowStripesQueued = false;
+				UpdateEmptyRowStripes();
+			});
+		}
+
+		[WinRT.DynamicWindowsRuntimeCast(typeof(ListViewItem))]
+		[WinRT.DynamicWindowsRuntimeCast(typeof(UserControl))]
+		[WinRT.DynamicWindowsRuntimeCast(typeof(Microsoft.UI.Xaml.Controls.Panel))]
+		private void UpdateEmptyRowStripes()
+		{
+			EmptyRowStripes.Children.Clear();
+
+			var count = FileList.Items.Count;
+			if (count == 0 || CollectionViewSource.IsSourceGrouped || FileList.ActualHeight <= 0)
+				return;
+
+			// The last row is not realized when the list runs past the viewport: then there is no empty space to fill.
+			if (FileList.ContainerFromIndex(count - 1) is not ListViewItem { ContentTemplateRoot: UserControl { Content: Microsoft.UI.Xaml.Controls.Panel lastRow } })
+				return;
+
+			var lastTop = lastRow.TransformToVisual(EmptyRowStripes).TransformPoint(default);
+			var pitch = lastRow.ActualHeight;
+			if (count > 1 && FileList.ContainerFromIndex(count - 2) is ListViewItem { ContentTemplateRoot: UserControl { Content: Microsoft.UI.Xaml.Controls.Panel previousRow } })
+				pitch = lastTop.Y - previousRow.TransformToVisual(EmptyRowStripes).TransformPoint(default).Y;
+			if (pitch <= 0 || lastRow.ActualWidth <= 0)
+				return;
+
+			var listBottom = FileList.TransformToVisual(EmptyRowStripes).TransformPoint(new Windows.Foundation.Point(0, FileList.ActualHeight)).Y;
+			var brush = ActualTheme == Microsoft.UI.Xaml.ElementTheme.Dark ? _rowStripeDarkBrush : _rowStripeLightBrush;
+
+			// Shapes on a Canvas are not layout-rounded; snapping to physical pixels keeps the stripe edges as crisp as the rows'.
+			var scale = XamlRoot?.RasterizationScale ?? 1d;
+			double Snap(double value) => Math.Round(value * scale) / scale;
+
+			var index = count;
+			for (var top = lastTop.Y + pitch; top < listBottom; top += pitch, index++)
+			{
+				if (index % 2 == 0)
+					continue;
+
+				var stripeTop = Snap(top);
+				var stripe = new Microsoft.UI.Xaml.Shapes.Rectangle
+				{
+					Width = Snap(lastTop.X + lastRow.ActualWidth) - Snap(lastTop.X),
+					Height = Snap(Math.Min(top + pitch, listBottom)) - stripeTop,
+					Fill = brush,
+				};
+				Canvas.SetLeft(stripe, Snap(lastTop.X));
+				Canvas.SetTop(stripe, stripeTop);
+				EmptyRowStripes.Children.Add(stripe);
+			}
+		}
+
+		private void ContentScroller_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e)
+			=> QueueEmptyRowStripesUpdate();
+
+		private void FileList_SizeChanged(object sender, SizeChangedEventArgs e)
+			=> QueueEmptyRowStripesUpdate();
 
 		private readonly ConditionalWeakTable<SelectorItem, Tuple<object?, CheckBox>> selectionCheckboxCache = new();
 

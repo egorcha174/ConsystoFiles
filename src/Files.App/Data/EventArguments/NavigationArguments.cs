@@ -28,5 +28,10 @@ namespace Files.App.Data.EventArguments
 		public bool IsLayoutSwitch { get; set; } = false;
 
 		public IEnumerable<string>? SelectItems { get; set; }
+
+		/// <summary>
+		/// Consysto fork: the page inside an OPDS catalog shown by <see cref="Files.App.Books.Opds.OpdsPage"/>; null for the catalog's start page.
+		/// </summary>
+		public string? ConsystoPageAddress { get; set; }
 	}
 }

@@ -34,6 +34,11 @@ namespace Files.App.Data.Enums
 		/// <summary>
 		/// Application distribution type is Store Preview.
 		/// </summary>
-		StorePreview
+		StorePreview,
+
+		/// <summary>
+		/// Consysto fork, sideloaded with its own installer: no updates from files.community and no crash reports to Files.
+		/// </summary>
+		Consysto
 	}
 }

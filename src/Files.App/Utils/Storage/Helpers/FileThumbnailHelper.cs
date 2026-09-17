@@ -43,6 +43,22 @@ namespace Files.App.Utils.Storage
 							return fontThumbnail;
 					}
 				}
+
+				// Consysto fork: DWG/DXF thumbnails come from the fork's CAD core.
+				if (Files.App.Cad.CadThumbnailService.IsSupported(extension) && path is not null)
+				{
+					var cadThumbnail = await Files.App.Cad.CadThumbnailService.GetThumbnailAsync(path, size);
+					if (cadThumbnail is not null)
+						return cadThumbnail;
+				}
+
+				// Consysto fork: book covers (EPUB, FictionBook, Kindle) and the first page of PDFs.
+				if (path is not null && Files.App.Books.BookThumbnailService.IsSupported(path))
+				{
+					var bookThumbnail = await Files.App.Books.BookThumbnailService.GetThumbnailAsync(path, size);
+					if (bookThumbnail is not null)
+						return bookThumbnail;
+				}
 			}
 
 			var resolvedPath = path is not null && path.StartsWith(@"\\?\", StringComparison.Ordinal)

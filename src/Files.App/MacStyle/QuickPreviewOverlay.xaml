@@ -1,0 +1,90 @@
+﻿<!--  Consysto fork: Finder-like quick preview on Space, a card over the whole window.  -->
+<UserControl
+	x:Class="Files.App.MacStyle.QuickPreviewOverlay"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:helpers="using:Files.App.Helpers"
+	Visibility="Collapsed">
+
+	<Grid>
+		<!--  Clicking outside the card closes the preview  -->
+		<Border Background="#59000000" Tapped="Backdrop_Tapped" />
+
+		<Grid
+			x:Name="Card"
+			MaxWidth="1200"
+			MaxHeight="860"
+			Margin="72,56"
+			Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
+			BorderBrush="{ThemeResource SurfaceStrokeColorFlyoutBrush}"
+			BorderThickness="1"
+			CornerRadius="12"
+			Translation="0,0,48">
+			<Grid.Shadow>
+				<ThemeShadow />
+			</Grid.Shadow>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="44" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
+
+			<!--  The buttons never take focus: the file list keeps it, so Space, arrows and Esc keep working  -->
+			<Grid
+				Padding="8,0"
+				BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+				BorderThickness="0,0,0,1"
+				ColumnSpacing="8">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="Auto" />
+				</Grid.ColumnDefinitions>
+
+				<Button
+					x:Name="CloseButton"
+					Width="32"
+					Height="32"
+					Padding="0"
+					VerticalAlignment="Center"
+					AutomationProperties.Name="{helpers:ResourceString Name=Close}"
+					Background="Transparent"
+					BorderThickness="0"
+					Click="CloseButton_Click"
+					IsTabStop="False"
+					ToolTipService.ToolTip="{helpers:ResourceString Name=Close}">
+					<FontIcon FontSize="12" Glyph="&#xE711;" />
+				</Button>
+
+				<TextBlock
+					x:Name="FileNameText"
+					Grid.Column="1"
+					HorizontalAlignment="Center"
+					VerticalAlignment="Center"
+					FontWeight="SemiBold"
+					TextTrimming="CharacterEllipsis" />
+
+				<Button
+					x:Name="OpenButton"
+					Grid.Column="2"
+					VerticalAlignment="Center"
+					Click="OpenButton_Click"
+					Content="{helpers:ResourceString Name=Open}"
+					IsTabStop="False" />
+			</Grid>
+
+			<ContentPresenter
+				x:Name="PreviewHost"
+				Grid.Row="1"
+				HorizontalContentAlignment="Stretch"
+				VerticalContentAlignment="Stretch"
+				CornerRadius="0,0,12,12" />
+
+			<ProgressRing
+				x:Name="LoadingRing"
+				Grid.Row="1"
+				Width="32"
+				Height="32"
+				IsActive="False" />
+		</Grid>
+	</Grid>
+</UserControl>

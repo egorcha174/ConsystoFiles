@@ -16,6 +16,22 @@ namespace Files.App.Utils.Storage
 		// The type name is identical for every file of an extension, so cache it by extension.
 		private static readonly ConcurrentDictionary<string, string> typeNameCache = new(StringComparer.OrdinalIgnoreCase);
 
+		/// <summary>
+		/// Consysto fork: CAD exchange formats get their own names. Whatever program registered them last names them otherwise,
+		/// e.g. a laser cutter's software writes "AutoCAD图形交换(DXF)格式" for DXF.
+		/// </summary>
+		public static string? CadTypeName(string? extension)
+			=> extension?.ToLowerInvariant() switch
+			{
+				".dxf" => Strings.ConsystoFileTypeDxf.GetLocalizedResource(),
+				".dwg" => Strings.ConsystoFileTypeDwg.GetLocalizedResource(),
+				".step" or ".stp" => Strings.ConsystoFileTypeStep.GetLocalizedResource(),
+				".iges" or ".igs" => Strings.ConsystoFileTypeIges.GetLocalizedResource(),
+				".stl" => Strings.ConsystoFileTypeStl.GetLocalizedResource(),
+				".3mf" => Strings.ConsystoFileType3mf.GetLocalizedResource(),
+				_ => null,
+			};
+
 		public static unsafe string GetLocalizedTypeName(string? extension)
 		{
 			if (string.IsNullOrEmpty(extension))
@@ -23,6 +39,9 @@ namespace Files.App.Utils.Storage
 
 			if (typeNameCache.TryGetValue(extension, out var cached))
 				return cached;
+
+			if (CadTypeName(extension) is { } cadTypeName)
+				return typeNameCache[extension] = cadTypeName;
 
 			var typeName = string.Empty;
 			SHFILEINFOW shfi = default;

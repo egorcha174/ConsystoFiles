@@ -140,6 +140,15 @@ namespace Files.Shared.Helpers
 				return false;
 			}
 
+			// Consysto fork: a zipped FictionBook is a book, not a folder to browse
+			if (filePath.EndsWith(".fb2.zip", StringComparison.OrdinalIgnoreCase) ||
+				filePath.Contains(".fb2.zip\\", StringComparison.OrdinalIgnoreCase))
+			{
+				ext = null;
+
+				return false;
+			}
+
 			// Only extensions we want to browse
 			ext = new[] { ".zip", ".7z", ".rar", ".tar", ".gz", ".lzh", ".mrpack", ".jar" }
 				.FirstOrDefault(x => filePath.Contains(x, StringComparison.OrdinalIgnoreCase));

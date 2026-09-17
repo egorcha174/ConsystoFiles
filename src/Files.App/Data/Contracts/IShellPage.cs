@@ -72,6 +72,11 @@ namespace Files.App.Data.Contracts
 		public void NavigateToReleaseNotes();
 
 		/// <summary>
+		/// Navigates to an OPDS catalog page (Consysto fork); <paramref name="pageAddress"/> is a page inside the catalog, null for its start page
+		/// </summary>
+		public void NavigateToConsystoPage(string path, string? pageAddress = null);
+
+		/// <summary>
 		/// Navigates to the settings page
 		/// </summary>
 		public void NavigateToSettings(string? selectItem = null);

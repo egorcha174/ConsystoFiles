@@ -1,0 +1,439 @@
+﻿<!--  Consysto fork: a collection — its items by facet (author, series, genre...), search, details and duplicates.  -->
+<Page
+	x:Class="Files.App.Books.Library.CollectionPage"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:library="using:Files.App.Books.Library">
+
+	<Grid x:Name="RootGrid" SizeChanged="RootGrid_SizeChanged">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto" />
+			<ColumnDefinition Width="*" />
+			<ColumnDefinition Width="Auto" />
+		</Grid.ColumnDefinitions>
+
+		<!--  Header: title, item count, search, settings  -->
+		<Grid
+			x:Name="HeaderGrid"
+			Grid.ColumnSpan="3"
+			Padding="24,16,24,8"
+			ColumnSpacing="16"
+			RowSpacing="8"
+			SizeChanged="HeaderGrid_SizeChanged">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="Auto" />
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+
+			<StackPanel VerticalAlignment="Center" Spacing="2">
+				<TextBlock
+					x:Name="PageTitle"
+					MaxLines="1"
+					Style="{StaticResource SubtitleTextBlockStyle}"
+					TextTrimming="CharacterEllipsis"
+					TextWrapping="NoWrap" />
+				<StackPanel Orientation="Horizontal" Spacing="6">
+					<ProgressRing
+						x:Name="ScanRing"
+						Width="12"
+						Height="12"
+						IsActive="False"
+						Visibility="Collapsed" />
+					<TextBlock
+						x:Name="PageSubtitle"
+						MaxLines="1"
+						Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+						Style="{StaticResource CaptionTextBlockStyle}"
+						TextTrimming="CharacterEllipsis"
+						TextWrapping="NoWrap" />
+				</StackPanel>
+
+				<!--  Scan progress: the step, how far it got and the folder or file at hand  -->
+				<StackPanel
+					x:Name="ScanProgressPanel"
+					MaxWidth="640"
+					Margin="0,4,0,0"
+					HorizontalAlignment="Left"
+					Spacing="2"
+					Visibility="Collapsed">
+					<ProgressBar x:Name="ScanProgressBar" MinWidth="320" />
+					<TextBlock
+						x:Name="ScanProgressText"
+						Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+						Style="{StaticResource CaptionTextBlockStyle}" />
+					<TextBlock
+						x:Name="ScanProgressPath"
+						MaxLines="1"
+						Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+						Style="{StaticResource CaptionTextBlockStyle}"
+						TextTrimming="CharacterEllipsis"
+						TextWrapping="NoWrap" />
+				</StackPanel>
+			</StackPanel>
+
+			<!--  Beside the title in a wide pane, under it in a narrow one (see HeaderGrid_SizeChanged)  -->
+			<Grid
+				x:Name="HeaderTools"
+				Grid.Column="1"
+				HorizontalAlignment="Right"
+				VerticalAlignment="Center"
+				ColumnSpacing="8">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="Auto" />
+				</Grid.ColumnDefinitions>
+				<AutoSuggestBox
+					x:Name="SearchBox"
+					Width="300"
+					QueryIcon="Find"
+					TextChanged="SearchBox_TextChanged" />
+				<Button
+					x:Name="SettingsButton"
+					Grid.Column="1"
+					Height="32"
+					Click="SettingsButton_Click">
+					<FontIcon FontSize="14" Glyph="&#xE713;" />
+				</Button>
+			</Grid>
+		</Grid>
+
+		<InfoBar
+			x:Name="StatusBar"
+			Grid.Row="1"
+			Grid.ColumnSpan="3"
+			Margin="24,0,24,8"
+			IsOpen="False" />
+
+		<!--  Sections  -->
+		<ListView
+			x:Name="SectionList"
+			Grid.Row="2"
+			Width="210"
+			Padding="12,0,4,16"
+			SelectionChanged="SectionList_SelectionChanged"
+			SelectionMode="Single" />
+
+		<!--  The list  -->
+		<Grid Grid.Row="2" Grid.Column="1">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
+
+			<Grid
+				Padding="12,0,24,8"
+				ColumnSpacing="8">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="Auto" />
+				</Grid.ColumnDefinitions>
+
+				<Button
+					x:Name="ViewButton"
+					Grid.Column="3"
+					Height="32"
+					VerticalAlignment="Center"
+					Click="ViewButton_Click"
+					Visibility="Collapsed">
+					<FontIcon x:Name="ViewIcon" FontSize="14" />
+				</Button>
+
+				<Button
+					x:Name="BackButton"
+					VerticalAlignment="Center"
+					Background="Transparent"
+					BorderThickness="0"
+					Click="BackButton_Click"
+					Visibility="Collapsed">
+					<FontIcon FontSize="12" Glyph="&#xE72B;" />
+				</Button>
+
+				<StackPanel
+					Grid.Column="1"
+					VerticalAlignment="Center"
+					Spacing="2">
+					<TextBlock
+						x:Name="ListTitle"
+						Style="{StaticResource BodyStrongTextBlockStyle}"
+						TextTrimming="CharacterEllipsis" />
+					<TextBlock
+						x:Name="ListHint"
+						Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+						Style="{StaticResource CaptionTextBlockStyle}"
+						TextWrapping="Wrap"
+						Visibility="Collapsed" />
+				</StackPanel>
+
+				<Button
+					x:Name="DeleteButton"
+					Grid.Column="2"
+					VerticalAlignment="Center"
+					Click="DeleteButton_Click"
+					IsEnabled="False"
+					Style="{StaticResource AccentButtonStyle}"
+					Visibility="Collapsed" />
+			</Grid>
+
+			<ListView
+				x:Name="EntryList"
+				Grid.Row="1"
+				Padding="0,0,12,16"
+				ContainerContentChanging="EntryList_ContainerContentChanging"
+				DoubleTapped="EntryList_DoubleTapped"
+				IsItemClickEnabled="True"
+				ItemClick="EntryList_ItemClick"
+				SelectionMode="Single">
+				<ListView.ItemTemplate>
+					<DataTemplate x:DataType="library:CollectionRowViewModel">
+						<StackPanel Padding="0,4">
+							<Grid
+								Margin="0,12,0,4"
+								ColumnSpacing="12"
+								Visibility="{x:Bind GroupHeaderVisibility}">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="Auto" />
+								</Grid.ColumnDefinitions>
+								<TextBlock
+									VerticalAlignment="Center"
+									Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+									Style="{StaticResource BodyStrongTextBlockStyle}"
+									Text="{x:Bind GroupHeader}"
+									TextTrimming="CharacterEllipsis" />
+								<HyperlinkButton
+									Grid.Column="1"
+									Padding="4,0"
+									Click="MarkExtraCopies_Click"
+									Content="{x:Bind MarkExtraLabel}" />
+							</Grid>
+
+							<Grid ColumnSpacing="12">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="Auto" />
+									<ColumnDefinition Width="Auto" />
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="Auto" />
+								</Grid.ColumnDefinitions>
+
+								<CheckBox
+									Width="32"
+									MinWidth="0"
+									VerticalAlignment="Center"
+									IsChecked="{x:Bind IsChecked, Mode=TwoWay}"
+									Visibility="{x:Bind CheckBoxVisibility}" />
+
+								<Grid
+									Grid.Column="1"
+									Width="{x:Bind CoverWidth}"
+									Height="{x:Bind CoverHeight}"
+									VerticalAlignment="Center">
+									<Border Background="{ThemeResource SubtleFillColorSecondaryBrush}" CornerRadius="4">
+										<Image Source="{x:Bind Thumbnail, Mode=OneWay}" Stretch="UniformToFill" />
+									</Border>
+									<FontIcon
+										FontSize="16"
+										Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+										Glyph="{x:Bind Glyph}"
+										Visibility="{x:Bind GlyphVisibility, Mode=OneWay}" />
+								</Grid>
+
+								<StackPanel
+									Grid.Column="2"
+									VerticalAlignment="Center"
+									Spacing="2">
+									<TextBlock
+										Style="{StaticResource BodyStrongTextBlockStyle}"
+										Text="{x:Bind Title}"
+										TextTrimming="CharacterEllipsis" />
+									<TextBlock
+										Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+										Style="{StaticResource CaptionTextBlockStyle}"
+										Text="{x:Bind Subtitle}"
+										TextTrimming="CharacterEllipsis"
+										Visibility="{x:Bind SubtitleVisibility}" />
+									<TextBlock
+										Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+										Style="{StaticResource CaptionTextBlockStyle}"
+										Text="{x:Bind Detail}"
+										TextTrimming="CharacterEllipsis"
+										Visibility="{x:Bind DetailVisibility}" />
+								</StackPanel>
+
+								<Border
+									Grid.Column="3"
+									Padding="8,2"
+									VerticalAlignment="Center"
+									Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+									CornerRadius="4"
+									Visibility="{x:Bind BadgeVisibility}">
+									<TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind Badge}" />
+								</Border>
+
+								<FontIcon
+									Grid.Column="3"
+									VerticalAlignment="Center"
+									FontSize="12"
+									Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+									Glyph="&#xE76C;"
+									Visibility="{x:Bind ChevronVisibility}" />
+							</Grid>
+						</StackPanel>
+					</DataTemplate>
+				</ListView.ItemTemplate>
+			</ListView>
+
+			<!--  Tiles: photos by month, book covers, albums  -->
+			<GridView
+				x:Name="TileGrid"
+				Grid.Row="1"
+				Padding="12,0,12,16"
+				ContainerContentChanging="EntryList_ContainerContentChanging"
+				DoubleTapped="EntryList_DoubleTapped"
+				IsItemClickEnabled="True"
+				ItemClick="EntryList_ItemClick"
+				SelectionMode="Single"
+				Visibility="Collapsed">
+				<GridView.GroupStyle>
+					<GroupStyle>
+						<GroupStyle.HeaderTemplate>
+							<DataTemplate x:DataType="library:CollectionTileGroup">
+								<TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind Header}" />
+							</DataTemplate>
+						</GroupStyle.HeaderTemplate>
+					</GroupStyle>
+				</GridView.GroupStyle>
+				<GridView.ItemTemplate>
+					<DataTemplate x:DataType="library:CollectionRowViewModel">
+						<StackPanel
+							Width="{x:Bind TileWidth}"
+							AutomationProperties.Name="{x:Bind Title}"
+							Padding="0,0,0,4"
+							ToolTipService.ToolTip="{x:Bind Title}">
+							<Grid
+								Height="{x:Bind TileImageHeight}"
+								Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+								CornerRadius="6">
+								<Image Source="{x:Bind Thumbnail, Mode=OneWay}" Stretch="UniformToFill" />
+								<FontIcon
+									FontSize="32"
+									Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+									Glyph="{x:Bind Glyph}"
+									Visibility="{x:Bind GlyphVisibility, Mode=OneWay}" />
+							</Grid>
+							<TextBlock
+								Margin="2,6,2,0"
+								MaxLines="2"
+								Style="{StaticResource BodyTextBlockStyle}"
+								Text="{x:Bind Title}"
+								TextTrimming="CharacterEllipsis"
+								TextWrapping="Wrap"
+								Visibility="{x:Bind CaptionVisibility}" />
+							<TextBlock
+								Margin="2,0"
+								Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+								MaxLines="1"
+								Style="{StaticResource CaptionTextBlockStyle}"
+								Text="{x:Bind TileSubtitle}"
+								TextTrimming="CharacterEllipsis"
+								Visibility="{x:Bind TileSubtitleVisibility}" />
+						</StackPanel>
+					</DataTemplate>
+				</GridView.ItemTemplate>
+			</GridView>
+
+			<TextBlock
+				x:Name="EmptyText"
+				Grid.Row="1"
+				MaxWidth="360"
+				HorizontalAlignment="Center"
+				VerticalAlignment="Center"
+				Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+				TextAlignment="Center"
+				TextWrapping="Wrap"
+				Visibility="Collapsed" />
+		</Grid>
+
+		<!--  Item details  -->
+		<Grid
+			x:Name="DetailsPanel"
+			Grid.Row="2"
+			Grid.Column="2"
+			Width="360"
+			BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+			BorderThickness="1,0,0,0"
+			Visibility="Collapsed">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
+
+			<Button
+				Margin="8"
+				HorizontalAlignment="Right"
+				Background="Transparent"
+				BorderThickness="0"
+				Click="CloseDetails_Click">
+				<FontIcon FontSize="12" Glyph="&#xE711;" />
+			</Button>
+
+			<ScrollViewer Grid.Row="1">
+				<StackPanel Padding="20,0,20,20" Spacing="8">
+					<Border HorizontalAlignment="Center" CornerRadius="6">
+						<Image
+							x:Name="DetailsCover"
+							MaxHeight="320"
+							Stretch="Uniform" />
+					</Border>
+					<TextBlock
+						x:Name="DetailsTitle"
+						IsTextSelectionEnabled="True"
+						Style="{StaticResource SubtitleTextBlockStyle}"
+						TextWrapping="WrapWholeWords" />
+					<TextBlock
+						x:Name="DetailsAuthors"
+						Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+						IsTextSelectionEnabled="True"
+						Style="{StaticResource BodyStrongTextBlockStyle}"
+						TextWrapping="WrapWholeWords" />
+					<TextBlock
+						x:Name="DetailsMeta"
+						Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+						Style="{StaticResource CaptionTextBlockStyle}"
+						TextWrapping="Wrap" />
+					<StackPanel
+						Margin="0,8,0,4"
+						Orientation="Horizontal"
+						Spacing="8">
+						<Button
+							x:Name="OpenButton"
+							Click="OpenButton_Click"
+							Style="{StaticResource AccentButtonStyle}" />
+						<Button x:Name="RevealButton" Click="RevealButton_Click" />
+					</StackPanel>
+					<TextBlock
+						x:Name="DetailsSummary"
+						IsTextSelectionEnabled="True"
+						Style="{StaticResource BodyTextBlockStyle}"
+						TextWrapping="Wrap" />
+					<TextBlock
+						x:Name="DetailsPath"
+						Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+						IsTextSelectionEnabled="True"
+						Style="{StaticResource CaptionTextBlockStyle}"
+						TextWrapping="Wrap" />
+				</StackPanel>
+			</ScrollViewer>
+		</Grid>
+	</Grid>
+</Page>

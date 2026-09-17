@@ -219,7 +219,7 @@ namespace Files.App
 				else if (activatedArgs.Data is IProtocolActivatedEventArgs protocolArgs)
 				{
 					var parsedArgs = protocolArgs.Uri.Query.TrimStart('?').Split('=');
-					if (parsedArgs.Length == 1)
+					if (parsedArgs.Length == 1 || protocolArgs.Uri.Scheme.Equals("magnet", StringComparison.OrdinalIgnoreCase))
 					{
 						var activePid = ApplicationData.Current.LocalSettings.Values.Get("INSTANCE_ACTIVE", -1);
 						var instance = AppInstance.FindOrRegisterForKey(activePid.ToString());

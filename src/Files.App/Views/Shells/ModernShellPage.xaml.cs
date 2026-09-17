@@ -38,6 +38,9 @@ namespace Files.App.Views.Shells
 		{
 			InitializeComponent();
 
+			// Consysto fork: drive bar and path over this pane in dual-pane mode
+			PaneHeaderControl.Attach(this);
+
 			ShellViewModel = new ShellViewModel(InstanceViewModel.FolderSettings);
 			ShellViewModel.WorkingDirectoryModified += ViewModel_WorkingDirectoryModified;
 			ShellViewModel.ItemLoadStatusChanged += FilesystemViewModel_ItemLoadStatusChanged;
@@ -125,6 +128,10 @@ namespace Files.App.Views.Shells
 			else if (navParams.NavPath == "Settings")
 			{
 				NavigateToSettings(navParams.SelectItem);
+			}
+			else if (Files.App.Books.Library.ConsystoPages.IsPagePath(navParams.NavPath))
+			{
+				NavigateToConsystoPage(navParams.NavPath);
 			}
 			else
 			{
@@ -297,6 +304,20 @@ namespace Files.App.Views.Shells
 				new NavigationArguments()
 				{
 					NavPathParam = "ReleaseNotes",
+					AssociatedTabInstance = this
+				},
+				new SuppressNavigationTransitionInfo());
+		}
+
+		// Consysto fork: collection and OPDS catalog pages; pageAddress is a page inside a catalog, null for its start page
+		public override void NavigateToConsystoPage(string path, string? pageAddress = null)
+		{
+			ItemDisplayFrame.Navigate(
+				Files.App.Books.Library.ConsystoPages.PageTypeOf(path),
+				new NavigationArguments()
+				{
+					NavPathParam = path,
+					ConsystoPageAddress = pageAddress,
 					AssociatedTabInstance = this
 				},
 				new SuppressNavigationTransitionInfo());

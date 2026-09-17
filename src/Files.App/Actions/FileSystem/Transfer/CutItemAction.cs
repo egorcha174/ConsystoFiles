@@ -29,6 +29,10 @@ namespace Files.App.Actions
 		public HotKey HotKey
 			=> new(Keys.X, KeyModifiers.Ctrl);
 
+		/// <summary>Cutting a part out of an assembly would move it away from the assembly that uses it.</summary>
+		public override bool IsExecutable
+			=> base.IsExecutable && !Files.App.Cad.InventorAssemblyPaths.IsShowingAssembly(ContentPageContext.ShellPage);
+
 		public CutItemAction() : base()
 		{
 		}

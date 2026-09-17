@@ -75,9 +75,8 @@ namespace Files.App.ViewModels.UserControls
 
 		public bool IsSingleItemOverride { get; set; }
 
-		public bool ShowStatusCenterButton =>
-			AppearanceSettingsService.StatusCenterVisibility == StatusCenterVisibility.Always ||
-			(AppearanceSettingsService.StatusCenterVisibility == StatusCenterVisibility.DuringOngoingFileOperations && OngoingTasksViewModel.HasAnyItem);
+		// Consysto fork: the operations button is always shown, as in Commander One's toolbar
+		public bool ShowStatusCenterButton => true;
 
 		public bool ShowShelfPaneToggleButton => AppearanceSettingsService.ShowShelfPaneToggleButton && AppLifecycleHelper.AppEnvironment is AppEnvironment.Dev;
 
@@ -113,6 +112,8 @@ namespace Files.App.ViewModels.UserControls
 		public bool IsGridLayout => _InstanceViewModel?.FolderSettings.LayoutMode is FolderLayoutModes.GridView;
 		public bool IsDetailsLayout => _InstanceViewModel?.FolderSettings.LayoutMode is FolderLayoutModes.DetailsView;
 		public bool IsListLayout => _InstanceViewModel?.FolderSettings.LayoutMode is FolderLayoutModes.ListView;
+		// Consysto fork
+		public bool IsGalleryLayout => _InstanceViewModel?.FolderSettings.LayoutMode is FolderLayoutModes.GalleryView;
 
 		public bool IsLayoutSizeCompact =>
 			(IsDetailsLayout && UserSettingsService.LayoutSettingsService.DetailsViewSize == DetailsViewSizeKind.Compact) ||
@@ -482,7 +483,11 @@ namespace Files.App.ViewModels.UserControls
 
 			var storageItems = await FilesystemHelpers.GetDraggedStorageItems(e.DataView);
 
-			if (!storageItems.Any(storageItem =>
+			if (Files.App.Cad.InventorAssemblyPaths.IsAssemblyPath(pathBoxItem.Path))
+			{
+				e.AcceptedOperation = DataPackageOperation.None;
+			}
+			else if (!storageItems.Any(storageItem =>
 					!string.IsNullOrEmpty(storageItem?.Path) &&
 					storageItem.Path.Replace(pathBoxItem.Path, string.Empty, StringComparison.Ordinal)
 						.Trim(Path.DirectorySeparatorChar)
@@ -577,6 +582,10 @@ namespace Files.App.ViewModels.UserControls
 			{
 				SavePathToHistory("Settings");
 				shellPage.NavigateToSettings();
+			}
+			else if (Files.App.Books.Library.ConsystoPages.IsPagePath(normalizedInput))
+			{
+				shellPage.NavigateToConsystoPage(normalizedInput);
 			}
 			else
 			{
@@ -882,6 +891,10 @@ namespace Files.App.ViewModels.UserControls
 				{
 					SavePathToHistory("Settings");
 					shellPage.NavigateToSettings();
+				}
+				else if (Files.App.Books.Library.ConsystoPages.IsPagePath(normalizedInput))
+				{
+					shellPage.NavigateToConsystoPage(normalizedInput);
 				}
 				else
 				{
@@ -1274,8 +1287,10 @@ namespace Files.App.ViewModels.UserControls
 						FolderLayoutModes.CardsView => Commands.LayoutCards.ThemedIconStyle!,
 						FolderLayoutModes.ColumnView => Commands.LayoutColumns.ThemedIconStyle!,
 						FolderLayoutModes.GridView => Commands.LayoutGrid.ThemedIconStyle!,
+						FolderLayoutModes.GalleryView => Commands.LayoutGrid.ThemedIconStyle!,
 						_ => Commands.LayoutDetails.ThemedIconStyle!
 					};
+					OnPropertyChanged(nameof(IsGalleryLayout));
 					OnPropertyChanged(nameof(IsCardsLayout));
 					OnPropertyChanged(nameof(IsListLayout));
 					OnPropertyChanged(nameof(IsColumnLayout));

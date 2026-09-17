@@ -329,6 +329,62 @@
 
 									</MenuFlyoutSubItem>
 
+									<!--  Consysto fork: File Extension  -->
+									<ToggleMenuFlyoutItem
+										x:Name="ExtensionColumnVisibilityToggleMenuFlyoutItem"
+										Click="ToggleMenuFlyoutItem_Click"
+										IsChecked="{x:Bind ColumnsViewModel.ExtensionColumn.UserCollapsed, Mode=TwoWay, Converter={StaticResource BoolNegationConverter}}"
+										Text="{helpers:ResourceString Name=ConsystoExtension}"
+										Visibility="{x:Bind ColumnsViewModel.ExtensionColumn.IsHidden, Mode=OneWay, Converter={StaticResource NegatedBoolToVisibilityConverter}}" />
+
+									<!--  Consysto fork: Book Author  -->
+									<ToggleMenuFlyoutItem
+										x:Name="BookAuthorColumnVisibilityToggleMenuFlyoutItem"
+										Click="ToggleMenuFlyoutItem_Click"
+										IsChecked="{x:Bind ColumnsViewModel.BookAuthorColumn.UserCollapsed, Mode=TwoWay, Converter={StaticResource BoolNegationConverter}}"
+										Text="{helpers:ResourceString Name=ConsystoBookAuthor}"
+										Visibility="{x:Bind ColumnsViewModel.BookAuthorColumn.IsHidden, Mode=OneWay, Converter={StaticResource NegatedBoolToVisibilityConverter}}" />
+
+									<!--  Consysto fork: Book Series  -->
+									<ToggleMenuFlyoutItem
+										x:Name="BookSeriesColumnVisibilityToggleMenuFlyoutItem"
+										Click="ToggleMenuFlyoutItem_Click"
+										IsChecked="{x:Bind ColumnsViewModel.BookSeriesColumn.UserCollapsed, Mode=TwoWay, Converter={StaticResource BoolNegationConverter}}"
+										Text="{helpers:ResourceString Name=ConsystoBookSeries}"
+										Visibility="{x:Bind ColumnsViewModel.BookSeriesColumn.IsHidden, Mode=OneWay, Converter={StaticResource NegatedBoolToVisibilityConverter}}" />
+
+									<!--  Consysto fork: Inventor part number  -->
+									<ToggleMenuFlyoutItem
+										x:Name="CadPartNumberColumnVisibilityToggleMenuFlyoutItem"
+										Click="ToggleMenuFlyoutItem_Click"
+										IsChecked="{x:Bind ColumnsViewModel.CadPartNumberColumn.UserCollapsed, Mode=TwoWay, Converter={StaticResource BoolNegationConverter}}"
+										Text="{helpers:ResourceString Name=ConsystoIPropertyPartNumber}"
+										Visibility="{x:Bind ColumnsViewModel.CadPartNumberColumn.IsHidden, Mode=OneWay, Converter={StaticResource NegatedBoolToVisibilityConverter}}" />
+
+									<!--  Consysto fork: Inventor material  -->
+									<ToggleMenuFlyoutItem
+										x:Name="CadMaterialColumnVisibilityToggleMenuFlyoutItem"
+										Click="ToggleMenuFlyoutItem_Click"
+										IsChecked="{x:Bind ColumnsViewModel.CadMaterialColumn.UserCollapsed, Mode=TwoWay, Converter={StaticResource BoolNegationConverter}}"
+										Text="{helpers:ResourceString Name=ConsystoIPropertyMaterial}"
+										Visibility="{x:Bind ColumnsViewModel.CadMaterialColumn.IsHidden, Mode=OneWay, Converter={StaticResource NegatedBoolToVisibilityConverter}}" />
+
+									<!--  Consysto fork: Inventor mass  -->
+									<ToggleMenuFlyoutItem
+										x:Name="CadMassColumnVisibilityToggleMenuFlyoutItem"
+										Click="ToggleMenuFlyoutItem_Click"
+										IsChecked="{x:Bind ColumnsViewModel.CadMassColumn.UserCollapsed, Mode=TwoWay, Converter={StaticResource BoolNegationConverter}}"
+										Text="{helpers:ResourceString Name=ConsystoIPropertyMass}"
+										Visibility="{x:Bind ColumnsViewModel.CadMassColumn.IsHidden, Mode=OneWay, Converter={StaticResource NegatedBoolToVisibilityConverter}}" />
+
+									<!--  Consysto fork: program version  -->
+									<ToggleMenuFlyoutItem
+										x:Name="CadVersionColumnVisibilityToggleMenuFlyoutItem"
+										Click="ToggleMenuFlyoutItem_Click"
+										IsChecked="{x:Bind ColumnsViewModel.CadVersionColumn.UserCollapsed, Mode=TwoWay, Converter={StaticResource BoolNegationConverter}}"
+										Text="{helpers:ResourceString Name=ConsystoCadVersion}"
+										Visibility="{x:Bind ColumnsViewModel.CadVersionColumn.IsHidden, Mode=OneWay, Converter={StaticResource NegatedBoolToVisibilityConverter}}" />
+
 									<!--  File Tag  -->
 									<ToggleMenuFlyoutItem
 										x:Name="FileTagColumnVisibilityToggleMenuFlyoutItem"
@@ -410,6 +466,12 @@
 										Click="SetDetailsColumnsAsDefault_Click"
 										Text="{helpers:ResourceString Name=SetAsDefault}" />
 
+									<!--  Consysto fork: Reset Column Order  -->
+									<MenuFlyoutItem
+										x:Name="ResetColumnOrderMenuFlyoutItem"
+										Click="ResetColumnOrder_Click"
+										Text="{helpers:ResourceString Name=ConsystoResetColumnOrder}" />
+
 								</MenuFlyout>
 							</Grid.ContextFlyout>
 
@@ -430,6 +492,69 @@
 									x:Name="Column3"
 									Width="{x:Bind ColumnsViewModel.NameColumn.Length, Mode=OneWay}"
 									MaxWidth="{x:Bind ColumnsViewModel.NameColumn.MaxLength, Mode=OneWay}" />
+
+								<!--  (Divider)  -->
+								<ColumnDefinition Width="Auto" />
+
+								<!--  Consysto fork: Item Extension  -->
+								<ColumnDefinition
+									x:Name="ExtensionColumnDefinition"
+									Width="{x:Bind ColumnsViewModel.ExtensionColumn.Length, Mode=OneWay}"
+									MaxWidth="{x:Bind ColumnsViewModel.ExtensionColumn.MaxLength, Mode=OneWay}" />
+
+								<!--  (Divider)  -->
+								<ColumnDefinition Width="Auto" />
+
+								<!--  Consysto fork: Book Author  -->
+								<ColumnDefinition
+									x:Name="BookAuthorColumnDefinition"
+									Width="{x:Bind ColumnsViewModel.BookAuthorColumn.Length, Mode=OneWay}"
+									MaxWidth="{x:Bind ColumnsViewModel.BookAuthorColumn.MaxLength, Mode=OneWay}" />
+
+								<!--  (Divider)  -->
+								<ColumnDefinition Width="Auto" />
+
+								<!--  Consysto fork: Book Series  -->
+								<ColumnDefinition
+									x:Name="BookSeriesColumnDefinition"
+									Width="{x:Bind ColumnsViewModel.BookSeriesColumn.Length, Mode=OneWay}"
+									MaxWidth="{x:Bind ColumnsViewModel.BookSeriesColumn.MaxLength, Mode=OneWay}" />
+
+								<!--  (Divider)  -->
+								<ColumnDefinition Width="Auto" />
+
+								<!--  Consysto fork: Inventor part number  -->
+								<ColumnDefinition
+									x:Name="CadPartNumberColumnDefinition"
+									Width="{x:Bind ColumnsViewModel.CadPartNumberColumn.Length, Mode=OneWay}"
+									MaxWidth="{x:Bind ColumnsViewModel.CadPartNumberColumn.MaxLength, Mode=OneWay}" />
+
+								<!--  (Divider)  -->
+								<ColumnDefinition Width="Auto" />
+
+								<!--  Consysto fork: Inventor material  -->
+								<ColumnDefinition
+									x:Name="CadMaterialColumnDefinition"
+									Width="{x:Bind ColumnsViewModel.CadMaterialColumn.Length, Mode=OneWay}"
+									MaxWidth="{x:Bind ColumnsViewModel.CadMaterialColumn.MaxLength, Mode=OneWay}" />
+
+								<!--  (Divider)  -->
+								<ColumnDefinition Width="Auto" />
+
+								<!--  Consysto fork: Inventor mass  -->
+								<ColumnDefinition
+									x:Name="CadMassColumnDefinition"
+									Width="{x:Bind ColumnsViewModel.CadMassColumn.Length, Mode=OneWay}"
+									MaxWidth="{x:Bind ColumnsViewModel.CadMassColumn.MaxLength, Mode=OneWay}" />
+
+								<!--  (Divider)  -->
+								<ColumnDefinition Width="Auto" />
+
+								<!--  Consysto fork: program version  -->
+								<ColumnDefinition
+									x:Name="CadVersionColumnDefinition"
+									Width="{x:Bind ColumnsViewModel.CadVersionColumn.Length, Mode=OneWay}"
+									MaxWidth="{x:Bind ColumnsViewModel.CadVersionColumn.MaxLength, Mode=OneWay}" />
 
 								<!--  (Divider)  -->
 								<ColumnDefinition Width="Auto" />
@@ -602,10 +727,164 @@
 								PreviewKeyUp="GridSplitter_PreviewKeyUp"
 								Style="{StaticResource HeaderGridSplitterStyle}" />
 
+							<!--  Consysto fork: Item Extension (the columns after it were shifted by two)  -->
+							<uc:DataGridHeader
+								x:Name="ExtensionHeader"
+								Grid.Column="4"
+								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
+								CommandParameter="FileExtension"
+								Header="{helpers:ResourceString Name=ConsystoExtension}"
+								Visibility="{x:Bind ColumnsViewModel.ExtensionColumn.Visibility, Mode=OneWay}" />
+
+							<!--  (Divider)  -->
+							<controls:GridSplitter
+								Grid.Column="5"
+								AutomationProperties.Name="ExtensionColumnHeaderGridSplitter"
+								DoubleTapped="GridSplitter_DoubleTapped"
+								Loaded="GridSplitter_Loaded"
+								ManipulationCompleted="GridSplitter_ManipulationCompleted"
+								ManipulationDelta="GridSplitter_ManipulationDelta"
+								ManipulationStarted="GridSplitter_ManipulationStarted"
+								PreviewKeyUp="GridSplitter_PreviewKeyUp"
+								Style="{StaticResource HeaderGridSplitterStyle}"
+								Visibility="{x:Bind ColumnsViewModel.ExtensionColumn.Visibility, Mode=OneWay}" />
+
+							<!--  Consysto fork: Book Author (the columns after the book and Inventor columns were shifted by ten)  -->
+							<uc:DataGridHeader
+								x:Name="BookAuthorHeader"
+								Grid.Column="6"
+								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
+								CommandParameter="BookAuthor"
+								Header="{helpers:ResourceString Name=ConsystoBookAuthor}"
+								Visibility="{x:Bind ColumnsViewModel.BookAuthorColumn.Visibility, Mode=OneWay}" />
+
+							<!--  (Divider)  -->
+							<controls:GridSplitter
+								Grid.Column="7"
+								AutomationProperties.Name="BookAuthorColumnHeaderGridSplitter"
+								DoubleTapped="GridSplitter_DoubleTapped"
+								Loaded="GridSplitter_Loaded"
+								ManipulationCompleted="GridSplitter_ManipulationCompleted"
+								ManipulationDelta="GridSplitter_ManipulationDelta"
+								ManipulationStarted="GridSplitter_ManipulationStarted"
+								PreviewKeyUp="GridSplitter_PreviewKeyUp"
+								Style="{StaticResource HeaderGridSplitterStyle}"
+								Visibility="{x:Bind ColumnsViewModel.BookAuthorColumn.Visibility, Mode=OneWay}" />
+
+							<!--  Consysto fork: Book Series  -->
+							<uc:DataGridHeader
+								x:Name="BookSeriesHeader"
+								Grid.Column="8"
+								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
+								CommandParameter="BookSeries"
+								Header="{helpers:ResourceString Name=ConsystoBookSeries}"
+								Visibility="{x:Bind ColumnsViewModel.BookSeriesColumn.Visibility, Mode=OneWay}" />
+
+							<!--  (Divider)  -->
+							<controls:GridSplitter
+								Grid.Column="9"
+								AutomationProperties.Name="BookSeriesColumnHeaderGridSplitter"
+								DoubleTapped="GridSplitter_DoubleTapped"
+								Loaded="GridSplitter_Loaded"
+								ManipulationCompleted="GridSplitter_ManipulationCompleted"
+								ManipulationDelta="GridSplitter_ManipulationDelta"
+								ManipulationStarted="GridSplitter_ManipulationStarted"
+								PreviewKeyUp="GridSplitter_PreviewKeyUp"
+								Style="{StaticResource HeaderGridSplitterStyle}"
+								Visibility="{x:Bind ColumnsViewModel.BookSeriesColumn.Visibility, Mode=OneWay}" />
+
+							<!--  Consysto fork: Inventor part number  -->
+							<uc:DataGridHeader
+								x:Name="CadPartNumberHeader"
+								Grid.Column="10"
+								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
+								CommandParameter="CadPartNumber"
+								Header="{helpers:ResourceString Name=ConsystoIPropertyPartNumber}"
+								Visibility="{x:Bind ColumnsViewModel.CadPartNumberColumn.Visibility, Mode=OneWay}" />
+
+							<!--  (Divider)  -->
+							<controls:GridSplitter
+								Grid.Column="11"
+								AutomationProperties.Name="CadPartNumberColumnHeaderGridSplitter"
+								DoubleTapped="GridSplitter_DoubleTapped"
+								Loaded="GridSplitter_Loaded"
+								ManipulationCompleted="GridSplitter_ManipulationCompleted"
+								ManipulationDelta="GridSplitter_ManipulationDelta"
+								ManipulationStarted="GridSplitter_ManipulationStarted"
+								PreviewKeyUp="GridSplitter_PreviewKeyUp"
+								Style="{StaticResource HeaderGridSplitterStyle}"
+								Visibility="{x:Bind ColumnsViewModel.CadPartNumberColumn.Visibility, Mode=OneWay}" />
+
+							<!--  Consysto fork: Inventor material  -->
+							<uc:DataGridHeader
+								x:Name="CadMaterialHeader"
+								Grid.Column="12"
+								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
+								CommandParameter="CadMaterial"
+								Header="{helpers:ResourceString Name=ConsystoIPropertyMaterial}"
+								Visibility="{x:Bind ColumnsViewModel.CadMaterialColumn.Visibility, Mode=OneWay}" />
+
+							<!--  (Divider)  -->
+							<controls:GridSplitter
+								Grid.Column="13"
+								AutomationProperties.Name="CadMaterialColumnHeaderGridSplitter"
+								DoubleTapped="GridSplitter_DoubleTapped"
+								Loaded="GridSplitter_Loaded"
+								ManipulationCompleted="GridSplitter_ManipulationCompleted"
+								ManipulationDelta="GridSplitter_ManipulationDelta"
+								ManipulationStarted="GridSplitter_ManipulationStarted"
+								PreviewKeyUp="GridSplitter_PreviewKeyUp"
+								Style="{StaticResource HeaderGridSplitterStyle}"
+								Visibility="{x:Bind ColumnsViewModel.CadMaterialColumn.Visibility, Mode=OneWay}" />
+
+							<!--  Consysto fork: Inventor mass  -->
+							<uc:DataGridHeader
+								x:Name="CadMassHeader"
+								Grid.Column="14"
+								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
+								CommandParameter="CadMass"
+								Header="{helpers:ResourceString Name=ConsystoIPropertyMass}"
+								Visibility="{x:Bind ColumnsViewModel.CadMassColumn.Visibility, Mode=OneWay}" />
+
+							<!--  (Divider)  -->
+							<controls:GridSplitter
+								Grid.Column="15"
+								AutomationProperties.Name="CadMassColumnHeaderGridSplitter"
+								DoubleTapped="GridSplitter_DoubleTapped"
+								Loaded="GridSplitter_Loaded"
+								ManipulationCompleted="GridSplitter_ManipulationCompleted"
+								ManipulationDelta="GridSplitter_ManipulationDelta"
+								ManipulationStarted="GridSplitter_ManipulationStarted"
+								PreviewKeyUp="GridSplitter_PreviewKeyUp"
+								Style="{StaticResource HeaderGridSplitterStyle}"
+								Visibility="{x:Bind ColumnsViewModel.CadMassColumn.Visibility, Mode=OneWay}" />
+
+							<!--  Consysto fork: program version  -->
+							<uc:DataGridHeader
+								x:Name="CadVersionHeader"
+								Grid.Column="16"
+								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
+								CommandParameter="CadVersion"
+								Header="{helpers:ResourceString Name=ConsystoCadVersion}"
+								Visibility="{x:Bind ColumnsViewModel.CadVersionColumn.Visibility, Mode=OneWay}" />
+
+							<!--  (Divider)  -->
+							<controls:GridSplitter
+								Grid.Column="17"
+								AutomationProperties.Name="CadVersionColumnHeaderGridSplitter"
+								DoubleTapped="GridSplitter_DoubleTapped"
+								Loaded="GridSplitter_Loaded"
+								ManipulationCompleted="GridSplitter_ManipulationCompleted"
+								ManipulationDelta="GridSplitter_ManipulationDelta"
+								ManipulationStarted="GridSplitter_ManipulationStarted"
+								PreviewKeyUp="GridSplitter_PreviewKeyUp"
+								Style="{StaticResource HeaderGridSplitterStyle}"
+								Visibility="{x:Bind ColumnsViewModel.CadVersionColumn.Visibility, Mode=OneWay}" />
+
 							<!--  Item Unmerged File Change Kind  -->
 							<uc:DataGridHeader
 								x:Name="GitStatusHeader"
-								Grid.Column="4"
+								Grid.Column="18"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="GitStatus"
 								Header="{helpers:ResourceString Name=GitStatus}"
@@ -613,7 +892,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="5"
+								Grid.Column="19"
 								AutomationProperties.Name="GitStatusColumnHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -627,7 +906,7 @@
 							<!--  Item Last Commit Date  -->
 							<uc:DataGridHeader
 								x:Name="GitLastCommitDateHeader"
-								Grid.Column="6"
+								Grid.Column="20"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="ItemLastCommitDate"
 								Header="{helpers:ResourceString Name=DateCommitted}"
@@ -635,7 +914,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="7"
+								Grid.Column="21"
 								AutomationProperties.Name="GitLastCommitDateHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -649,7 +928,7 @@
 							<!--  Item Last Commit Message  -->
 							<uc:DataGridHeader
 								x:Name="GitLastCommitMessageHeader"
-								Grid.Column="8"
+								Grid.Column="22"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="ItemLastCommitMessage"
 								Header="{helpers:ResourceString Name=CommitMessage}"
@@ -657,7 +936,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="9"
+								Grid.Column="23"
 								AutomationProperties.Name="GitLastCommitMessageHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -671,7 +950,7 @@
 							<!--  Item Last Commit Author  -->
 							<uc:DataGridHeader
 								x:Name="GitCommitAuthorHeader"
-								Grid.Column="10"
+								Grid.Column="24"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="ItemLastCommitAuthor"
 								Header="{helpers:ResourceString Name=Author}"
@@ -679,7 +958,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="11"
+								Grid.Column="25"
 								AutomationProperties.Name="GitCommitAuthorHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -693,7 +972,7 @@
 							<!--  Item Last Commit SHA  -->
 							<uc:DataGridHeader
 								x:Name="GitLastCommitShaHeader"
-								Grid.Column="12"
+								Grid.Column="26"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="ItemLastCommitSha"
 								Header="{helpers:ResourceString Name=CommitSha}"
@@ -701,7 +980,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="13"
+								Grid.Column="27"
 								AutomationProperties.Name="GitLastCommitShaHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -715,7 +994,7 @@
 							<!--  Item Tags  -->
 							<uc:DataGridHeader
 								x:Name="TagHeader"
-								Grid.Column="14"
+								Grid.Column="28"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="FileTag"
 								Header="{helpers:ResourceString Name=Tag}"
@@ -723,7 +1002,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="15"
+								Grid.Column="29"
 								AutomationProperties.Name="TagColumnHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -737,7 +1016,7 @@
 							<!--  Item Path  -->
 							<uc:DataGridHeader
 								x:Name="PathHeader"
-								Grid.Column="16"
+								Grid.Column="30"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="Path"
 								Header="{helpers:ResourceString Name=Path}"
@@ -745,7 +1024,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="17"
+								Grid.Column="31"
 								AutomationProperties.Name="PathColumnHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -759,7 +1038,7 @@
 							<!--  Item Original Path  -->
 							<uc:DataGridHeader
 								x:Name="OriginalPathHeader"
-								Grid.Column="18"
+								Grid.Column="32"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="OriginalFolder"
 								Header="{helpers:ResourceString Name=OriginalPath}"
@@ -767,7 +1046,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="19"
+								Grid.Column="33"
 								AutomationProperties.Name="OriginalPathColumnHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -781,7 +1060,7 @@
 							<!--  Item Deleted Date  -->
 							<uc:DataGridHeader
 								x:Name="DateDeletedHeader"
-								Grid.Column="20"
+								Grid.Column="34"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="DateDeleted"
 								Header="{helpers:ResourceString Name=DateDeleted}"
@@ -789,7 +1068,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="21"
+								Grid.Column="35"
 								AutomationProperties.Name="DateDeletedColumnHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -803,7 +1082,7 @@
 							<!--  Item Modified Date  -->
 							<uc:DataGridHeader
 								x:Name="DateModifiedHeader"
-								Grid.Column="22"
+								Grid.Column="36"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="DateModified"
 								Header="{helpers:ResourceString Name=DateModifiedLowerCase}"
@@ -811,7 +1090,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="23"
+								Grid.Column="37"
 								AutomationProperties.Name="DateModifiedColumnHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -825,7 +1104,7 @@
 							<!--  Item Created Date  -->
 							<uc:DataGridHeader
 								x:Name="DateCreatedHeader"
-								Grid.Column="24"
+								Grid.Column="38"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="DateCreated"
 								Header="{helpers:ResourceString Name=DateCreated}"
@@ -833,7 +1112,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="25"
+								Grid.Column="39"
 								AutomationProperties.Name="DateCreatedColumnHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -847,7 +1126,7 @@
 							<!--  Item Type  -->
 							<uc:DataGridHeader
 								x:Name="FileTypeHeader"
-								Grid.Column="26"
+								Grid.Column="40"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="FileType"
 								Header="{helpers:ResourceString Name=Type}"
@@ -855,7 +1134,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="27"
+								Grid.Column="41"
 								AutomationProperties.Name="ItemTypeColumnHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -869,7 +1148,7 @@
 							<!--  Item Size  -->
 							<uc:DataGridHeader
 								x:Name="ItemSizeHeader"
-								Grid.Column="28"
+								Grid.Column="42"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="Size"
 								Header="{helpers:ResourceString Name=Size}"
@@ -877,7 +1156,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="29"
+								Grid.Column="43"
 								AutomationProperties.Name="SizeColumnHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -891,7 +1170,7 @@
 							<!--  Item Sync Status Badge  -->
 							<uc:DataGridHeader
 								x:Name="SyncStatusHeader"
-								Grid.Column="30"
+								Grid.Column="44"
 								HorizontalAlignment="Stretch"
 								HorizontalContentAlignment="Left"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
@@ -901,7 +1180,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="31"
+								Grid.Column="45"
 								AutomationProperties.Name="StatusColumnHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -911,6 +1190,24 @@
 								PreviewKeyUp="GridSplitter_PreviewKeyUp"
 								Style="{StaticResource HeaderGridSplitterStyle}"
 								Visibility="{x:Bind ColumnsViewModel.StatusColumn.Visibility, Mode=OneWay}" />
+
+							<!--  Consysto fork: where a dragged column header would be dropped  -->
+							<Rectangle
+								x:Name="ColumnDropIndicator"
+								Grid.Column="0"
+								Grid.ColumnSpan="47"
+								Width="2"
+								Margin="0,8"
+								HorizontalAlignment="Left"
+								VerticalAlignment="Stretch"
+								Canvas.ZIndex="20"
+								Fill="{ThemeResource AccentFillColorDefaultBrush}"
+								IsHitTestVisible="False"
+								Visibility="Collapsed">
+								<Rectangle.RenderTransform>
+									<TranslateTransform x:Name="ColumnDropIndicatorTransform" />
+								</Rectangle.RenderTransform>
+							</Rectangle>
 
 						</Grid>
 					</ListView.Header>
@@ -1033,6 +1330,97 @@
 										</TextBox>
 
 									</Grid>
+
+									<!--  Consysto fork: Item Extension  -->
+									<TextBlock
+										x:Name="ItemExtensionTextBlock"
+										Width="{Binding Path=ColumnsViewModel.ExtensionColumn.LengthIncludingGridSplitterPixels, ElementName=PageRoot, Mode=OneWay}"
+										Padding="10,0,0,0"
+										HorizontalAlignment="Stretch"
+										VerticalAlignment="Center"
+										DataContextChanged="TextBlock_DataContextChanged"
+										IsTextTrimmedChanged="TextBlock_IsTextTrimmedChanged"
+										Style="{StaticResource ColumnContentTextBlock}"
+										Text="{x:Bind FileExtensionDisplay, Mode=OneWay}"
+										Visibility="{Binding Path=ColumnsViewModel.ExtensionColumn.Visibility, ElementName=PageRoot, Mode=OneWay}" />
+
+									<!--  Consysto fork: Book Author  -->
+									<TextBlock
+										x:Name="ItemBookAuthorTextBlock"
+										Width="{Binding Path=ColumnsViewModel.BookAuthorColumn.LengthIncludingGridSplitterPixels, ElementName=PageRoot, Mode=OneWay}"
+										Padding="10,0,0,0"
+										HorizontalAlignment="Stretch"
+										VerticalAlignment="Center"
+										DataContextChanged="TextBlock_DataContextChanged"
+										IsTextTrimmedChanged="TextBlock_IsTextTrimmedChanged"
+										Style="{StaticResource ColumnContentTextBlock}"
+										Text="{x:Bind BookAuthor, Mode=OneWay}"
+										Visibility="{Binding Path=ColumnsViewModel.BookAuthorColumn.Visibility, ElementName=PageRoot, Mode=OneWay}" />
+
+									<!--  Consysto fork: Book Series  -->
+									<TextBlock
+										x:Name="ItemBookSeriesTextBlock"
+										Width="{Binding Path=ColumnsViewModel.BookSeriesColumn.LengthIncludingGridSplitterPixels, ElementName=PageRoot, Mode=OneWay}"
+										Padding="10,0,0,0"
+										HorizontalAlignment="Stretch"
+										VerticalAlignment="Center"
+										DataContextChanged="TextBlock_DataContextChanged"
+										IsTextTrimmedChanged="TextBlock_IsTextTrimmedChanged"
+										Style="{StaticResource ColumnContentTextBlock}"
+										Text="{x:Bind BookSeries, Mode=OneWay}"
+										Visibility="{Binding Path=ColumnsViewModel.BookSeriesColumn.Visibility, ElementName=PageRoot, Mode=OneWay}" />
+
+									<!--  Consysto fork: Inventor part number  -->
+									<TextBlock
+										x:Name="ItemCadPartNumberTextBlock"
+										Width="{Binding Path=ColumnsViewModel.CadPartNumberColumn.LengthIncludingGridSplitterPixels, ElementName=PageRoot, Mode=OneWay}"
+										Padding="10,0,0,0"
+										HorizontalAlignment="Stretch"
+										VerticalAlignment="Center"
+										DataContextChanged="TextBlock_DataContextChanged"
+										IsTextTrimmedChanged="TextBlock_IsTextTrimmedChanged"
+										Style="{StaticResource ColumnContentTextBlock}"
+										Text="{x:Bind CadPartNumber, Mode=OneWay}"
+										Visibility="{Binding Path=ColumnsViewModel.CadPartNumberColumn.Visibility, ElementName=PageRoot, Mode=OneWay}" />
+
+									<!--  Consysto fork: Inventor material  -->
+									<TextBlock
+										x:Name="ItemCadMaterialTextBlock"
+										Width="{Binding Path=ColumnsViewModel.CadMaterialColumn.LengthIncludingGridSplitterPixels, ElementName=PageRoot, Mode=OneWay}"
+										Padding="10,0,0,0"
+										HorizontalAlignment="Stretch"
+										VerticalAlignment="Center"
+										DataContextChanged="TextBlock_DataContextChanged"
+										IsTextTrimmedChanged="TextBlock_IsTextTrimmedChanged"
+										Style="{StaticResource ColumnContentTextBlock}"
+										Text="{x:Bind CadMaterial, Mode=OneWay}"
+										Visibility="{Binding Path=ColumnsViewModel.CadMaterialColumn.Visibility, ElementName=PageRoot, Mode=OneWay}" />
+
+									<!--  Consysto fork: Inventor mass  -->
+									<TextBlock
+										x:Name="ItemCadMassTextBlock"
+										Width="{Binding Path=ColumnsViewModel.CadMassColumn.LengthIncludingGridSplitterPixels, ElementName=PageRoot, Mode=OneWay}"
+										Padding="10,0,0,0"
+										HorizontalAlignment="Stretch"
+										VerticalAlignment="Center"
+										DataContextChanged="TextBlock_DataContextChanged"
+										IsTextTrimmedChanged="TextBlock_IsTextTrimmedChanged"
+										Style="{StaticResource ColumnContentTextBlock}"
+										Text="{x:Bind CadMass, Mode=OneWay}"
+										Visibility="{Binding Path=ColumnsViewModel.CadMassColumn.Visibility, ElementName=PageRoot, Mode=OneWay}" />
+
+									<!--  Consysto fork: program version  -->
+									<TextBlock
+										x:Name="ItemCadVersionTextBlock"
+										Width="{Binding Path=ColumnsViewModel.CadVersionColumn.LengthIncludingGridSplitterPixels, ElementName=PageRoot, Mode=OneWay}"
+										Padding="10,0,0,0"
+										HorizontalAlignment="Stretch"
+										VerticalAlignment="Center"
+										DataContextChanged="TextBlock_DataContextChanged"
+										IsTextTrimmedChanged="TextBlock_IsTextTrimmedChanged"
+										Style="{StaticResource ColumnContentTextBlock}"
+										Text="{x:Bind CadVersion, Mode=OneWay}"
+										Visibility="{Binding Path=ColumnsViewModel.CadVersionColumn.Visibility, ElementName=PageRoot, Mode=OneWay}" />
 
 									<!--  Item Git Status  -->
 									<Border
@@ -1542,6 +1930,13 @@
 			</SemanticZoom.ZoomedOutView>
 
 		</SemanticZoom>
+
+		<!--  Consysto fork: zebra stripes continued through the empty space below the last row (see UpdateEmptyRowStripes)  -->
+		<Canvas
+			x:Name="EmptyRowStripes"
+			HorizontalAlignment="Stretch"
+			VerticalAlignment="Stretch"
+			IsHitTestVisible="False" />
 
 		<!--  Selector  -->
 		<Canvas HorizontalAlignment="Stretch" VerticalAlignment="Stretch">

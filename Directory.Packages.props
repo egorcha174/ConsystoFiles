@@ -39,6 +39,10 @@
     <PackageVersion Include="Microsoft.WindowsAppSDK.ML" Version="2.1.74" />
     <PackageVersion Include="Microsoft.WindowsAppSDK.Widgets" Version="2.0.5" />
     <PackageVersion Include="Microsoft.Graphics.Win2D" Version="1.4.0" />
+    <!-- Consysto fork -->
+    <PackageVersion Include="ACadSharp" Version="3.7.1" />
+    <PackageVersion Include="OpenMcdf" Version="3.3.0" />
+    <PackageVersion Include="MonoTorrent" Version="3.0.2" />
     <PackageVersion Include="TagLibSharp" Version="2.3.0" />
     <PackageVersion Include="UTF.Unknown" Version="2.6.0" />
     <PackageVersion Include="Microsoft.Windows.CsWinRT" Version="2.3.1" />

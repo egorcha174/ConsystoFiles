@@ -26,6 +26,10 @@ namespace Files.App.Actions
 		public HotKey HotKey
 			=> new(Keys.N, KeyModifiers.CtrlShift);
 
+		// Consysto fork: F7 as in Commander One
+		public HotKey SecondHotKey
+			=> new(Keys.F7);
+
 		public RichGlyph Glyph
 			=> new(baseGlyph: "\uE8B7");
 

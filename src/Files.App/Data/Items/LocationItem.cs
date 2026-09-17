@@ -33,7 +33,9 @@ namespace Files.App.Data.Items
 			get => text;
 			set
 			{
-				text = value;
+				// Consysto fork: the sidebar redraws a renamed item (the Downloads section counts change while it is shown)
+				if (SetProperty(ref text, value, nameof(Text)) is false)
+					return;
 				// Just in case path hasn't been set
 				if (ToolTip is "")
 					ToolTip = value;
@@ -51,6 +53,8 @@ namespace Files.App.Data.Items
 				ToolTip = string.IsNullOrEmpty(currentPath) ||
 					currentPath.Contains('?', StringComparison.Ordinal) ||
 					currentPath.StartsWith("shell:", StringComparison.OrdinalIgnoreCase) ||
+					currentPath.StartsWith("Opds:", StringComparison.Ordinal) ||
+					currentPath.StartsWith("Collection:", StringComparison.Ordinal) ||
 					currentPath.EndsWith(ShellLibraryItem.EXTENSION, StringComparison.OrdinalIgnoreCase) ||
 					currentPath == "Home" ||
 					currentPath == "ReleaseNotes" ||

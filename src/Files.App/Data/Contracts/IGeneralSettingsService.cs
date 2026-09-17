@@ -206,6 +206,16 @@ namespace Files.App.Data.Contracts
 		bool IsFileTagsSectionExpanded { get; set; }
 
 		/// <summary>
+		/// Gets or sets a value indicating if the collections section should be expanded (Consysto fork).
+		/// </summary>
+		bool IsCollectionsSectionExpanded { get; set; }
+
+		/// <summary>
+		/// Gets or sets a value indicating if the OPDS catalogs section should be expanded (Consysto fork).
+		/// </summary>
+		bool IsOpdsCatalogsSectionExpanded { get; set; }
+
+		/// <summary>
 		/// Gets or sets a value indicating whether or not to move shell extensions into a sub menu.
 		/// </summary>
 		bool MoveShellExtensionsToSubMenu { get; set; }

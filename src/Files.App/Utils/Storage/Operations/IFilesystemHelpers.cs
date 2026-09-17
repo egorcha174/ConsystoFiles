@@ -145,8 +145,9 @@ namespace Files.App.Utils.Storage
 		/// <param name="destination">The destination fullPath</param>
 		/// <param name="showDialog">Determines whether to show copy dialog</param>
 		/// <param name="registerHistory">Determines whether <see cref="IStorageHistory"/> is saved</param>
+		/// <param name="collisionOption">Consysto fork: when set, applied to every item instead of asking about conflicts</param>
 		/// <returns><see cref="ReturnResult"/> of performed operation</returns>
-		Task<ReturnResult> CopyItemsAsync(IEnumerable<IStorageItemWithPath> source, IEnumerable<string> destination, bool showDialog, bool registerHistory);
+		Task<ReturnResult> CopyItemsAsync(IEnumerable<IStorageItemWithPath> source, IEnumerable<string> destination, bool showDialog, bool registerHistory, FileNameConflictResolveOptionType? collisionOption = null);
 
 		/// <summary>
 		/// Copies <paramref name="source"/> to <paramref name="destination"/> fullPath

@@ -7,7 +7,10 @@ namespace Files.App.Services.PreviewPopupProviders
 	internal sealed partial class PreviewPopupService : ObservableObject, IPreviewPopupService
 	{
 		public async Task<IPreviewPopupProvider?> GetProviderAsync()
-		{			
+		{
+			// Consysto fork: the built-in preview goes first, it draws the CAD formats the external viewers can't
+			if (await Files.App.MacStyle.QuickPreviewProvider.Instance.DetectAvailability())
+				return Files.App.MacStyle.QuickPreviewProvider.Instance;
 			if (await QuickLookProvider.Instance.DetectAvailability())
 				return await Task.FromResult<IPreviewPopupProvider>(QuickLookProvider.Instance);
 			if (await SeerProProvider.Instance.DetectAvailability())

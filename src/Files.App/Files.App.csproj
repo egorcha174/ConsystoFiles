@@ -75,6 +75,16 @@
         <Content Update="Assets\Resources\**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
+        <!-- Consysto fork: icon sets for Properties > Customization (built by build\consysto\icons) -->
+        <!-- Consysto fork: the terminal tab's emulator page and xterm.js (MIT) -->
+        <Content Remove="Assets\Consysto\Terminal\**" />
+        <Content Include="Assets\Consysto\Terminal\**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Remove="Assets\Consysto\Icons\**" />
+        <Content Include="Assets\Consysto\Icons\**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
         <Content Update="Assets\FilesOpenDialog\SetFilesAsDefault.reg">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
@@ -156,6 +166,14 @@
         <ProjectReference Include="..\Files.App.Storage\Files.App.Storage.csproj" />
         <ProjectReference Include="..\Files.Core.Storage\Files.Core.Storage.csproj" />
         <ProjectReference Include="..\Files.Shared\Files.Shared.csproj" />
+        <!-- Consysto fork: DWG/DXF and Inventor preview core. -->
+        <ProjectReference Include="..\Consysto.CadPreview.WinUI\Consysto.CadPreview.WinUI.csproj" />
+        <!-- Consysto fork: book metadata and covers (EPUB, FictionBook, Kindle). -->
+        <ProjectReference Include="..\Consysto.BookPreview\Consysto.BookPreview.csproj" />
+        <!-- Consysto fork: photo and music metadata (EXIF, ID3, FLAC, MP4, Ogg). -->
+        <ProjectReference Include="..\Consysto.MediaPreview\Consysto.MediaPreview.csproj" />
+        <!-- Consysto fork: BitTorrent downloads on MonoTorrent (MIT). -->
+        <ProjectReference Include="..\Consysto.Torrents\Consysto.Torrents.csproj" />
         <ProjectReference Include="..\Files.Core.SourceGenerator\Files.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 

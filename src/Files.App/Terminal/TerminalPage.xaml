@@ -1,0 +1,16 @@
+﻿<!--  Consysto fork: a terminal in a tab — a shell in a pseudo console, drawn by xterm.js.  -->
+<Page
+	x:Class="Files.App.Terminal.TerminalPage"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+	<Grid>
+		<WebView2 x:Name="View" DefaultBackgroundColor="Transparent" />
+		<InfoBar
+			x:Name="ErrorBar"
+			Margin="12"
+			VerticalAlignment="Top"
+			IsClosable="False"
+			Severity="Error" />
+	</Grid>
+</Page>

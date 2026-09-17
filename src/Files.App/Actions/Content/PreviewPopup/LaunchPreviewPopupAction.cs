@@ -22,6 +22,10 @@ namespace Files.App.Actions
 		public HotKey HotKey
 			=> new(Keys.Space);
 
+		// Consysto fork: F3 views the item as in Commander One
+		public HotKey SecondHotKey
+			=> new(Keys.F3);
+
 		public bool IsExecutable =>
 			context.SelectedItems.Count == 1 &&
 			(!context.ShellPage?.SlimContentPage?.IsRenamingItem ?? false);

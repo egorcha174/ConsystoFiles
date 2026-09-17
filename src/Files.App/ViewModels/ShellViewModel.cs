@@ -138,7 +138,8 @@ namespace Files.App.ViewModels
 			UserSettingsService.GeneralSettingsService.ShowFilterHeader &&
 			WorkingDirectory != "Home" &&
 			WorkingDirectory != "ReleaseNotes" &&
-			WorkingDirectory != "Settings";
+			WorkingDirectory != "Settings" &&
+			!Files.App.Books.Library.ConsystoPages.IsPagePath(WorkingDirectory);
 
 		private GitProperties _EnabledGitProperties;
 		public GitProperties EnabledGitProperties
@@ -175,6 +176,8 @@ namespace Files.App.ViewModels
 		private CancellationTokenSource? updateTagGroupCTS;
 		private CancellationTokenSource? filterDebounceCS;
 		private CancellationTokenSource? networkAvailabilityCTS;
+		private CancellationTokenSource? bookColumnsCTS;
+		private CancellationTokenSource? cadColumnsCTS;
 		private bool isDisposed;
 
 		public event EventHandler? FocusFilterHeader;
@@ -182,6 +185,16 @@ namespace Files.App.ViewModels
 		public event EventHandler? DirectoryInfoUpdated;
 
 		public event EventHandler? GitDirectoryUpdated;
+
+		// Consysto fork: raised on the UI thread when the folder turns out to contain books, or stops containing them
+		public event EventHandler? HasBookItemsChanged;
+
+		public bool HasBookItems { get; private set; }
+
+		// Consysto fork: raised on the UI thread when the folder turns out to contain Inventor documents or drawings, or stops containing them
+		public event EventHandler? HasCadItemsChanged;
+
+		public bool HasCadItems { get; private set; }
 
 		public event EventHandler<List<ListedItem>>? OnSelectionRequestedEvent;
 
@@ -239,7 +252,7 @@ namespace Files.App.ViewModels
 			else if (!Path.IsPathRooted(WorkingDirectory) || Path.GetPathRoot(WorkingDirectory) != Path.GetPathRoot(value))
 				workingRoot = await FilesystemTasks.WrapNullable(() => DriveHelpers.GetRootFromPathAsync(value));
 
-			if (value == "Home" || value == "ReleaseNotes" || value == "Settings")
+			if (value == "Home" || value == "ReleaseNotes" || value == "Settings" || Files.App.Books.Library.ConsystoPages.IsPagePath(value))
 				currentStorageFolder = null;
 			else
 				_ = Task.Run(() => jumpListService.AddFolderAsync(value));
@@ -856,7 +869,7 @@ namespace Files.App.ViewModels
 		{
 			await dispatcherQueue.EnqueueOrInvokeAsync(() =>
 			{
-				if (WorkingDirectory != "Home" && WorkingDirectory != "ReleaseNotes" && WorkingDirectory != "Settings")
+				if (WorkingDirectory != "Home" && WorkingDirectory != "ReleaseNotes" && WorkingDirectory != "Settings" && !Files.App.Books.Library.ConsystoPages.IsPagePath(WorkingDirectory))
 					RefreshItems(null);
 			});
 		}
@@ -877,7 +890,7 @@ namespace Files.App.ViewModels
 				case nameof(UserSettingsService.FoldersSettingsService.SizeUnitFormat):
 					await dispatcherQueue.EnqueueOrInvokeAsync(() =>
 					{
-						if (WorkingDirectory != "Home" && WorkingDirectory != "ReleaseNotes" && WorkingDirectory != "Settings")
+						if (WorkingDirectory != "Home" && WorkingDirectory != "ReleaseNotes" && WorkingDirectory != "Settings" && !Files.App.Books.Library.ConsystoPages.IsPagePath(WorkingDirectory))
 							RefreshItems(null);
 					});
 					break;
@@ -1194,6 +1207,126 @@ namespace Files.App.ViewModels
 			{
 				OnSelectionRequestedEvent?.Invoke(this, itemsToSelect);
 			});
+		}
+
+		private void SetHasBookItems(bool value)
+		{
+			if (HasBookItems == value)
+				return;
+
+			HasBookItems = value;
+			_ = dispatcherQueue.EnqueueOrInvokeAsync(() => HasBookItemsChanged?.Invoke(this, EventArgs.Empty));
+		}
+
+		private void SetHasCadItems(bool value)
+		{
+			if (HasCadItems == value)
+				return;
+
+			HasCadItems = value;
+			_ = dispatcherQueue.EnqueueOrInvokeAsync(() => HasCadItemsChanged?.Invoke(this, EventArgs.Empty));
+		}
+
+		// Consysto fork: part number, material and mass for the details view Inventor columns, read for the whole folder like the
+		// book columns so sorting sees every document; CadColumnsCache keeps repeat visits cheap.
+		private async Task LoadCadColumnsAsync()
+		{
+			cadColumnsCTS?.Cancel();
+			var cancellation = new CancellationTokenSource();
+			cadColumnsCTS = cancellation;
+			var token = cancellation.Token;
+
+			var documents = filesAndFolders.ToList()
+				.Where(item => item.PrimaryItemAttribute == StorageItemTypes.File && !item.IsShortcut && Files.App.Cad.CadColumnsCache.IsSupported(item.ItemPath))
+				.ToList();
+
+			SetHasCadItems(documents.Count > 0);
+			if (documents.Count == 0)
+				return;
+
+			try
+			{
+				var options = new ParallelOptions { MaxDegreeOfParallelism = Math.Max(1, Environment.ProcessorCount / 2), CancellationToken = token };
+				await Parallel.ForEachAsync(documents, options, async (item, itemToken) =>
+				{
+					var columns = Files.App.Cad.CadColumnsCache.Read(item.ItemPath!);
+					if (columns is null || itemToken.IsCancellationRequested)
+						return;
+
+					await dispatcherQueue.EnqueueOrInvokeAsync(() =>
+					{
+						item.CadPartNumber = columns.PartNumber;
+						item.CadMaterial = columns.Material;
+						item.CadMass = columns.Mass;
+						item.CadMassSortKey = columns.MassKilograms;
+						item.CadVersion = columns.Version;
+					}, Microsoft.UI.Dispatching.DispatcherQueuePriority.Low);
+				});
+
+				// The folder was sorted before the values existed
+				if (!token.IsCancellationRequested && folderSettings.DirectorySortOption is SortOption.CadPartNumber or SortOption.CadMaterial or SortOption.CadMass or SortOption.CadVersion)
+				{
+					await OrderFilesAndFoldersAsync();
+					await ApplyFilesAndFoldersChangesAsync();
+				}
+			}
+			catch (OperationCanceledException)
+			{
+			}
+			catch (Exception ex)
+			{
+				App.Logger.LogWarning(ex, "Inventor columns could not be loaded");
+			}
+		}
+
+		// Consysto fork: author and series for the details view book columns. Read for every book in the folder rather than for
+		// realized rows only, so sorting by author or series sees the whole folder; BookColumnsCache keeps repeat visits cheap.
+		private async Task LoadBookColumnsAsync()
+		{
+			bookColumnsCTS?.Cancel();
+			var cancellation = new CancellationTokenSource();
+			bookColumnsCTS = cancellation;
+			var token = cancellation.Token;
+
+			var books = filesAndFolders.ToList()
+				.Where(item => item.PrimaryItemAttribute == StorageItemTypes.File && !item.IsShortcut && Files.App.Books.BookColumnsCache.IsSupported(item.ItemPath))
+				.ToList();
+
+			SetHasBookItems(books.Count > 0);
+			if (books.Count == 0)
+				return;
+
+			try
+			{
+				var options = new ParallelOptions { MaxDegreeOfParallelism = Math.Max(1, Environment.ProcessorCount / 2), CancellationToken = token };
+				await Parallel.ForEachAsync(books, options, async (item, itemToken) =>
+				{
+					var columns = Files.App.Books.BookColumnsCache.Read(item.ItemPath!);
+					if (columns is null || itemToken.IsCancellationRequested)
+						return;
+
+					await dispatcherQueue.EnqueueOrInvokeAsync(() =>
+					{
+						item.BookAuthor = columns.Author;
+						item.BookSeries = columns.Series;
+						item.BookSeriesSortKey = columns.SeriesSortKey;
+					}, Microsoft.UI.Dispatching.DispatcherQueuePriority.Low);
+				});
+
+				// The folder was sorted before the values existed
+				if (!token.IsCancellationRequested && folderSettings.DirectorySortOption is SortOption.BookAuthor or SortOption.BookSeries)
+				{
+					await OrderFilesAndFoldersAsync();
+					await ApplyFilesAndFoldersChangesAsync();
+				}
+			}
+			catch (OperationCanceledException)
+			{
+			}
+			catch (Exception ex)
+			{
+				App.Logger.LogWarning(ex, "Book columns could not be loaded");
+			}
 		}
 
 		private Task OrderFilesAndFoldersAsync()
@@ -2100,6 +2233,12 @@ namespace Files.App.ViewModels
 			StopWatchingForLocationRestoration();
 			ItemLoadStatusChanged?.Invoke(this, new ItemLoadStatusChangedEventArgs() { Status = ItemLoadStatusChangedEventArgs.ItemLoadStatus.Starting });
 
+			// Consysto fork: the book columns of the previous folder must not linger while this one loads
+			bookColumnsCTS?.Cancel();
+			SetHasBookItems(false);
+			cadColumnsCTS?.Cancel();
+			SetHasCadItems(false);
+
 			CancelLoadAndClearFiles();
 
 			if (string.IsNullOrEmpty(path))
@@ -2146,6 +2285,8 @@ namespace Files.App.ViewModels
 
 				ItemLoadStatusChanged?.Invoke(this, new ItemLoadStatusChangedEventArgs() { Status = ItemLoadStatusChangedEventArgs.ItemLoadStatus.Complete, PreviousDirectory = previousDir, Path = path });
 				IsLoadingItems = false;
+				_ = LoadBookColumnsAsync();
+				_ = LoadCadColumnsAsync();
 
 				if (Interlocked.Exchange(ref desktopIniUpdateTask, null) is Task task)
 					await task;
@@ -2368,7 +2509,7 @@ namespace Files.App.ViewModels
 				_ = PromptToUnlockBitlockerIfLockedAsync(path, pathRoot);
 			}
 
-			HasNoWatcher = isFtp || isWslDistro || isMtp || currentStorageFolder?.Item is ZipStorageFolder;
+			HasNoWatcher = isFtp || isWslDistro || isMtp || currentStorageFolder?.Item is ZipStorageFolder or Files.App.Cad.InventorStorageFolder;
 
 			if (enumFromStorageFolder)
 			{
@@ -2582,7 +2723,7 @@ namespace Files.App.ViewModels
 
 		public void CheckForBackgroundImage()
 		{
-			if (WorkingDirectory == "Home" || WorkingDirectory == "ReleaseNotes" || WorkingDirectory == "Settings")
+			if (WorkingDirectory == "Home" || WorkingDirectory == "ReleaseNotes" || WorkingDirectory == "Settings" || Files.App.Books.Library.ConsystoPages.IsPagePath(WorkingDirectory))
 			{
 				FolderBackgroundImageSource = null;
 				return;

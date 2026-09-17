@@ -697,6 +697,9 @@ namespace Files.App.Views.Layouts
 				case FolderLayoutModes.GridView:
 					parent.FolderSettings.ToggleLayoutModeGridView(true);
 					break;
+				case FolderLayoutModes.GalleryView:
+					parent.FolderSettings.ToggleLayoutModeGallery(true);
+					break;
 				case FolderLayoutModes.Adaptive:
 					parent.FolderSettings.ToggleLayoutModeAdaptive();
 					break;

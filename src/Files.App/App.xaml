@@ -173,6 +173,9 @@
 						</ResourceDictionary>
 					</ResourceDictionary.ThemeDictionaries>
 				</ResourceDictionary>
+
+				<!--  Consysto fork: macOS-like colors and selection; must stay last to override the dictionaries above  -->
+				<ResourceDictionary Source="ms-appx:///MacStyle/MacTheme.xaml" />
 			</ResourceDictionary.MergedDictionaries>
 
 		</ResourceDictionary>

@@ -113,6 +113,14 @@
 				<ToggleSwitch AutomationProperties.Name="{helpers:ResourceString Name=ShowSystemTrayIcon}" IsOn="{x:Bind ViewModel.ShowSystemTrayIcon, Mode=TwoWay}" />
 			</wctcontrols:SettingsCard>
 
+			<!--  Consysto fork: Files as the torrent client  -->
+			<wctcontrols:SettingsCard Description="{helpers:ResourceString Name=ConsystoTorrentDefaultDescription}" Header="{helpers:ResourceString Name=ConsystoTorrentDefault}">
+				<wctcontrols:SettingsCard.HeaderIcon>
+					<FontIcon Glyph="&#xE896;" />
+				</wctcontrols:SettingsCard.HeaderIcon>
+				<Button Click="TorrentDefault_Click" Content="{helpers:ResourceString Name=ConsystoTorrentDefaultButton}" />
+			</wctcontrols:SettingsCard>
+
 			<!--  Experimental Settings  -->
 			<TextBlock
 				Padding="0,16,0,4"

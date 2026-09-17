@@ -157,7 +157,7 @@ namespace Files.App
 				}
 
 				// Configure Sentry
-				if (AppLifecycleHelper.AppEnvironment is not AppEnvironment.Dev)
+				if (AppLifecycleHelper.AppEnvironment is not (AppEnvironment.Dev or AppEnvironment.Consysto))
 					AppLifecycleHelper.ConfigureSentry();
 
 				var userSettingsService = Ioc.Default.GetRequiredService<IUserSettingsService>();
@@ -299,6 +299,9 @@ namespace Files.App
 				_LastOpenedFlyout.Hide();
 				return;
 			}
+
+			// Consysto fork: fast-resume data is written, so the downloads are not checked again on the next start
+			await Files.App.Torrents.TorrentHost.StopAsync();
 
 			// Persist the final active stretch; it is reported on the next launch
 			ActiveSessionTracker.OnActivationChanged(false);

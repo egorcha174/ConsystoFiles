@@ -283,7 +283,7 @@ namespace Files.App.Utils.Storage
 			var itemPath = string.IsNullOrEmpty(file.Path) ? PathNormalization.Combine(currentStorageFolder!.Path, file.Name) : file.Path;
 			var itemSize = basicProperties.Size.ToSizeString();
 			var itemSizeBytes = basicProperties.Size;
-			var itemType = file.DisplayType;
+			var itemType = FileTypesHelper.CadTypeName(file.FileType) ?? file.DisplayType;
 			var itemFileExtension = file.FileType;
 			var itemThumbnailImgVis = false;
 

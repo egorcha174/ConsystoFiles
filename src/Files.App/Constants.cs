@@ -248,6 +248,7 @@ namespace Files.App
 				"FilesPreview", // sideload preview
 				"49306atecsolution.FilesPreview", // store preview
 				"FilesDev", // dev
+				"ConsystoFiles", // Consysto fork, sideloaded to family laptops
 			};
 		}
 

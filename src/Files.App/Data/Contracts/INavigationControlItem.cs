@@ -41,7 +41,13 @@ namespace Files.App.Data.Contracts
 		CloudDrives,
 		Network,
 		WSL,
-		FileTag
+		FileTag,
+
+		// Consysto fork
+		OpdsCatalogs,
+		Collections,
+		Downloads,
+		Sync,
 	}
 
 	public sealed class ContextMenuOptions

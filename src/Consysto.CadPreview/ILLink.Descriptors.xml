@@ -1,0 +1,9 @@
+<!--
+  ACadSharp maps DXF group codes to properties through reflection (DxfMapBase, CadHeader.SetValue).
+  Trimming or Native AOT removes the properties nothing references directly, and every DXF then fails
+  with KeyNotFoundException on group code 5. Embedded in this assembly, so any app that references
+  the core (Files publishes with PublishAot) keeps ACadSharp whole without extra settings.
+-->
+<linker>
+  <assembly fullname="ACadSharp" preserve="all" />
+</linker>

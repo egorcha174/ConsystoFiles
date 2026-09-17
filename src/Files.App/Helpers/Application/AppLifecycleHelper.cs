@@ -127,6 +127,12 @@ namespace Files.App.Helpers
 
 			_ = Task.Run(FileTagsHelper.UpdateTagsDb);
 
+			// Consysto fork: collections are indexed while Files runs, and books shared with a phone if that is on
+			_ = Task.Run(Files.App.Books.Library.CollectionManager.Instance.Initialize);
+
+			// Consysto fork: torrent downloads of the previous run go on
+			_ = Task.Run(Files.App.Torrents.TorrentHost.ResumeIfAnyAsync);
+
 			_ = Task.Run(async () =>
 			{
 				// The follwing method invokes UI thread, so we run it in a separate task

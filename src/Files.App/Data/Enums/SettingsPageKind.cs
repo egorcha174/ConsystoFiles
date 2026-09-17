@@ -14,5 +14,8 @@ namespace Files.App.Data.Enums
 		DevToolsPage,
 		AdvancedPage,
 		AboutPage,
+
+		// Consysto fork: collections
+		CollectionsPage,
 	}
 }

@@ -20,6 +20,10 @@ namespace Files.App.Actions
 		public HotKey HotKey
 			=> new(Keys.Up, KeyModifiers.Alt);
 
+		// Consysto fork: Ctrl+Up as Cmd+Up in Finder
+		public HotKey SecondHotKey
+			=> new(Keys.Up, KeyModifiers.Ctrl);
+
 		public RichGlyph Glyph
 			=> new("\uE74A");
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -4733,5 +4733,921 @@
   </data>
   <data name="ConfirmRemoveTagsDialogContent" xml:space="preserve">
     <value>Are you sure you want to remove tags from the selected items?</value>
+  </data>
+  <data name="ConsystoWindowMinimize" xml:space="preserve">
+    <value>Minimize</value>
+  </data>
+  <data name="ConsystoWindowZoom" xml:space="preserve">
+    <value>Zoom (hold the pointer for arrangement options)</value>
+  </data>
+  <data name="ConsystoWindowFill" xml:space="preserve">
+    <value>Fill</value>
+  </data>
+  <data name="ConsystoWindowCenter" xml:space="preserve">
+    <value>Center</value>
+  </data>
+  <data name="ConsystoWindowLeftHalf" xml:space="preserve">
+    <value>Left half of the screen</value>
+  </data>
+  <data name="ConsystoWindowRightHalf" xml:space="preserve">
+    <value>Right half of the screen</value>
+  </data>
+  <data name="ConsystoWindowTopHalf" xml:space="preserve">
+    <value>Top half of the screen</value>
+  </data>
+  <data name="ConsystoWindowBottomHalf" xml:space="preserve">
+    <value>Bottom half of the screen</value>
+  </data>
+  <data name="ConsystoExtension" xml:space="preserve">
+    <value>Extension</value>
+  </data>
+  <data name="ConsystoCopyToOtherPane" xml:space="preserve">
+    <value>Copy to other pane</value>
+  </data>
+  <data name="ConsystoCopyToOtherPaneDescription" xml:space="preserve">
+    <value>Copy the selected items to the folder open in the other pane</value>
+  </data>
+  <data name="ConsystoCopyToOtherPaneConfirm" xml:space="preserve">
+    <value>Copy the selected items ({0}) to {1}?</value>
+  </data>
+  <data name="ConsystoMoveToOtherPane" xml:space="preserve">
+    <value>Move to other pane</value>
+  </data>
+  <data name="ConsystoMoveToOtherPaneDescription" xml:space="preserve">
+    <value>Move the selected items to the folder open in the other pane</value>
+  </data>
+  <data name="ConsystoMoveToOtherPaneConfirm" xml:space="preserve">
+    <value>Move the selected items ({0}) to {1}?</value>
+  </data>
+  <data name="ConsystoOtherPaneNotFolder" xml:space="preserve">
+    <value>The other pane doesn't show a folder.</value>
+  </data>
+  <data name="ConsystoSyncNavigation" xml:space="preserve">
+    <value>Synchronized navigation</value>
+  </data>
+  <data name="ConsystoSyncNavigationDescription" xml:space="preserve">
+    <value>Repeat stepping into subfolders and up in the other pane</value>
+  </data>
+  <data name="ConsystoCompareFolders" xml:space="preserve">
+    <value>Compare folders</value>
+  </data>
+  <data name="ConsystoCompareFoldersDescription" xml:space="preserve">
+    <value>Compare the folders open in both panes and copy the differences</value>
+  </data>
+  <data name="ConsystoCompareFoldersNeedFolders" xml:space="preserve">
+    <value>Both panes must show a folder.</value>
+  </data>
+  <data name="ConsystoCompareSubfolders" xml:space="preserve">
+    <value>Subfolders</value>
+  </data>
+  <data name="ConsystoCompareShowIdentical" xml:space="preserve">
+    <value>Show identical</value>
+  </data>
+  <data name="ConsystoCompareName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="ConsystoCompareScanning" xml:space="preserve">
+    <value>Comparing…</value>
+  </data>
+  <data name="ConsystoCompareNoDifferences" xml:space="preserve">
+    <value>The folders are identical.</value>
+  </data>
+  <data name="ConsystoCompareSummary" xml:space="preserve">
+    <value>Only left: {0} · Only right: {1} · Different: {2} · Identical: {3}</value>
+  </data>
+  <data name="ConsystoCompareSynchronize" xml:space="preserve">
+    <value>Synchronize ({0})</value>
+  </data>
+  <data name="ConsystoCompareActionHint" xml:space="preserve">
+    <value>Click an arrow to change the direction or skip the item</value>
+  </data>
+  <data name="ConsystoSwapPanes" xml:space="preserve">
+    <value>Swap panes</value>
+  </data>
+  <data name="ConsystoSwapPanesDescription" xml:space="preserve">
+    <value>Swap the folders of the two panes</value>
+  </data>
+  <data name="ConsystoMapNetworkDrive" xml:space="preserve">
+    <value>Map network drive</value>
+  </data>
+  <data name="ConsystoGallery" xml:space="preserve">
+    <value>Gallery</value>
+  </data>
+  <data name="ConsystoGalleryDescription" xml:space="preserve">
+    <value>Switch to the gallery layout: a large preview above a row of thumbnails</value>
+  </data>
+  <data name="ConsystoGalleryNoSelection" xml:space="preserve">
+    <value>Select an item to preview it</value>
+  </data>
+  <data name="ConsystoBookAuthor" xml:space="preserve">
+    <value>Author</value>
+  </data>
+  <data name="ConsystoBookSeries" xml:space="preserve">
+    <value>Series</value>
+  </data>
+  <data name="ConsystoBookSeriesNumber" xml:space="preserve">
+    <value>{0}, #{1}</value>
+    <comment>{0} is the series name, {1} the book's position in it</comment>
+  </data>
+  <data name="ConsystoBookGenre" xml:space="preserve">
+    <value>Genre</value>
+  </data>
+  <data name="ConsystoBookLanguage" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="ConsystoBookYear" xml:space="preserve">
+    <value>Year</value>
+  </data>
+  <data name="ConsystoBookPublisher" xml:space="preserve">
+    <value>Publisher</value>
+  </data>
+  <data name="ConsystoBookIsbn" xml:space="preserve">
+    <value>ISBN</value>
+  </data>
+  <data name="ConsystoBookTranslator" xml:space="preserve">
+    <value>Translator</value>
+  </data>
+  <data name="ConsystoResetColumnOrder" xml:space="preserve">
+    <value>Reset column order</value>
+  </data>
+  <data name="ConsystoOpdsCatalogs" xml:space="preserve">
+    <value>Book catalogs</value>
+  </data>
+  <data name="ConsystoOpdsAddCatalog" xml:space="preserve">
+    <value>Add catalog…</value>
+  </data>
+  <data name="ConsystoOpdsAddCatalogTitle" xml:space="preserve">
+    <value>New OPDS catalog</value>
+  </data>
+  <data name="ConsystoOpdsEditCatalog" xml:space="preserve">
+    <value>Edit catalog…</value>
+  </data>
+  <data name="ConsystoOpdsRemoveCatalog" xml:space="preserve">
+    <value>Remove catalog</value>
+  </data>
+  <data name="ConsystoOpdsRemoveConfirm" xml:space="preserve">
+    <value>Remove the catalog “{0}” from the list? Downloaded books stay where they are.</value>
+  </data>
+  <data name="ConsystoOpdsOpenInNewTab" xml:space="preserve">
+    <value>Open in new tab</value>
+  </data>
+  <data name="ConsystoOpdsCatalogName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="ConsystoOpdsCatalogAddress" xml:space="preserve">
+    <value>Catalog address (OPDS)</value>
+  </data>
+  <data name="ConsystoOpdsInvalidAddress" xml:space="preserve">
+    <value>Enter a full address starting with http:// or https://</value>
+  </data>
+  <data name="ConsystoOpdsUserName" xml:space="preserve">
+    <value>User name (if the catalog requires sign-in)</value>
+  </data>
+  <data name="ConsystoOpdsPassword" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="ConsystoOpdsPasswordKeep" xml:space="preserve">
+    <value>Leave empty to keep the saved password</value>
+  </data>
+  <data name="ConsystoOpdsPasswordNote" xml:space="preserve">
+    <value>The password is kept in Windows Credential Manager.</value>
+  </data>
+  <data name="ConsystoOpdsSave" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="ConsystoOpdsSignInTitle" xml:space="preserve">
+    <value>Sign in to the catalog</value>
+  </data>
+  <data name="ConsystoOpdsSignInText" xml:space="preserve">
+    <value>{0} asks for a user name and password.</value>
+  </data>
+  <data name="ConsystoOpdsSignIn" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="ConsystoOpdsSignInRequired" xml:space="preserve">
+    <value>The catalog requires sign-in</value>
+  </data>
+  <data name="ConsystoOpdsSearchPlaceholder" xml:space="preserve">
+    <value>Search the catalog</value>
+  </data>
+  <data name="ConsystoOpdsLoadMore" xml:space="preserve">
+    <value>Show more</value>
+  </data>
+  <data name="ConsystoOpdsEmpty" xml:space="preserve">
+    <value>Nothing on this page</value>
+  </data>
+  <data name="ConsystoOpdsNotFound" xml:space="preserve">
+    <value>This catalog is no longer in the list</value>
+  </data>
+  <data name="ConsystoOpdsLoadFailed" xml:space="preserve">
+    <value>Could not open the catalog page</value>
+  </data>
+  <data name="ConsystoOpdsDownloadFailed" xml:space="preserve">
+    <value>Could not download the book</value>
+  </data>
+  <data name="ConsystoOpdsDownload" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="ConsystoOpdsDownloading" xml:space="preserve">
+    <value>Downloading</value>
+  </data>
+  <data name="ConsystoOpdsDownloaded" xml:space="preserve">
+    <value>Downloaded</value>
+  </data>
+  <data name="ConsystoOpdsShowInFolder" xml:space="preserve">
+    <value>Show in folder</value>
+  </data>
+  <data name="ConsystoOpdsMoreInCatalog" xml:space="preserve">
+    <value>More in the catalog</value>
+  </data>
+  <data name="ConsystoOpdsOnSite" xml:space="preserve">
+    <value>Get it on the website</value>
+  </data>
+  <data name="ConsystoBookServerEnable" xml:space="preserve">
+    <value>Share the book library over OPDS</value>
+  </data>
+  <data name="ConsystoBookServerAddressHint" xml:space="preserve">
+    <value>Add it as a catalog in FBReader or Librera; the phone must be on the same network</value>
+  </data>
+  <data name="ConsystoBookServerOff" xml:space="preserve">
+    <value>Sharing is off.</value>
+  </data>
+  <data name="ConsystoBookServerNoNetwork" xml:space="preserve">
+    <value>This computer is not connected to a local network.</value>
+  </data>
+  <data name="ConsystoBookServerScanning" xml:space="preserve">
+    <value>Reading the book folders…</value>
+  </data>
+  <data name="ConsystoBookServerBooks" xml:space="preserve">
+    <value>Books in the library: {0}</value>
+  </data>
+  <data name="ConsystoBookServerRescan" xml:space="preserve">
+    <value>Read again</value>
+  </data>
+  <data name="ConsystoBookServerFolders" xml:space="preserve">
+    <value>Book folders</value>
+  </data>
+  <data name="ConsystoBookServerAddFolder" xml:space="preserve">
+    <value>Add folder…</value>
+  </data>
+  <data name="ConsystoBookServerRemoveFolder" xml:space="preserve">
+    <value>Remove from the library</value>
+  </data>
+  <data name="ConsystoBookServerNoFolders" xml:space="preserve">
+    <value>No folders: the catalog is empty.</value>
+  </data>
+  <data name="ConsystoBookServerPort" xml:space="preserve">
+    <value>Port</value>
+  </data>
+  <data name="ConsystoBookServerFirewall" xml:space="preserve">
+    <value>The catalog answers devices on the local network only, and only while Files is open. The first time sharing starts, Windows may ask whether Files may use the network: allow it for private networks.</value>
+  </data>
+  <data name="ConsystoBookServerPortBusy" xml:space="preserve">
+    <value>Port {0} is taken by another program or reserved by Windows. Choose another port.</value>
+  </data>
+  <data name="ConsystoBookServerError" xml:space="preserve">
+    <value>Sharing could not start: {0}</value>
+  </data>
+  <data name="ConsystoBookServerCatalogTitle" xml:space="preserve">
+    <value>Library on {0}</value>
+  </data>
+  <data name="ConsystoBooks" xml:space="preserve">
+    <value>Books</value>
+  </data>
+  <data name="ConsystoLibraryFoldersDescription" xml:space="preserve">
+    <value>Books are read from these folders; the files stay where they are</value>
+  </data>
+  <data name="ConsystoBookServerDescription" xml:space="preserve">
+    <value>An OPDS catalog for FBReader or Librera on the home network</value>
+  </data>
+  <data name="ConsystoBookServerAddress" xml:space="preserve">
+    <value>Catalog address</value>
+  </data>
+  <data name="ConsystoLibraryTitle" xml:space="preserve">
+    <value>My library</value>
+  </data>
+  <data name="ConsystoLibrarySettings" xml:space="preserve">
+    <value>Collection settings</value>
+  </data>
+  <data name="ConsystoLibrarySettingsMenu" xml:space="preserve">
+    <value>Library settings…</value>
+  </data>
+  <data name="ConsystoLibrarySearchPlaceholder" xml:space="preserve">
+    <value>Title, author or series</value>
+  </data>
+  <data name="ConsystoLibraryOpen" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="ConsystoLibraryAll" xml:space="preserve">
+    <value>All books</value>
+  </data>
+  <data name="ConsystoLibraryNewest" xml:space="preserve">
+    <value>Recently added</value>
+  </data>
+  <data name="ConsystoLibraryAuthors" xml:space="preserve">
+    <value>Authors</value>
+  </data>
+  <data name="ConsystoLibrarySeries" xml:space="preserve">
+    <value>Series</value>
+  </data>
+  <data name="ConsystoLibraryGenres" xml:space="preserve">
+    <value>Genres</value>
+  </data>
+  <data name="ConsystoLibraryDuplicates" xml:space="preserve">
+    <value>Duplicates</value>
+  </data>
+  <data name="ConsystoLibraryGroupBooks" xml:space="preserve">
+    <value>Books: {0}</value>
+  </data>
+  <data name="ConsystoLibraryDuplicatesHint" xml:space="preserve">
+    <value>Mark the extra copies and delete them to the Recycle Bin. The first copy of each group is the one suggested to keep.</value>
+  </data>
+  <data name="ConsystoLibraryIdenticalFiles" xml:space="preserve">
+    <value>identical files</value>
+  </data>
+  <data name="ConsystoLibrarySameBook" xml:space="preserve">
+    <value>the same book, different files</value>
+  </data>
+  <data name="ConsystoLibraryIdenticalBadge" xml:space="preserve">
+    <value>identical file</value>
+  </data>
+  <data name="ConsystoLibraryMarkExtra" xml:space="preserve">
+    <value>Mark extra copies</value>
+  </data>
+  <data name="ConsystoLibraryDeleteMarked" xml:space="preserve">
+    <value>Delete marked ({0})</value>
+  </data>
+  <data name="ConsystoLibraryKeepOneCopy" xml:space="preserve">
+    <value>Every copy of “{0}” is marked. Leave at least one.</value>
+  </data>
+  <data name="ConsystoLibraryDeleteFailed" xml:space="preserve">
+    <value>The files could not be deleted</value>
+  </data>
+  <data name="ConsystoLibraryNoFolders" xml:space="preserve">
+    <value>The collection has no folders. Add them in Settings → Collections.</value>
+  </data>
+  <data name="ConsystoLibraryNoDuplicates" xml:space="preserve">
+    <value>No duplicates found.</value>
+  </data>
+  <data name="ConsystoLibraryNothingFound" xml:space="preserve">
+    <value>Nothing found.</value>
+  </data>
+  <data name="ConsystoLibraryEmpty" xml:space="preserve">
+    <value>There is nothing in the collection folders yet.</value>
+  </data>
+  <data name="ConsystoCollections" xml:space="preserve">
+    <value>Libraries</value>
+  </data>
+  <data name="ConsystoCollectionsDescription" xml:space="preserve">
+    <value>Catalogs of your own folders: books, photos and music; drawings later</value>
+  </data>
+  <data name="ConsystoCollectionAdd" xml:space="preserve">
+    <value>Add collection…</value>
+  </data>
+  <data name="ConsystoCollectionAddTitle" xml:space="preserve">
+    <value>New collection</value>
+  </data>
+  <data name="ConsystoCollectionAddButton" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="ConsystoCollectionKind" xml:space="preserve">
+    <value>Kind</value>
+  </data>
+  <data name="ConsystoCollectionName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="ConsystoCollectionFolder" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="ConsystoCollectionNoFolder" xml:space="preserve">
+    <value>No folder chosen</value>
+  </data>
+  <data name="ConsystoCollectionChooseFolder" xml:space="preserve">
+    <value>Choose…</value>
+  </data>
+  <data name="ConsystoCollectionFolderRequired" xml:space="preserve">
+    <value>Choose the folder of the collection.</value>
+  </data>
+  <data name="ConsystoCollectionRename" xml:space="preserve">
+    <value>Rename…</value>
+  </data>
+  <data name="ConsystoCollectionRenameTitle" xml:space="preserve">
+    <value>Rename collection</value>
+  </data>
+  <data name="ConsystoCollectionRemove" xml:space="preserve">
+    <value>Remove collection</value>
+  </data>
+  <data name="ConsystoCollectionRemoveConfirm" xml:space="preserve">
+    <value>Remove the collection “{0}”? The files stay where they are.</value>
+  </data>
+  <data name="ConsystoCollectionSettingsMenu" xml:space="preserve">
+    <value>Collection settings…</value>
+  </data>
+  <data name="ConsystoCollectionMore" xml:space="preserve">
+    <value>More</value>
+  </data>
+  <data name="ConsystoCollectionScanning" xml:space="preserve">
+    <value>Reading the folders…</value>
+  </data>
+  <data name="ConsystoCollectionNotFound" xml:space="preserve">
+    <value>This collection is gone. It may have been removed in Settings.</value>
+  </data>
+  <data name="ConsystoCollectionNone" xml:space="preserve">
+    <value>No libraries yet.</value>
+  </data>
+  <data name="ConsystoKindBooks" xml:space="preserve">
+    <value>Books</value>
+  </data>
+  <data name="ConsystoKindPhotos" xml:space="preserve">
+    <value>Photos</value>
+  </data>
+  <data name="ConsystoKindMusic" xml:space="preserve">
+    <value>Music</value>
+  </data>
+  <data name="ConsystoCollectionYears" xml:space="preserve">
+    <value>Years</value>
+  </data>
+  <data name="ConsystoPhotosAll" xml:space="preserve">
+    <value>All photos</value>
+  </data>
+  <data name="ConsystoPhotosCount" xml:space="preserve">
+    <value>Photos: {0}</value>
+  </data>
+  <data name="ConsystoPhotosSearchPlaceholder" xml:space="preserve">
+    <value>File name, camera or year</value>
+  </data>
+  <data name="ConsystoPhotosCameras" xml:space="preserve">
+    <value>Cameras</value>
+  </data>
+  <data name="ConsystoMusicAll" xml:space="preserve">
+    <value>All tracks</value>
+  </data>
+  <data name="ConsystoMusicCount" xml:space="preserve">
+    <value>Tracks: {0}</value>
+  </data>
+  <data name="ConsystoMusicSearchPlaceholder" xml:space="preserve">
+    <value>Title, artist or album</value>
+  </data>
+  <data name="ConsystoMusicSameSong" xml:space="preserve">
+    <value>the same song, different files</value>
+  </data>
+  <data name="ConsystoMusicArtists" xml:space="preserve">
+    <value>Artists</value>
+  </data>
+  <data name="ConsystoMusicAlbums" xml:space="preserve">
+    <value>Albums</value>
+  </data>
+  <data name="ConsystoMusicTrack" xml:space="preserve">
+    <value>Track {0}</value>
+  </data>
+  <data name="ConsystoLibraryCreate" xml:space="preserve">
+    <value>Create library…</value>
+  </data>
+  <data name="ConsystoLibraryCreateTitle" xml:space="preserve">
+    <value>New library</value>
+  </data>
+  <data name="ConsystoLibrariesDescription" xml:space="preserve">
+    <value>Windows libraries. A library of books, photos or music opens as a catalog; any other opens as folders</value>
+  </data>
+  <data name="ConsystoLibraryKindMenu" xml:space="preserve">
+    <value>Library type</value>
+  </data>
+  <data name="ConsystoLibraryKindFolder" xml:space="preserve">
+    <value>Folders</value>
+  </data>
+  <data name="ConsystoLibraryOpenAsFolder" xml:space="preserve">
+    <value>Open as folders</value>
+  </data>
+  <data name="ConsystoLibraryIndex" xml:space="preserve">
+    <value>Catalog of the library</value>
+  </data>
+  <data name="ConsystoCatalogsOnline" xml:space="preserve">
+    <value>Online</value>
+  </data>
+  <data name="ConsystoViewTiles" xml:space="preserve">
+    <value>Tiles</value>
+  </data>
+  <data name="ConsystoViewList" xml:space="preserve">
+    <value>List</value>
+  </data>
+  <data name="ConsystoIconSet" xml:space="preserve">
+    <value>Icon set</value>
+  </data>
+  <data name="ConsystoIconSetFolders" xml:space="preserve">
+    <value>Folders</value>
+  </data>
+  <data name="ConsystoIconSetObjects" xml:space="preserve">
+    <value>Objects</value>
+  </data>
+  <data name="ConsystoIconSetWindows" xml:space="preserve">
+    <value>Windows</value>
+  </data>
+  <data name="ConsystoIconSetWindowsModern" xml:space="preserve">
+    <value>Windows (more)</value>
+  </data>
+  <data name="ConsystoKindDrawings" xml:space="preserve">
+    <value>Drawings</value>
+  </data>
+  <data name="ConsystoDrawingsAll" xml:space="preserve">
+    <value>All drawings</value>
+  </data>
+  <data name="ConsystoDrawingsCount" xml:space="preserve">
+    <value>Drawings: {0}</value>
+  </data>
+  <data name="ConsystoDrawingsSearchPlaceholder" xml:space="preserve">
+    <value>Name, folder or format</value>
+  </data>
+  <data name="ConsystoDrawingsKinds" xml:space="preserve">
+    <value>Kinds</value>
+  </data>
+  <data name="ConsystoDrawingsFormats" xml:space="preserve">
+    <value>Formats</value>
+  </data>
+  <data name="ConsystoDrawingsFolders" xml:space="preserve">
+    <value>Folders</value>
+  </data>
+  <data name="ConsystoDrawingsParts" xml:space="preserve">
+    <value>Parts: {0}</value>
+  </data>
+  <data name="ConsystoAssemblyShowParts" xml:space="preserve">
+    <value>Show parts</value>
+  </data>
+  <data name="ConsystoClosePane" xml:space="preserve">
+    <value>Close this pane</value>
+  </data>
+  <data name="ConsystoTerminal" xml:space="preserve">
+    <value>Terminal</value>
+  </data>
+  <data name="ConsystoOpenTerminalInTab" xml:space="preserve">
+    <value>Open terminal in pane</value>
+  </data>
+  <data name="ConsystoOpenTerminalInTabDescription" xml:space="preserve">
+    <value>Open a terminal in the second pane of the tab</value>
+  </data>
+  <data name="ConsystoTerminalExited" xml:space="preserve">
+    <value>The shell has exited. Close the tab or open a new terminal.</value>
+  </data>
+  <data name="ConsystoTerminalFailed" xml:space="preserve">
+    <value>The terminal could not start</value>
+  </data>
+  <data name="ConsystoIPropertiesSection" xml:space="preserve">
+    <value>Inventor</value>
+  </data>
+  <data name="ConsystoIPropertiesCustomSection" xml:space="preserve">
+    <value>Inventor: custom</value>
+  </data>
+  <data name="ConsystoIPropertyPartNumber" xml:space="preserve">
+    <value>Part number</value>
+  </data>
+  <data name="ConsystoIPropertyDescription" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="ConsystoIPropertyTitle" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="ConsystoIPropertyMaterial" xml:space="preserve">
+    <value>Material</value>
+  </data>
+  <data name="ConsystoIPropertyMass" xml:space="preserve">
+    <value>Mass</value>
+  </data>
+  <data name="ConsystoIPropertyMassValue" xml:space="preserve">
+    <value>{0} kg</value>
+  </data>
+  <data name="ConsystoIPropertySheetMetalRule" xml:space="preserve">
+    <value>Sheet metal rule</value>
+  </data>
+  <data name="ConsystoIPropertyProject" xml:space="preserve">
+    <value>Project</value>
+  </data>
+  <data name="ConsystoIPropertyDesigner" xml:space="preserve">
+    <value>Designer</value>
+  </data>
+  <data name="ConsystoIPropertyVendor" xml:space="preserve">
+    <value>Vendor</value>
+  </data>
+  <data name="ConsystoIPropertyComments" xml:space="preserve">
+    <value>Comments</value>
+  </data>
+  <data name="ConsystoIPropertiesPartsSection" xml:space="preserve">
+    <value>Inventor: parts</value>
+  </data>
+  <data name="ConsystoIPropertyPartMissing" xml:space="preserve">
+    <value>not found</value>
+  </data>
+  <data name="ConsystoDrawingsMaterials" xml:space="preserve">
+    <value>Materials</value>
+  </data>
+  <data name="ConsystoDrawingsDesigners" xml:space="preserve">
+    <value>Designers</value>
+  </data>
+  <data name="ConsystoDrawingsProjects" xml:space="preserve">
+    <value>Projects</value>
+  </data>
+  <data name="ConsystoCollectionScanListing" xml:space="preserve">
+    <value>Looking for files: {0:N0} found</value>
+  </data>
+  <data name="ConsystoCollectionScanReading" xml:space="preserve">
+    <value>Reading files: {0:N0} of {1:N0}</value>
+  </data>
+  <data name="ConsystoCollectionScanComparing" xml:space="preserve">
+    <value>Looking for identical copies: {0:N0} of {1:N0}</value>
+  </data>
+  <data name="ConsystoCollectionScanSaving" xml:space="preserve">
+    <value>Saving the index</value>
+  </data>
+  <data name="ConsystoTorrents" xml:space="preserve">
+    <value>Torrents</value>
+  </data>
+  <data name="ConsystoTorrentsDescription" xml:space="preserve">
+    <value>Open the torrent downloads</value>
+  </data>
+  <data name="ConsystoTorrentsEmpty" xml:space="preserve">
+    <value>No downloads yet. Paste a magnet link above, add a .torrent file, or right-click a .torrent file in a folder.</value>
+  </data>
+  <data name="ConsystoTorrentMagnetPlaceholder" xml:space="preserve">
+    <value>magnet:?xt=urn:btih:…</value>
+  </data>
+  <data name="ConsystoTorrentAddMagnet" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="ConsystoTorrentAddFile" xml:space="preserve">
+    <value>Add .torrent file…</value>
+  </data>
+  <data name="ConsystoTorrentNotMagnet" xml:space="preserve">
+    <value>This is not a magnet link.</value>
+  </data>
+  <data name="ConsystoTorrentAddFailed" xml:space="preserve">
+    <value>The torrent could not be added: {0}</value>
+  </data>
+  <data name="ConsystoTorrentDownload" xml:space="preserve">
+    <value>Download torrent</value>
+  </data>
+  <data name="ConsystoTorrentDownloadDescription" xml:space="preserve">
+    <value>Download the torrent into a folder of your choice</value>
+  </data>
+  <data name="ConsystoTorrentOpenFolder" xml:space="preserve">
+    <value>Open folder</value>
+  </data>
+  <data name="ConsystoTorrentRemove" xml:space="preserve">
+    <value>Remove download</value>
+  </data>
+  <data name="ConsystoTorrentRemoveQuestion" xml:space="preserve">
+    <value>Remove "{0}" from the downloads?</value>
+  </data>
+  <data name="ConsystoTorrentRemoveKeepFiles" xml:space="preserve">
+    <value>Keep files</value>
+  </data>
+  <data name="ConsystoTorrentRemoveDeleteFiles" xml:space="preserve">
+    <value>Delete files too</value>
+  </data>
+  <data name="ConsystoTorrentPause" xml:space="preserve">
+    <value>Pause</value>
+  </data>
+  <data name="ConsystoTorrentResume" xml:space="preserve">
+    <value>Resume</value>
+  </data>
+  <data name="ConsystoTorrentPeers" xml:space="preserve">
+    <value>{0} peers</value>
+  </data>
+  <data name="ConsystoTorrentStateMetadata" xml:space="preserve">
+    <value>Getting file list</value>
+  </data>
+  <data name="ConsystoTorrentStateChecking" xml:space="preserve">
+    <value>Checking</value>
+  </data>
+  <data name="ConsystoTorrentStateDownloading" xml:space="preserve">
+    <value>Downloading</value>
+  </data>
+  <data name="ConsystoTorrentStateSeeding" xml:space="preserve">
+    <value>Seeding</value>
+  </data>
+  <data name="ConsystoTorrentStatePaused" xml:space="preserve">
+    <value>Paused</value>
+  </data>
+  <data name="ConsystoTorrentStateStopped" xml:space="preserve">
+    <value>Stopped</value>
+  </data>
+  <data name="ConsystoTorrentStateError" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="ConsystoFileTypeDxf" xml:space="preserve">
+    <value>DXF drawing</value>
+  </data>
+  <data name="ConsystoFileTypeDwg" xml:space="preserve">
+    <value>DWG drawing</value>
+  </data>
+  <data name="ConsystoFileTypeStep" xml:space="preserve">
+    <value>STEP model</value>
+  </data>
+  <data name="ConsystoFileTypeIges" xml:space="preserve">
+    <value>IGES model</value>
+  </data>
+  <data name="ConsystoFileTypeStl" xml:space="preserve">
+    <value>STL mesh</value>
+  </data>
+  <data name="ConsystoFileType3mf" xml:space="preserve">
+    <value>3MF print project</value>
+  </data>
+  <data name="ConsystoCadVersion" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="ConsystoTorrentDefault" xml:space="preserve">
+    <value>Download torrents with Files</value>
+  </data>
+  <data name="ConsystoTorrentDefaultDescription" xml:space="preserve">
+    <value>Open .torrent files and magnet links in Files. Windows asks you to confirm the choice: in the page that opens, pick Files for .torrent and MAGNET.</value>
+  </data>
+  <data name="ConsystoTorrentDefaultButton" xml:space="preserve">
+    <value>Set as default…</value>
+  </data>
+  <data name="ConsystoTorrentDownloads" xml:space="preserve">
+    <value>Downloads</value>
+  </data>
+  <data name="ConsystoTorrentFilterAll" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="ConsystoTorrentFilterDownloading" xml:space="preserve">
+    <value>Downloading</value>
+  </data>
+  <data name="ConsystoTorrentFilterSeeding" xml:space="preserve">
+    <value>Seeding</value>
+  </data>
+  <data name="ConsystoTorrentFilterCompleted" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="ConsystoTorrentFilterPaused" xml:space="preserve">
+    <value>Paused</value>
+  </data>
+  <data name="ConsystoTorrentFilterActive" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="ConsystoTorrentFilterError" xml:space="preserve">
+    <value>Errors</value>
+  </data>
+  <data name="ConsystoTorrentSearch" xml:space="preserve">
+    <value>Filter by name…</value>
+  </data>
+  <data name="ConsystoTorrentAllTrackers" xml:space="preserve">
+    <value>All trackers</value>
+  </data>
+  <data name="ConsystoTorrentFiles" xml:space="preserve">
+    <value>Files</value>
+  </data>
+  <data name="ConsystoTorrentPeersTab" xml:space="preserve">
+    <value>Peers</value>
+  </data>
+  <data name="ConsystoTorrentTrackers" xml:space="preserve">
+    <value>Trackers</value>
+  </data>
+  <data name="ConsystoTorrentFileWanted" xml:space="preserve">
+    <value>Download this file</value>
+  </data>
+  <data name="ConsystoTorrentSelectHint" xml:space="preserve">
+    <value>Select a download to see its files, peers and trackers</value>
+  </data>
+  <data name="ConsystoTorrentColumnName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="ConsystoTorrentColumnSize" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="ConsystoTorrentColumnProgress" xml:space="preserve">
+    <value>Progress</value>
+  </data>
+  <data name="ConsystoTorrentColumnState" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="ConsystoTorrentColumnSeeds" xml:space="preserve">
+    <value>Seeds</value>
+  </data>
+  <data name="ConsystoTorrentColumnPeers" xml:space="preserve">
+    <value>Peers</value>
+  </data>
+  <data name="ConsystoTorrentColumnDownload" xml:space="preserve">
+    <value>Down</value>
+  </data>
+  <data name="ConsystoTorrentColumnUpload" xml:space="preserve">
+    <value>Up</value>
+  </data>
+  <data name="ConsystoTorrentColumnRemaining" xml:space="preserve">
+    <value>ETA</value>
+  </data>
+  <data name="ConsystoTorrentColumnRatio" xml:space="preserve">
+    <value>Ratio</value>
+  </data>
+  <data name="ConsystoTorrentDaysHours" xml:space="preserve">
+    <value>{0} d {1} h</value>
+  </data>
+  <data name="ConsystoTorrentHoursMinutes" xml:space="preserve">
+    <value>{0} h {1} min</value>
+  </data>
+  <data name="ConsystoTorrentMinutesSeconds" xml:space="preserve">
+    <value>{0} min {1} s</value>
+  </data>
+  <data name="ConsystoTorrentRate" xml:space="preserve">
+    <value>{0}/s</value>
+  </data>
+  <data name="ConsystoSync" xml:space="preserve">
+    <value>Sync</value>
+  </data>
+  <data name="ConsystoSyncAddPair" xml:space="preserve">
+    <value>Add pair…</value>
+  </data>
+  <data name="ConsystoSyncEdit" xml:space="preserve">
+    <value>Edit pair</value>
+  </data>
+  <data name="ConsystoSyncRemovePair" xml:space="preserve">
+    <value>Remove pair</value>
+  </data>
+  <data name="ConsystoSyncRemoveQuestion" xml:space="preserve">
+    <value>Remove the pair "{0}"? The folders and files stay as they are.</value>
+  </data>
+  <data name="ConsystoSyncName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="ConsystoSyncSource" xml:space="preserve">
+    <value>Source folder</value>
+  </data>
+  <data name="ConsystoSyncTarget" xml:space="preserve">
+    <value>Backup folder</value>
+  </data>
+  <data name="ConsystoSyncBrowse" xml:space="preserve">
+    <value>Browse…</value>
+  </data>
+  <data name="ConsystoSyncExclusions" xml:space="preserve">
+    <value>Leave out (names or masks, separated by ;)</value>
+  </data>
+  <data name="ConsystoSyncBackupNote" xml:space="preserve">
+    <value>New and changed files are copied from the source into the backup folder. Nothing in the backup folder is deleted, and files that are newer there are not overwritten unless you ask.</value>
+  </data>
+  <data name="ConsystoSyncSourceMissing" xml:space="preserve">
+    <value>The source folder does not exist.</value>
+  </data>
+  <data name="ConsystoSyncTargetMissing" xml:space="preserve">
+    <value>Choose the backup folder.</value>
+  </data>
+  <data name="ConsystoSyncNested" xml:space="preserve">
+    <value>The backup folder cannot be inside the source folder, or the other way round.</value>
+  </data>
+  <data name="ConsystoSyncNotFound" xml:space="preserve">
+    <value>This pair no longer exists.</value>
+  </data>
+  <data name="ConsystoSyncScan" xml:space="preserve">
+    <value>Check</value>
+  </data>
+  <data name="ConsystoSyncRun" xml:space="preserve">
+    <value>Copy changes</value>
+  </data>
+  <data name="ConsystoSyncIncludeTargetNewer" xml:space="preserve">
+    <value>Also overwrite files that are newer in the backup</value>
+  </data>
+  <data name="ConsystoSyncScanning" xml:space="preserve">
+    <value>Comparing the folders…</value>
+  </data>
+  <data name="ConsystoSyncScanningCount" xml:space="preserve">
+    <value>Comparing the folders: {0:N0} files checked</value>
+  </data>
+  <data name="ConsystoSyncCopying" xml:space="preserve">
+    <value>Copying: {0:N0} of {1:N0} files, {2} of {3}</value>
+  </data>
+  <data name="ConsystoSyncUpToDate" xml:space="preserve">
+    <value>The backup is up to date ({0:N0} files checked).</value>
+  </data>
+  <data name="ConsystoSyncPlanSummary" xml:space="preserve">
+    <value>{0:N0} files to copy, {1} ({2:N0} files checked).</value>
+  </data>
+  <data name="ConsystoSyncTargetNewerSkipped" xml:space="preserve">
+    <value>{0:N0} files are newer in the backup and will be left as they are.</value>
+  </data>
+  <data name="ConsystoSyncDone" xml:space="preserve">
+    <value>Copied {0:N0} files.</value>
+  </data>
+  <data name="ConsystoSyncDoneWithErrors" xml:space="preserve">
+    <value>Copied {0:N0} files, {1:N0} failed: {2}</value>
+  </data>
+  <data name="ConsystoSyncCancelled" xml:space="preserve">
+    <value>Stopped. The files copied so far are complete; the next check continues from there.</value>
+  </data>
+  <data name="ConsystoSyncLastRun" xml:space="preserve">
+    <value>Last run {0}: {1}</value>
+  </data>
+  <data name="ConsystoSyncNeverRun" xml:space="preserve">
+    <value>Not run yet</value>
+  </data>
+  <data name="ConsystoSyncHint" xml:space="preserve">
+    <value>Press Check to see what would be copied. Nothing is copied until you press Copy changes.</value>
+  </data>
+  <data name="ConsystoSyncAll" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="ConsystoSyncNew" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="ConsystoSyncChanged" xml:space="preserve">
+    <value>Changed</value>
+  </data>
+  <data name="ConsystoSyncTargetNewer" xml:space="preserve">
+    <value>Newer in backup</value>
   </data>
 </root>

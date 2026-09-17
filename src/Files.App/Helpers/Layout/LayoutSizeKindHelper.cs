@@ -47,6 +47,9 @@ namespace Files.App.Helpers
 				FolderLayoutModes.GridView when LayoutSettingsService.GridViewSize <= GridViewSizeKind.Small => 96,
 				FolderLayoutModes.GridView when LayoutSettingsService.GridViewSize <= GridViewSizeKind.Large => 128,
 
+				// Consysto fork: gallery thumbnails
+				FolderLayoutModes.GalleryView => 96,
+
 				_ => 256,
 			};
 		}

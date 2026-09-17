@@ -205,6 +205,22 @@ namespace Files.App.Helpers
 
 		// Methods
 
+		/// <summary>
+		/// Consysto fork: the page a layout mode is shown on, without re-reading the folder's saved preferences.
+		/// A mode just chosen by the user is not in them yet, so the gallery was never navigated to.
+		/// </summary>
+		public static Type? GetLayoutTypeForMode(FolderLayoutModes layoutMode)
+			=> layoutMode switch
+			{
+				FolderLayoutModes.DetailsView => typeof(DetailsLayoutPage),
+				FolderLayoutModes.ListView => typeof(GridLayoutPage),
+				FolderLayoutModes.CardsView => typeof(GridLayoutPage),
+				FolderLayoutModes.GridView => typeof(GridLayoutPage),
+				FolderLayoutModes.GalleryView => typeof(GridLayoutPage),
+				FolderLayoutModes.ColumnView => typeof(ColumnsLayoutPage),
+				_ => null,
+			};
+
 		public Type GetLayoutType(string? path, bool changeLayoutMode = true)
 		{
 			var preferencesItem = GetLayoutPreferencesForPath(path, out var isDefaultLayout);
@@ -212,7 +228,9 @@ namespace Files.App.Helpers
 				return typeof(DetailsLayoutPage);
 
 			// Predicting the adaptive decision at navigation time avoids a post-enumeration page switch
-			if (IsAdaptiveLayoutEnabled && !preferencesItem.IsAdaptiveLayoutOverridden &&
+			// Consysto fork: the prediction knows only details and grid, so a folder set to the gallery keeps it
+			if (preferencesItem.LayoutMode is not FolderLayoutModes.GalleryView &&
+				IsAdaptiveLayoutEnabled && !preferencesItem.IsAdaptiveLayoutOverridden &&
 				isDefaultLayout is not false &&
 				AdaptiveLayoutHelpers.TryPredictLayout(path, out var resolvedLayout) &&
 				(isDefaultLayout ?? IsPathUsingDefaultLayout(path)))
@@ -232,6 +250,7 @@ namespace Files.App.Helpers
 				FolderLayoutModes.ListView => typeof(GridLayoutPage),
 				FolderLayoutModes.CardsView => typeof(GridLayoutPage),
 				FolderLayoutModes.GridView => typeof(GridLayoutPage),
+				FolderLayoutModes.GalleryView => typeof(GridLayoutPage),
 				FolderLayoutModes.ColumnView => typeof(ColumnsLayoutPage),
 				_ => typeof(DetailsLayoutPage)
 			};
@@ -280,6 +299,17 @@ namespace Files.App.Helpers
 			LayoutMode = FolderLayoutModes.GridView;
 
 			LayoutModeChangeRequested?.Invoke(this, new LayoutModeEventArgs(FolderLayoutModes.GridView));
+		}
+
+		// Consysto fork
+		public void ToggleLayoutModeGallery(bool manuallySet)
+		{
+			IsAdaptiveLayoutEnabled &= !manuallySet;
+
+			// Gallery View
+			LayoutMode = FolderLayoutModes.GalleryView;
+
+			LayoutModeChangeRequested?.Invoke(this, new LayoutModeEventArgs(FolderLayoutModes.GalleryView));
 		}
 
 		public void ToggleLayoutModeCards(bool manuallySet)
@@ -356,6 +386,13 @@ namespace Files.App.Helpers
 			UserSettingsService.LayoutSettingsService.ShowDateColumn = !columns.DateModifiedColumn.UserCollapsed;
 			UserSettingsService.LayoutSettingsService.ShowDateCreatedColumn = !columns.DateCreatedColumn.UserCollapsed;
 			UserSettingsService.LayoutSettingsService.ShowTypeColumn = !columns.ItemTypeColumn.UserCollapsed;
+			UserSettingsService.LayoutSettingsService.ShowExtensionColumn = !columns.ExtensionColumn.UserCollapsed;
+			UserSettingsService.LayoutSettingsService.ShowBookAuthorColumn = !columns.BookAuthorColumn.UserCollapsed;
+			UserSettingsService.LayoutSettingsService.ShowBookSeriesColumn = !columns.BookSeriesColumn.UserCollapsed;
+			UserSettingsService.LayoutSettingsService.ShowCadPartNumberColumn = !columns.CadPartNumberColumn.UserCollapsed;
+			UserSettingsService.LayoutSettingsService.ShowCadMaterialColumn = !columns.CadMaterialColumn.UserCollapsed;
+			UserSettingsService.LayoutSettingsService.ShowCadMassColumn = !columns.CadMassColumn.UserCollapsed;
+			UserSettingsService.LayoutSettingsService.ShowCadVersionColumn = !columns.CadVersionColumn.UserCollapsed;
 			UserSettingsService.LayoutSettingsService.ShowSizeColumn = !columns.SizeColumn.UserCollapsed;
 			UserSettingsService.LayoutSettingsService.ShowFileTagColumn = !columns.TagColumn.UserCollapsed;
 			UserSettingsService.LayoutSettingsService.ShowGitStatusColumn = !columns.GitStatusColumn.UserCollapsed;
@@ -372,6 +409,14 @@ namespace Files.App.Helpers
 			UserSettingsService.LayoutSettingsService.DateModifiedColumnWidth = columns.DateModifiedColumn.UserLengthPixels;
 			UserSettingsService.LayoutSettingsService.DateCreatedColumnWidth = columns.DateCreatedColumn.UserLengthPixels;
 			UserSettingsService.LayoutSettingsService.TypeColumnWidth = columns.ItemTypeColumn.UserLengthPixels;
+			UserSettingsService.LayoutSettingsService.ExtensionColumnWidth = columns.ExtensionColumn.UserLengthPixels;
+			UserSettingsService.LayoutSettingsService.BookAuthorColumnWidth = columns.BookAuthorColumn.UserLengthPixels;
+			UserSettingsService.LayoutSettingsService.BookSeriesColumnWidth = columns.BookSeriesColumn.UserLengthPixels;
+			UserSettingsService.LayoutSettingsService.CadPartNumberColumnWidth = columns.CadPartNumberColumn.UserLengthPixels;
+			UserSettingsService.LayoutSettingsService.CadMaterialColumnWidth = columns.CadMaterialColumn.UserLengthPixels;
+			UserSettingsService.LayoutSettingsService.CadMassColumnWidth = columns.CadMassColumn.UserLengthPixels;
+			UserSettingsService.LayoutSettingsService.CadVersionColumnWidth = columns.CadVersionColumn.UserLengthPixels;
+			UserSettingsService.LayoutSettingsService.DetailsColumnOrder = columns.ColumnOrder ?? string.Empty;
 			UserSettingsService.LayoutSettingsService.SizeColumnWidth = columns.SizeColumn.UserLengthPixels;
 			UserSettingsService.LayoutSettingsService.TagColumnWidth = columns.TagColumn.UserLengthPixels;
 			UserSettingsService.LayoutSettingsService.GitStatusColumnWidth = columns.GitStatusColumn.UserLengthPixels;
@@ -422,6 +467,7 @@ namespace Files.App.Helpers
 				UserSettingsService.LayoutSettingsService.DefaultSortFilesFirst = preferencesItem.SortFilesFirst;
 
 				UserSettingsService.LayoutSettingsService.NameColumnWidth = preferencesItem.ColumnsViewModel.NameColumn.UserLengthPixels;
+				UserSettingsService.LayoutSettingsService.DetailsColumnOrder = preferencesItem.ColumnsViewModel.ColumnOrder ?? string.Empty;
 
 				if (!preferencesItem.ColumnsViewModel.DateModifiedColumn.IsHidden)
 				{
@@ -437,6 +483,41 @@ namespace Files.App.Helpers
 				{
 					UserSettingsService.LayoutSettingsService.ShowTypeColumn = !preferencesItem.ColumnsViewModel.ItemTypeColumn.UserCollapsed;
 					UserSettingsService.LayoutSettingsService.TypeColumnWidth = preferencesItem.ColumnsViewModel.ItemTypeColumn.UserLengthPixels;
+				}
+				if (!preferencesItem.ColumnsViewModel.ExtensionColumn.IsHidden)
+				{
+					UserSettingsService.LayoutSettingsService.ShowExtensionColumn = !preferencesItem.ColumnsViewModel.ExtensionColumn.UserCollapsed;
+					UserSettingsService.LayoutSettingsService.ExtensionColumnWidth = preferencesItem.ColumnsViewModel.ExtensionColumn.UserLengthPixels;
+				}
+				if (!preferencesItem.ColumnsViewModel.BookAuthorColumn.IsHidden)
+				{
+					UserSettingsService.LayoutSettingsService.ShowBookAuthorColumn = !preferencesItem.ColumnsViewModel.BookAuthorColumn.UserCollapsed;
+					UserSettingsService.LayoutSettingsService.BookAuthorColumnWidth = preferencesItem.ColumnsViewModel.BookAuthorColumn.UserLengthPixels;
+				}
+				if (!preferencesItem.ColumnsViewModel.BookSeriesColumn.IsHidden)
+				{
+					UserSettingsService.LayoutSettingsService.ShowBookSeriesColumn = !preferencesItem.ColumnsViewModel.BookSeriesColumn.UserCollapsed;
+					UserSettingsService.LayoutSettingsService.BookSeriesColumnWidth = preferencesItem.ColumnsViewModel.BookSeriesColumn.UserLengthPixels;
+				}
+				if (!preferencesItem.ColumnsViewModel.CadPartNumberColumn.IsHidden)
+				{
+					UserSettingsService.LayoutSettingsService.ShowCadPartNumberColumn = !preferencesItem.ColumnsViewModel.CadPartNumberColumn.UserCollapsed;
+					UserSettingsService.LayoutSettingsService.CadPartNumberColumnWidth = preferencesItem.ColumnsViewModel.CadPartNumberColumn.UserLengthPixels;
+				}
+				if (!preferencesItem.ColumnsViewModel.CadMaterialColumn.IsHidden)
+				{
+					UserSettingsService.LayoutSettingsService.ShowCadMaterialColumn = !preferencesItem.ColumnsViewModel.CadMaterialColumn.UserCollapsed;
+					UserSettingsService.LayoutSettingsService.CadMaterialColumnWidth = preferencesItem.ColumnsViewModel.CadMaterialColumn.UserLengthPixels;
+				}
+				if (!preferencesItem.ColumnsViewModel.CadMassColumn.IsHidden)
+				{
+					UserSettingsService.LayoutSettingsService.ShowCadMassColumn = !preferencesItem.ColumnsViewModel.CadMassColumn.UserCollapsed;
+					UserSettingsService.LayoutSettingsService.CadMassColumnWidth = preferencesItem.ColumnsViewModel.CadMassColumn.UserLengthPixels;
+				}
+				if (!preferencesItem.ColumnsViewModel.CadVersionColumn.IsHidden)
+				{
+					UserSettingsService.LayoutSettingsService.ShowCadVersionColumn = !preferencesItem.ColumnsViewModel.CadVersionColumn.UserCollapsed;
+					UserSettingsService.LayoutSettingsService.CadVersionColumnWidth = preferencesItem.ColumnsViewModel.CadVersionColumn.UserLengthPixels;
 				}
 				if (!preferencesItem.ColumnsViewModel.SizeColumn.IsHidden)
 				{

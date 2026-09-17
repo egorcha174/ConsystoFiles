@@ -229,6 +229,8 @@ namespace Files.App.Helpers
 			else if (path == "Settings")
 				// Settings uses its own animated icon in the sidebar, so we intentionally skip a file-based icon here.
 				imageSource = null;
+			else if (Files.App.Books.Library.ConsystoPages.IsPagePath(path))
+				imageSource = null;
 			else if (WSLDistroManager.TryGetDistro(path, out WslDistroItem? wslDistro) && path.Equals(wslDistro.Path))
 				imageSource = new BitmapImage(wslDistro.Icon);
 			else
@@ -275,6 +277,13 @@ namespace Files.App.Helpers
 				tabLocationHeader = Strings.Settings.GetLocalizedResource();
 				iconSource = new FontIconSource() { Glyph = "\uE713" };
 				toolTipText = Strings.Settings.GetLocalizedResource();
+			}
+			else if (Files.App.Books.Library.ConsystoPages.IsPagePath(currentPath))
+			{
+				// Consysto fork: the book library and OPDS catalog pages
+				tabLocationHeader = Files.App.Books.Library.ConsystoPages.TitleOf(currentPath);
+				iconSource = new FontIconSource() { Glyph = Files.App.Books.Library.ConsystoPages.GlyphOf(currentPath) };
+				toolTipText = tabLocationHeader;
 			}
 			else if (currentPath.Equals(Constants.UserEnvironmentPaths.DesktopPath, StringComparison.OrdinalIgnoreCase))
 				tabLocationHeader = Strings.Desktop.GetLocalizedResource();

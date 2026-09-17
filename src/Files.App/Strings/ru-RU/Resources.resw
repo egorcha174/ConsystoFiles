@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -1680,7 +1680,7 @@
     <value>Заменить все записи разрешений дочернего объекта наследуемыми записями разрешений от этого объекта</value>
   </data>
   <data name="CloseActivePane" xml:space="preserve">
-    <value>Закрыть pane</value>
+    <value>Закрыть панель</value>
   </data>
   <data name="EnterCompactOverlay" xml:space="preserve">
     <value>Войти в компактный режим</value>
@@ -4727,5 +4727,920 @@
   </data>
   <data name="ConfirmRemoveTagsDialogContent" xml:space="preserve">
     <value>Are you sure you want to remove tags from the selected items?</value>
+  </data>
+  <data name="ConsystoWindowMinimize" xml:space="preserve">
+    <value>Свернуть</value>
+  </data>
+  <data name="ConsystoWindowZoom" xml:space="preserve">
+    <value>Развернуть (задержите указатель, чтобы выбрать расположение)</value>
+  </data>
+  <data name="ConsystoWindowFill" xml:space="preserve">
+    <value>Заполнить экран</value>
+  </data>
+  <data name="ConsystoWindowCenter" xml:space="preserve">
+    <value>По центру</value>
+  </data>
+  <data name="ConsystoWindowLeftHalf" xml:space="preserve">
+    <value>Левая половина экрана</value>
+  </data>
+  <data name="ConsystoWindowRightHalf" xml:space="preserve">
+    <value>Правая половина экрана</value>
+  </data>
+  <data name="ConsystoWindowTopHalf" xml:space="preserve">
+    <value>Верхняя половина экрана</value>
+  </data>
+  <data name="ConsystoWindowBottomHalf" xml:space="preserve">
+    <value>Нижняя половина экрана</value>
+  </data>
+  <data name="ConsystoExtension" xml:space="preserve">
+    <value>Расширение</value>
+  </data>
+  <data name="ConsystoCopyToOtherPane" xml:space="preserve">
+    <value>Копировать в соседнюю панель</value>
+  </data>
+  <data name="ConsystoCopyToOtherPaneDescription" xml:space="preserve">
+    <value>Скопировать выбранное в папку, открытую в соседней панели</value>
+  </data>
+  <data name="ConsystoCopyToOtherPaneConfirm" xml:space="preserve">
+    <value>Скопировать выбранное ({0} шт.) в {1}?</value>
+  </data>
+  <data name="ConsystoMoveToOtherPane" xml:space="preserve">
+    <value>Переместить в соседнюю панель</value>
+  </data>
+  <data name="ConsystoMoveToOtherPaneDescription" xml:space="preserve">
+    <value>Переместить выбранное в папку, открытую в соседней панели</value>
+  </data>
+  <data name="ConsystoMoveToOtherPaneConfirm" xml:space="preserve">
+    <value>Переместить выбранное ({0} шт.) в {1}?</value>
+  </data>
+  <data name="ConsystoOtherPaneNotFolder" xml:space="preserve">
+    <value>В соседней панели не открыта папка.</value>
+  </data>
+  <data name="ConsystoSyncNavigation" xml:space="preserve">
+    <value>Синхронный переход</value>
+  </data>
+  <data name="ConsystoSyncNavigationDescription" xml:space="preserve">
+    <value>Повторять переходы в подпапки и вверх в соседней панели</value>
+  </data>
+  <data name="ConsystoCompareFolders" xml:space="preserve">
+    <value>Сравнить папки</value>
+  </data>
+  <data name="ConsystoCompareFoldersDescription" xml:space="preserve">
+    <value>Сравнить папки обеих панелей и скопировать разницу</value>
+  </data>
+  <data name="ConsystoCompareFoldersNeedFolders" xml:space="preserve">
+    <value>В обеих панелях должны быть открыты папки.</value>
+  </data>
+  <data name="ConsystoCompareSubfolders" xml:space="preserve">
+    <value>Подпапки</value>
+  </data>
+  <data name="ConsystoCompareShowIdentical" xml:space="preserve">
+    <value>Показывать одинаковые</value>
+  </data>
+  <data name="ConsystoCompareName" xml:space="preserve">
+    <value>Имя</value>
+  </data>
+  <data name="ConsystoCompareScanning" xml:space="preserve">
+    <value>Сравнение…</value>
+  </data>
+  <data name="ConsystoCompareNoDifferences" xml:space="preserve">
+    <value>Папки совпадают.</value>
+  </data>
+  <data name="ConsystoCompareSummary" xml:space="preserve">
+    <value>Только слева: {0} · Только справа: {1} · Отличаются: {2} · Одинаковые: {3}</value>
+  </data>
+  <data name="ConsystoCompareSynchronize" xml:space="preserve">
+    <value>Синхронизировать ({0})</value>
+  </data>
+  <data name="ConsystoCompareActionHint" xml:space="preserve">
+    <value>Щелчок по стрелке меняет направление или пропускает объект</value>
+  </data>
+  <data name="ConsystoSwapPanes" xml:space="preserve">
+    <value>Поменять панели местами</value>
+  </data>
+  <data name="ConsystoSwapPanesDescription" xml:space="preserve">
+    <value>Поменять местами папки двух панелей</value>
+  </data>
+  <data name="ConsystoMapNetworkDrive" xml:space="preserve">
+    <value>Подключить сетевой диск</value>
+  </data>
+  <data name="ConsystoGallery" xml:space="preserve">
+    <value>Галерея</value>
+  </data>
+  <data name="ConsystoGalleryDescription" xml:space="preserve">
+    <value>Вид «Галерея»: крупный предпросмотр над лентой миниатюр</value>
+  </data>
+  <data name="ConsystoGalleryNoSelection" xml:space="preserve">
+    <value>Выберите файл для предпросмотра</value>
+  </data>
+  <data name="ConsystoBookAuthor" xml:space="preserve">
+    <value>Автор</value>
+  </data>
+  <data name="ConsystoBookSeries" xml:space="preserve">
+    <value>Серия</value>
+  </data>
+  <data name="ConsystoBookSeriesNumber" xml:space="preserve">
+    <value>{0}, № {1}</value>
+  </data>
+  <data name="ConsystoBookGenre" xml:space="preserve">
+    <value>Жанр</value>
+  </data>
+  <data name="ConsystoBookLanguage" xml:space="preserve">
+    <value>Язык</value>
+  </data>
+  <data name="ConsystoBookYear" xml:space="preserve">
+    <value>Год</value>
+  </data>
+  <data name="ConsystoBookPublisher" xml:space="preserve">
+    <value>Издательство</value>
+  </data>
+  <data name="ConsystoBookIsbn" xml:space="preserve">
+    <value>ISBN</value>
+  </data>
+  <data name="ConsystoBookTranslator" xml:space="preserve">
+    <value>Переводчик</value>
+  </data>
+  <data name="ConsystoResetColumnOrder" xml:space="preserve">
+    <value>Вернуть порядок столбцов</value>
+  </data>
+  <data name="ConsystoOpdsCatalogs" xml:space="preserve">
+    <value>Каталоги книг</value>
+  </data>
+  <data name="ConsystoOpdsAddCatalog" xml:space="preserve">
+    <value>Добавить каталог…</value>
+  </data>
+  <data name="ConsystoOpdsAddCatalogTitle" xml:space="preserve">
+    <value>Новый каталог OPDS</value>
+  </data>
+  <data name="ConsystoOpdsEditCatalog" xml:space="preserve">
+    <value>Изменить каталог…</value>
+  </data>
+  <data name="ConsystoOpdsRemoveCatalog" xml:space="preserve">
+    <value>Удалить каталог</value>
+  </data>
+  <data name="ConsystoOpdsRemoveConfirm" xml:space="preserve">
+    <value>Удалить каталог «{0}» из списка? Скачанные книги останутся на месте.</value>
+  </data>
+  <data name="ConsystoOpdsOpenInNewTab" xml:space="preserve">
+    <value>Открыть в новой вкладке</value>
+  </data>
+  <data name="ConsystoOpdsCatalogName" xml:space="preserve">
+    <value>Название</value>
+  </data>
+  <data name="ConsystoOpdsCatalogAddress" xml:space="preserve">
+    <value>Адрес каталога (OPDS)</value>
+  </data>
+  <data name="ConsystoOpdsInvalidAddress" xml:space="preserve">
+    <value>Введите полный адрес, начинающийся с http:// или https://</value>
+  </data>
+  <data name="ConsystoOpdsUserName" xml:space="preserve">
+    <value>Имя пользователя (если каталог требует вход)</value>
+  </data>
+  <data name="ConsystoOpdsPassword" xml:space="preserve">
+    <value>Пароль</value>
+  </data>
+  <data name="ConsystoOpdsPasswordKeep" xml:space="preserve">
+    <value>Оставьте пустым, чтобы сохранить прежний пароль</value>
+  </data>
+  <data name="ConsystoOpdsPasswordNote" xml:space="preserve">
+    <value>Пароль хранится в диспетчере учётных данных Windows.</value>
+  </data>
+  <data name="ConsystoOpdsSave" xml:space="preserve">
+    <value>Сохранить</value>
+  </data>
+  <data name="ConsystoOpdsSignInTitle" xml:space="preserve">
+    <value>Вход в каталог</value>
+  </data>
+  <data name="ConsystoOpdsSignInText" xml:space="preserve">
+    <value>Каталог {0} просит имя пользователя и пароль.</value>
+  </data>
+  <data name="ConsystoOpdsSignIn" xml:space="preserve">
+    <value>Войти</value>
+  </data>
+  <data name="ConsystoOpdsSignInRequired" xml:space="preserve">
+    <value>Каталог требует вход</value>
+  </data>
+  <data name="ConsystoOpdsSearchPlaceholder" xml:space="preserve">
+    <value>Поиск в каталоге</value>
+  </data>
+  <data name="ConsystoOpdsLoadMore" xml:space="preserve">
+    <value>Показать ещё</value>
+  </data>
+  <data name="ConsystoOpdsEmpty" xml:space="preserve">
+    <value>На этой странице ничего нет</value>
+  </data>
+  <data name="ConsystoOpdsNotFound" xml:space="preserve">
+    <value>Этого каталога больше нет в списке</value>
+  </data>
+  <data name="ConsystoOpdsLoadFailed" xml:space="preserve">
+    <value>Не удалось открыть страницу каталога</value>
+  </data>
+  <data name="ConsystoOpdsDownloadFailed" xml:space="preserve">
+    <value>Не удалось скачать книгу</value>
+  </data>
+  <data name="ConsystoOpdsDownload" xml:space="preserve">
+    <value>Скачать</value>
+  </data>
+  <data name="ConsystoOpdsDownloading" xml:space="preserve">
+    <value>Скачивается</value>
+  </data>
+  <data name="ConsystoOpdsDownloaded" xml:space="preserve">
+    <value>Скачано</value>
+  </data>
+  <data name="ConsystoOpdsShowInFolder" xml:space="preserve">
+    <value>Показать в папке</value>
+  </data>
+  <data name="ConsystoOpdsMoreInCatalog" xml:space="preserve">
+    <value>Ещё в каталоге</value>
+  </data>
+  <data name="ConsystoOpdsOnSite" xml:space="preserve">
+    <value>Получить на сайте</value>
+  </data>
+  <data name="ConsystoBookServerEnable" xml:space="preserve">
+    <value>Раздавать библиотеку по OPDS</value>
+  </data>
+  <data name="ConsystoBookServerAddressHint" xml:space="preserve">
+    <value>Добавьте его как каталог в FBReader или Librera; телефон должен быть в той же сети</value>
+  </data>
+  <data name="ConsystoBookServerOff" xml:space="preserve">
+    <value>Раздача выключена.</value>
+  </data>
+  <data name="ConsystoBookServerNoNetwork" xml:space="preserve">
+    <value>Компьютер не подключён к локальной сети.</value>
+  </data>
+  <data name="ConsystoBookServerScanning" xml:space="preserve">
+    <value>Читаю папки с книгами…</value>
+  </data>
+  <data name="ConsystoBookServerBooks" xml:space="preserve">
+    <value>Книг в библиотеке: {0}</value>
+  </data>
+  <data name="ConsystoBookServerRescan" xml:space="preserve">
+    <value>Перечитать</value>
+  </data>
+  <data name="ConsystoBookServerFolders" xml:space="preserve">
+    <value>Папки с книгами</value>
+  </data>
+  <data name="ConsystoBookServerAddFolder" xml:space="preserve">
+    <value>Добавить папку…</value>
+  </data>
+  <data name="ConsystoBookServerRemoveFolder" xml:space="preserve">
+    <value>Убрать из библиотеки</value>
+  </data>
+  <data name="ConsystoBookServerNoFolders" xml:space="preserve">
+    <value>Папок нет — каталог пуст.</value>
+  </data>
+  <data name="ConsystoBookServerPort" xml:space="preserve">
+    <value>Порт</value>
+  </data>
+  <data name="ConsystoBookServerFirewall" xml:space="preserve">
+    <value>Каталог отвечает только устройствам домашней сети и только пока открыт Files. При первом включении Windows может спросить, пускать ли Files в сеть, — разрешите для частных сетей.</value>
+  </data>
+  <data name="ConsystoBookServerPortBusy" xml:space="preserve">
+    <value>Порт {0} занят другой программой или закрыт Windows. Выберите другой.</value>
+  </data>
+  <data name="ConsystoBookServerError" xml:space="preserve">
+    <value>Не удалось включить раздачу: {0}</value>
+  </data>
+  <data name="ConsystoBookServerCatalogTitle" xml:space="preserve">
+    <value>Библиотека {0}</value>
+  </data>
+  <data name="ConsystoBooks" xml:space="preserve">
+    <value>Книги</value>
+  </data>
+  <data name="ConsystoLibraryFoldersDescription" xml:space="preserve">
+    <value>Книги читаются из этих папок, файлы остаются на своих местах</value>
+  </data>
+  <data name="ConsystoBookServerDescription" xml:space="preserve">
+    <value>Каталог OPDS для FBReader или Librera в домашней сети</value>
+  </data>
+  <data name="ConsystoBookServerAddress" xml:space="preserve">
+    <value>Адрес каталога</value>
+  </data>
+  <data name="ConsystoLibraryTitle" xml:space="preserve">
+    <value>Моя библиотека</value>
+  </data>
+  <data name="ConsystoLibrarySettings" xml:space="preserve">
+    <value>Настройки коллекций</value>
+  </data>
+  <data name="ConsystoLibrarySettingsMenu" xml:space="preserve">
+    <value>Настройки библиотеки…</value>
+  </data>
+  <data name="ConsystoLibrarySearchPlaceholder" xml:space="preserve">
+    <value>Название, автор или серия</value>
+  </data>
+  <data name="ConsystoLibraryOpen" xml:space="preserve">
+    <value>Открыть</value>
+  </data>
+  <data name="ConsystoLibraryAll" xml:space="preserve">
+    <value>Все книги</value>
+  </data>
+  <data name="ConsystoLibraryNewest" xml:space="preserve">
+    <value>Новые поступления</value>
+  </data>
+  <data name="ConsystoLibraryAuthors" xml:space="preserve">
+    <value>Авторы</value>
+  </data>
+  <data name="ConsystoLibrarySeries" xml:space="preserve">
+    <value>Серии</value>
+  </data>
+  <data name="ConsystoLibraryGenres" xml:space="preserve">
+    <value>Жанры</value>
+  </data>
+  <data name="ConsystoLibraryDuplicates" xml:space="preserve">
+    <value>Дубликаты</value>
+  </data>
+  <data name="ConsystoLibraryGroupBooks" xml:space="preserve">
+    <value>Книг: {0}</value>
+  </data>
+  <data name="ConsystoLibraryDuplicatesHint" xml:space="preserve">
+    <value>Отметьте лишние копии и удалите их в Корзину. Первой в каждой группе стоит копия, которую предлагается оставить.</value>
+  </data>
+  <data name="ConsystoLibraryIdenticalFiles" xml:space="preserve">
+    <value>одинаковые файлы</value>
+  </data>
+  <data name="ConsystoLibrarySameBook" xml:space="preserve">
+    <value>та же книга, разные файлы</value>
+  </data>
+  <data name="ConsystoLibraryIdenticalBadge" xml:space="preserve">
+    <value>одинаковый файл</value>
+  </data>
+  <data name="ConsystoLibraryMarkExtra" xml:space="preserve">
+    <value>Отметить лишние</value>
+  </data>
+  <data name="ConsystoLibraryDeleteMarked" xml:space="preserve">
+    <value>Удалить отмеченные ({0})</value>
+  </data>
+  <data name="ConsystoLibraryKeepOneCopy" xml:space="preserve">
+    <value>Отмечены все копии «{0}». Оставьте хотя бы одну.</value>
+  </data>
+  <data name="ConsystoLibraryDeleteFailed" xml:space="preserve">
+    <value>Не удалось удалить файлы</value>
+  </data>
+  <data name="ConsystoLibraryNoFolders" xml:space="preserve">
+    <value>У коллекции нет папок. Добавьте их в Настройках → Коллекции.</value>
+  </data>
+  <data name="ConsystoLibraryNoDuplicates" xml:space="preserve">
+    <value>Дубликатов нет.</value>
+  </data>
+  <data name="ConsystoLibraryNothingFound" xml:space="preserve">
+    <value>Ничего не найдено.</value>
+  </data>
+  <data name="ConsystoLibraryEmpty" xml:space="preserve">
+    <value>В папках коллекции пока ничего нет.</value>
+  </data>
+  <data name="ConsystoCollections" xml:space="preserve">
+    <value>Библиотеки</value>
+  </data>
+  <data name="ConsystoCollectionsDescription" xml:space="preserve">
+    <value>Каталоги ваших папок: книги, фото и музыка, дальше чертежи</value>
+  </data>
+  <data name="ConsystoCollectionAdd" xml:space="preserve">
+    <value>Добавить коллекцию…</value>
+  </data>
+  <data name="ConsystoCollectionAddTitle" xml:space="preserve">
+    <value>Новая коллекция</value>
+  </data>
+  <data name="ConsystoCollectionAddButton" xml:space="preserve">
+    <value>Добавить</value>
+  </data>
+  <data name="ConsystoCollectionKind" xml:space="preserve">
+    <value>Тип</value>
+  </data>
+  <data name="ConsystoCollectionName" xml:space="preserve">
+    <value>Название</value>
+  </data>
+  <data name="ConsystoCollectionFolder" xml:space="preserve">
+    <value>Папка</value>
+  </data>
+  <data name="ConsystoCollectionNoFolder" xml:space="preserve">
+    <value>Папка не выбрана</value>
+  </data>
+  <data name="ConsystoCollectionChooseFolder" xml:space="preserve">
+    <value>Выбрать…</value>
+  </data>
+  <data name="ConsystoCollectionFolderRequired" xml:space="preserve">
+    <value>Выберите папку коллекции.</value>
+  </data>
+  <data name="ConsystoCollectionRename" xml:space="preserve">
+    <value>Переименовать…</value>
+  </data>
+  <data name="ConsystoCollectionRenameTitle" xml:space="preserve">
+    <value>Переименовать коллекцию</value>
+  </data>
+  <data name="ConsystoCollectionRemove" xml:space="preserve">
+    <value>Удалить коллекцию</value>
+  </data>
+  <data name="ConsystoCollectionRemoveConfirm" xml:space="preserve">
+    <value>Удалить коллекцию «{0}»? Файлы останутся на своих местах.</value>
+  </data>
+  <data name="ConsystoCollectionSettingsMenu" xml:space="preserve">
+    <value>Настройки коллекции…</value>
+  </data>
+  <data name="ConsystoCollectionMore" xml:space="preserve">
+    <value>Ещё</value>
+  </data>
+  <data name="ConsystoCollectionScanning" xml:space="preserve">
+    <value>Читаю папки…</value>
+  </data>
+  <data name="ConsystoCollectionNotFound" xml:space="preserve">
+    <value>Этой коллекции больше нет. Возможно, её удалили в Настройках.</value>
+  </data>
+  <data name="ConsystoCollectionNone" xml:space="preserve">
+    <value>Библиотек пока нет.</value>
+  </data>
+  <data name="ConsystoKindBooks" xml:space="preserve">
+    <value>Книги</value>
+  </data>
+  <data name="ConsystoKindPhotos" xml:space="preserve">
+    <value>Фото</value>
+  </data>
+  <data name="ConsystoKindMusic" xml:space="preserve">
+    <value>Музыка</value>
+  </data>
+  <data name="ConsystoCollectionYears" xml:space="preserve">
+    <value>Годы</value>
+  </data>
+  <data name="ConsystoPhotosAll" xml:space="preserve">
+    <value>Все фото</value>
+  </data>
+  <data name="ConsystoPhotosCount" xml:space="preserve">
+    <value>Фото: {0}</value>
+  </data>
+  <data name="ConsystoPhotosSearchPlaceholder" xml:space="preserve">
+    <value>Имя файла, камера или год</value>
+  </data>
+  <data name="ConsystoPhotosCameras" xml:space="preserve">
+    <value>Камеры</value>
+  </data>
+  <data name="ConsystoMusicAll" xml:space="preserve">
+    <value>Все треки</value>
+  </data>
+  <data name="ConsystoMusicCount" xml:space="preserve">
+    <value>Треков: {0}</value>
+  </data>
+  <data name="ConsystoMusicSearchPlaceholder" xml:space="preserve">
+    <value>Название, исполнитель или альбом</value>
+  </data>
+  <data name="ConsystoMusicSameSong" xml:space="preserve">
+    <value>та же песня, разные файлы</value>
+  </data>
+  <data name="ConsystoMusicArtists" xml:space="preserve">
+    <value>Исполнители</value>
+  </data>
+  <data name="ConsystoMusicAlbums" xml:space="preserve">
+    <value>Альбомы</value>
+  </data>
+  <data name="ConsystoMusicTrack" xml:space="preserve">
+    <value>Трек {0}</value>
+  </data>
+  <data name="ConsystoLibraryCreate" xml:space="preserve">
+    <value>Создать библиотеку…</value>
+  </data>
+  <data name="ConsystoLibraryCreateTitle" xml:space="preserve">
+    <value>Новая библиотека</value>
+  </data>
+  <data name="ConsystoLibrariesDescription" xml:space="preserve">
+    <value>Библиотеки Windows. Библиотека книг, фото или музыки открывается каталогом, остальные — папками</value>
+  </data>
+  <data name="ConsystoLibraryKindMenu" xml:space="preserve">
+    <value>Тип библиотеки</value>
+  </data>
+  <data name="ConsystoLibraryKindFolder" xml:space="preserve">
+    <value>Папки</value>
+  </data>
+  <data name="ConsystoLibraryOpenAsFolder" xml:space="preserve">
+    <value>Открыть как папки</value>
+  </data>
+  <data name="ConsystoLibraryIndex" xml:space="preserve">
+    <value>Каталог библиотеки</value>
+  </data>
+  <data name="ConsystoCatalogsOnline" xml:space="preserve">
+    <value>В сети</value>
+  </data>
+  <data name="ConsystoViewTiles" xml:space="preserve">
+    <value>Плитки</value>
+  </data>
+  <data name="ConsystoViewList" xml:space="preserve">
+    <value>Список</value>
+  </data>
+  <data name="ConsystoIconSet" xml:space="preserve">
+    <value>Набор иконок</value>
+  </data>
+  <data name="ConsystoIconSetFolders" xml:space="preserve">
+    <value>Папки</value>
+  </data>
+  <data name="ConsystoIconSetObjects" xml:space="preserve">
+    <value>Предметы</value>
+  </data>
+  <data name="ConsystoIconSetWindows" xml:space="preserve">
+    <value>Windows</value>
+  </data>
+  <data name="ConsystoIconSetWindowsModern" xml:space="preserve">
+    <value>Windows (ещё)</value>
+  </data>
+  <data name="ConsystoKindDrawings" xml:space="preserve">
+    <value>Чертежи</value>
+  </data>
+  <data name="ConsystoDrawingsAll" xml:space="preserve">
+    <value>Все чертежи</value>
+  </data>
+  <data name="ConsystoDrawingsCount" xml:space="preserve">
+    <value>Чертежей: {0}</value>
+  </data>
+  <data name="ConsystoDrawingsSearchPlaceholder" xml:space="preserve">
+    <value>Название, папка или формат</value>
+  </data>
+  <data name="ConsystoDrawingsKinds" xml:space="preserve">
+    <value>Виды</value>
+  </data>
+  <data name="ConsystoDrawingsFormats" xml:space="preserve">
+    <value>Форматы</value>
+  </data>
+  <data name="ConsystoDrawingsFolders" xml:space="preserve">
+    <value>Папки</value>
+  </data>
+  <data name="ConsystoDrawingsParts" xml:space="preserve">
+    <value>Деталей: {0}</value>
+  </data>
+  <data name="ConsystoAssemblyShowParts" xml:space="preserve">
+    <value>Показать состав</value>
+  </data>
+  <data name="ConsystoClosePane" xml:space="preserve">
+    <value>Закрыть эту панель</value>
+  </data>
+  <data name="ConsystoTerminal" xml:space="preserve">
+    <value>Терминал</value>
+  </data>
+  <data name="ConsystoOpenTerminalInTab" xml:space="preserve">
+    <value>Открыть терминал в панели</value>
+  </data>
+  <data name="ConsystoOpenTerminalInTabDescription" xml:space="preserve">
+    <value>Открыть терминал во второй панели вкладки</value>
+  </data>
+  <data name="ConsystoTerminalExited" xml:space="preserve">
+    <value>Оболочка завершилась. Закройте вкладку или откройте новый терминал.</value>
+  </data>
+  <data name="ConsystoTerminalFailed" xml:space="preserve">
+    <value>Не удалось запустить терминал</value>
+  </data>
+  <data name="ConsystoIPropertiesSection" xml:space="preserve">
+    <value>Inventor</value>
+  </data>
+  <data name="ConsystoIPropertiesCustomSection" xml:space="preserve">
+    <value>Inventor: пользовательские</value>
+  </data>
+  <data name="ConsystoIPropertyPartNumber" xml:space="preserve">
+    <value>Обозначение</value>
+  </data>
+  <data name="ConsystoIPropertyDescription" xml:space="preserve">
+    <value>Описание</value>
+  </data>
+  <data name="ConsystoIPropertyTitle" xml:space="preserve">
+    <value>Наименование</value>
+  </data>
+  <data name="ConsystoIPropertyMaterial" xml:space="preserve">
+    <value>Материал</value>
+  </data>
+  <data name="ConsystoIPropertyMass" xml:space="preserve">
+    <value>Масса</value>
+  </data>
+  <data name="ConsystoIPropertyMassValue" xml:space="preserve">
+    <value>{0} кг</value>
+  </data>
+  <data name="ConsystoIPropertySheetMetalRule" xml:space="preserve">
+    <value>Стиль листового металла</value>
+  </data>
+  <data name="ConsystoIPropertyProject" xml:space="preserve">
+    <value>Проект</value>
+  </data>
+  <data name="ConsystoIPropertyDesigner" xml:space="preserve">
+    <value>Проектировщик</value>
+  </data>
+  <data name="ConsystoIPropertyVendor" xml:space="preserve">
+    <value>Поставщик</value>
+  </data>
+  <data name="ConsystoIPropertyComments" xml:space="preserve">
+    <value>Примечание</value>
+  </data>
+  <data name="ConsystoIPropertiesPartsSection" xml:space="preserve">
+    <value>Inventor: состав</value>
+  </data>
+  <data name="ConsystoIPropertyPartMissing" xml:space="preserve">
+    <value>не найден</value>
+  </data>
+  <data name="ConsystoDrawingsMaterials" xml:space="preserve">
+    <value>Материалы</value>
+  </data>
+  <data name="ConsystoDrawingsDesigners" xml:space="preserve">
+    <value>Проектировщики</value>
+  </data>
+  <data name="ConsystoDrawingsProjects" xml:space="preserve">
+    <value>Проекты</value>
+  </data>
+  <data name="ConsystoCollectionScanListing" xml:space="preserve">
+    <value>Поиск файлов: найдено {0:N0}</value>
+  </data>
+  <data name="ConsystoCollectionScanReading" xml:space="preserve">
+    <value>Чтение файлов: {0:N0} из {1:N0}</value>
+  </data>
+  <data name="ConsystoCollectionScanComparing" xml:space="preserve">
+    <value>Поиск одинаковых копий: {0:N0} из {1:N0}</value>
+  </data>
+  <data name="ConsystoCollectionScanSaving" xml:space="preserve">
+    <value>Сохранение индекса</value>
+  </data>
+  <data name="ConsystoTorrents" xml:space="preserve">
+    <value>Торренты</value>
+  </data>
+  <data name="ConsystoTorrentsDescription" xml:space="preserve">
+    <value>Открыть загрузки торрентов</value>
+  </data>
+  <data name="ConsystoTorrentsEmpty" xml:space="preserve">
+    <value>Загрузок пока нет. Вставьте magnet-ссылку выше, добавьте .torrent-файл или щёлкните правой кнопкой по .torrent-файлу в папке.</value>
+  </data>
+  <data name="ConsystoTorrentMagnetPlaceholder" xml:space="preserve">
+    <value>magnet:?xt=urn:btih:…</value>
+  </data>
+  <data name="ConsystoTorrentAddMagnet" xml:space="preserve">
+    <value>Скачать</value>
+  </data>
+  <data name="ConsystoTorrentAddFile" xml:space="preserve">
+    <value>Добавить .torrent-файл…</value>
+  </data>
+  <data name="ConsystoTorrentNotMagnet" xml:space="preserve">
+    <value>Это не magnet-ссылка.</value>
+  </data>
+  <data name="ConsystoTorrentAddFailed" xml:space="preserve">
+    <value>Не удалось добавить торрент: {0}</value>
+  </data>
+  <data name="ConsystoTorrentDownload" xml:space="preserve">
+    <value>Скачать торрент</value>
+  </data>
+  <data name="ConsystoTorrentDownloadDescription" xml:space="preserve">
+    <value>Скачать торрент в выбранную папку</value>
+  </data>
+  <data name="ConsystoTorrentOpenFolder" xml:space="preserve">
+    <value>Открыть папку</value>
+  </data>
+  <data name="ConsystoTorrentRemove" xml:space="preserve">
+    <value>Удалить загрузку</value>
+  </data>
+  <data name="ConsystoTorrentRemoveQuestion" xml:space="preserve">
+    <value>Удалить «{0}» из загрузок?</value>
+  </data>
+  <data name="ConsystoTorrentRemoveKeepFiles" xml:space="preserve">
+    <value>Оставить файлы</value>
+  </data>
+  <data name="ConsystoTorrentRemoveDeleteFiles" xml:space="preserve">
+    <value>Удалить и файлы</value>
+  </data>
+  <data name="ConsystoTorrentPause" xml:space="preserve">
+    <value>Пауза</value>
+  </data>
+  <data name="ConsystoTorrentResume" xml:space="preserve">
+    <value>Продолжить</value>
+  </data>
+  <data name="ConsystoTorrentPeers" xml:space="preserve">
+    <value>пиров: {0}</value>
+  </data>
+  <data name="ConsystoTorrentStateMetadata" xml:space="preserve">
+    <value>Получение списка файлов</value>
+  </data>
+  <data name="ConsystoTorrentStateChecking" xml:space="preserve">
+    <value>Проверка</value>
+  </data>
+  <data name="ConsystoTorrentStateDownloading" xml:space="preserve">
+    <value>Загрузка</value>
+  </data>
+  <data name="ConsystoTorrentStateSeeding" xml:space="preserve">
+    <value>Раздача</value>
+  </data>
+  <data name="ConsystoTorrentStatePaused" xml:space="preserve">
+    <value>Пауза</value>
+  </data>
+  <data name="ConsystoTorrentStateStopped" xml:space="preserve">
+    <value>Остановлено</value>
+  </data>
+  <data name="ConsystoTorrentStateError" xml:space="preserve">
+    <value>Ошибка</value>
+  </data>
+  <data name="ConsystoFileTypeDxf" xml:space="preserve">
+    <value>Чертёж DXF</value>
+  </data>
+  <data name="ConsystoFileTypeDwg" xml:space="preserve">
+    <value>Чертёж DWG</value>
+  </data>
+  <data name="ConsystoFileTypeStep" xml:space="preserve">
+    <value>Модель STEP</value>
+  </data>
+  <data name="ConsystoFileTypeIges" xml:space="preserve">
+    <value>Модель IGES</value>
+  </data>
+  <data name="ConsystoFileTypeStl" xml:space="preserve">
+    <value>Сетка STL</value>
+  </data>
+  <data name="ConsystoFileType3mf" xml:space="preserve">
+    <value>Проект печати 3MF</value>
+  </data>
+  <data name="ConsystoCadVersion" xml:space="preserve">
+    <value>Версия</value>
+  </data>
+  <data name="ConsystoTorrentDefault" xml:space="preserve">
+    <value>Качать торренты через Files</value>
+  </data>
+  <data name="ConsystoTorrentDefaultDescription" xml:space="preserve">
+    <value>Открывать .torrent-файлы и magnet-ссылки в Files. Windows просит подтвердить выбор сам: на открывшейся странице выберите Files для .torrent и MAGNET.</value>
+  </data>
+  <data name="ConsystoTorrentDefaultButton" xml:space="preserve">
+    <value>Назначить по умолчанию…</value>
+  </data>
+  <data name="ConsystoTorrentDownloads" xml:space="preserve">
+    <value>Загрузки</value>
+  </data>
+  <data name="ConsystoTorrentFilterAll" xml:space="preserve">
+    <value>Все</value>
+  </data>
+  <data name="ConsystoTorrentFilterDownloading" xml:space="preserve">
+    <value>Загружаются</value>
+  </data>
+  <data name="ConsystoTorrentFilterSeeding" xml:space="preserve">
+    <value>Раздаются</value>
+  </data>
+  <data name="ConsystoTorrentFilterCompleted" xml:space="preserve">
+    <value>Завершены</value>
+  </data>
+  <data name="ConsystoTorrentFilterPaused" xml:space="preserve">
+    <value>Остановлены</value>
+  </data>
+  <data name="ConsystoTorrentFilterActive" xml:space="preserve">
+    <value>Активны</value>
+  </data>
+  <data name="ConsystoTorrentFilterError" xml:space="preserve">
+    <value>С ошибкой</value>
+  </data>
+  <data name="ConsystoTorrentSearch" xml:space="preserve">
+    <value>Фильтр по имени…</value>
+  </data>
+  <data name="ConsystoTorrentAllTrackers" xml:space="preserve">
+    <value>Все трекеры</value>
+  </data>
+  <data name="ConsystoTorrentFiles" xml:space="preserve">
+    <value>Файлы</value>
+  </data>
+  <data name="ConsystoTorrentPeersTab" xml:space="preserve">
+    <value>Пиры</value>
+  </data>
+  <data name="ConsystoTorrentTrackers" xml:space="preserve">
+    <value>Трекеры</value>
+  </data>
+  <data name="ConsystoTorrentFileWanted" xml:space="preserve">
+    <value>Скачивать этот файл</value>
+  </data>
+  <data name="ConsystoTorrentSelectHint" xml:space="preserve">
+    <value>Выберите загрузку, чтобы увидеть её файлы, пиры и трекеры</value>
+  </data>
+  <data name="ConsystoTorrentColumnName" xml:space="preserve">
+    <value>Имя</value>
+  </data>
+  <data name="ConsystoTorrentColumnSize" xml:space="preserve">
+    <value>Размер</value>
+  </data>
+  <data name="ConsystoTorrentColumnProgress" xml:space="preserve">
+    <value>Прогресс</value>
+  </data>
+  <data name="ConsystoTorrentColumnState" xml:space="preserve">
+    <value>Состояние</value>
+  </data>
+  <data name="ConsystoTorrentColumnSeeds" xml:space="preserve">
+    <value>Сиды</value>
+  </data>
+  <data name="ConsystoTorrentColumnPeers" xml:space="preserve">
+    <value>Пиры</value>
+  </data>
+  <data name="ConsystoTorrentColumnDownload" xml:space="preserve">
+    <value>Загрузка</value>
+  </data>
+  <data name="ConsystoTorrentColumnUpload" xml:space="preserve">
+    <value>Отдача</value>
+  </data>
+  <data name="ConsystoTorrentColumnRemaining" xml:space="preserve">
+    <value>Осталось</value>
+  </data>
+  <data name="ConsystoTorrentColumnRatio" xml:space="preserve">
+    <value>Рейтинг</value>
+  </data>
+  <data name="ConsystoTorrentDaysHours" xml:space="preserve">
+    <value>{0} д {1} ч</value>
+  </data>
+  <data name="ConsystoTorrentHoursMinutes" xml:space="preserve">
+    <value>{0} ч {1} мин</value>
+  </data>
+  <data name="ConsystoTorrentMinutesSeconds" xml:space="preserve">
+    <value>{0} мин {1} с</value>
+  </data>
+  <data name="ConsystoTorrentRate" xml:space="preserve">
+    <value>{0}/с</value>
+  </data>
+  <data name="ConsystoSync" xml:space="preserve">
+    <value>Синхронизация</value>
+  </data>
+  <data name="ConsystoSyncAddPair" xml:space="preserve">
+    <value>Добавить пару…</value>
+  </data>
+  <data name="ConsystoSyncEdit" xml:space="preserve">
+    <value>Изменить пару</value>
+  </data>
+  <data name="ConsystoSyncRemovePair" xml:space="preserve">
+    <value>Удалить пару</value>
+  </data>
+  <data name="ConsystoSyncRemoveQuestion" xml:space="preserve">
+    <value>Удалить пару «{0}»? Папки и файлы останутся как есть.</value>
+  </data>
+  <data name="ConsystoSyncName" xml:space="preserve">
+    <value>Название</value>
+  </data>
+  <data name="ConsystoSyncSource" xml:space="preserve">
+    <value>Папка-источник</value>
+  </data>
+  <data name="ConsystoSyncTarget" xml:space="preserve">
+    <value>Папка резервной копии</value>
+  </data>
+  <data name="ConsystoSyncBrowse" xml:space="preserve">
+    <value>Обзор…</value>
+  </data>
+  <data name="ConsystoSyncExclusions" xml:space="preserve">
+    <value>Не копировать (имена или маски через ;)</value>
+  </data>
+  <data name="ConsystoSyncBackupNote" xml:space="preserve">
+    <value>Новые и изменённые файлы копируются из источника в папку резервной копии. В папке копии ничего не удаляется, а файлы, которые там новее, не перезаписываются без вашего разрешения.</value>
+  </data>
+  <data name="ConsystoSyncSourceMissing" xml:space="preserve">
+    <value>Папки-источника нет.</value>
+  </data>
+  <data name="ConsystoSyncTargetMissing" xml:space="preserve">
+    <value>Выберите папку резервной копии.</value>
+  </data>
+  <data name="ConsystoSyncNested" xml:space="preserve">
+    <value>Папка копии не может лежать внутри источника, и наоборот.</value>
+  </data>
+  <data name="ConsystoSyncNotFound" xml:space="preserve">
+    <value>Такой пары больше нет.</value>
+  </data>
+  <data name="ConsystoSyncScan" xml:space="preserve">
+    <value>Проверить</value>
+  </data>
+  <data name="ConsystoSyncRun" xml:space="preserve">
+    <value>Скопировать изменения</value>
+  </data>
+  <data name="ConsystoSyncIncludeTargetNewer" xml:space="preserve">
+    <value>Перезаписывать и те, что новее в копии</value>
+  </data>
+  <data name="ConsystoSyncScanning" xml:space="preserve">
+    <value>Сравнение папок…</value>
+  </data>
+  <data name="ConsystoSyncScanningCount" xml:space="preserve">
+    <value>Сравнение папок: проверено файлов {0:N0}</value>
+  </data>
+  <data name="ConsystoSyncCopying" xml:space="preserve">
+    <value>Копирование: {0:N0} из {1:N0} файлов, {2} из {3}</value>
+  </data>
+  <data name="ConsystoSyncUpToDate" xml:space="preserve">
+    <value>Копия актуальна (проверено файлов: {0:N0}).</value>
+  </data>
+  <data name="ConsystoSyncPlanSummary" xml:space="preserve">
+    <value>К копированию {0:N0} файлов, {1} (проверено файлов: {2:N0}).</value>
+  </data>
+  <data name="ConsystoSyncTargetNewerSkipped" xml:space="preserve">
+    <value>Файлов новее в копии: {0:N0}, они останутся как есть.</value>
+  </data>
+  <data name="ConsystoSyncDone" xml:space="preserve">
+    <value>Скопировано файлов: {0:N0}.</value>
+  </data>
+  <data name="ConsystoSyncDoneWithErrors" xml:space="preserve">
+    <value>Скопировано файлов: {0:N0}, не удалось: {1:N0}: {2}</value>
+  </data>
+  <data name="ConsystoSyncCancelled" xml:space="preserve">
+    <value>Остановлено. Уже скопированные файлы целые, следующая проверка продолжит с этого места.</value>
+  </data>
+  <data name="ConsystoSyncLastRun" xml:space="preserve">
+    <value>Последний запуск {0}: {1}</value>
+  </data>
+  <data name="ConsystoSyncNeverRun" xml:space="preserve">
+    <value>Ещё не запускалась</value>
+  </data>
+  <data name="ConsystoSyncHint" xml:space="preserve">
+    <value>Нажмите «Проверить», чтобы увидеть, что будет скопировано. Ничего не копируется, пока вы не нажмёте «Скопировать изменения».</value>
+  </data>
+  <data name="ConsystoSyncAll" xml:space="preserve">
+    <value>Все</value>
+  </data>
+  <data name="ConsystoSyncNew" xml:space="preserve">
+    <value>Новые</value>
+  </data>
+  <data name="ConsystoSyncChanged" xml:space="preserve">
+    <value>Изменённые</value>
+  </data>
+  <data name="ConsystoSyncTargetNewer" xml:space="preserve">
+    <value>Новее в копии</value>
   </data>
 </root>

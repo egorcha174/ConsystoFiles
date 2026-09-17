@@ -58,7 +58,10 @@ namespace Files.App.Controls
 		private static void OnNestingLevelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
 			if (d is SidebarItem item && e.NewValue is int level)
+			{
 				item.IndentWidth = level * 16d;
+				item.UpdateSectionHeaderState();
+			}
 		}
 
 		// Dims icon + text + chevron + decorator only; the selection indicator and pointer-over fill stay at full opacity so a selected hidden row still reads as selected.

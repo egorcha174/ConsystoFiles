@@ -23,6 +23,10 @@ namespace Files.App.Actions
 		public HotKey SecondHotKey
 			=> new(Keys.Mouse5);
 
+		// Consysto fork: Ctrl+] as Cmd+] in Finder
+		public HotKey ThirdHotKey
+			=> new(Keys.Oem6, KeyModifiers.Ctrl);
+
 		public HotKey MediaHotKey
 			=> new(Keys.GoForward, KeyModifiers.None, false);
 

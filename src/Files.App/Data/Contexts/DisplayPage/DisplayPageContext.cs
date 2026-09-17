@@ -44,6 +44,9 @@ namespace Files.App.Data.Contexts
 					case LayoutTypes.Adaptive:
 						viewModel.ToggleLayoutModeAdaptive();
 						break;
+					case LayoutTypes.Gallery:
+						viewModel.ToggleLayoutModeGallery(true);
+						break;
 				}
 			}
 		}
@@ -248,6 +251,7 @@ namespace Files.App.Data.Contexts
 				FolderLayoutModes.CardsView => LayoutTypes.Cards,
 				FolderLayoutModes.GridView => LayoutTypes.Grid,
 				FolderLayoutModes.ColumnView => LayoutTypes.Columns,
+				FolderLayoutModes.GalleryView => LayoutTypes.Gallery,
 				_ => throw new InvalidEnumArgumentException(),
 			};
 		}

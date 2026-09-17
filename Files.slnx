@@ -9,6 +9,14 @@
     <File Path="Directory.Packages.props" />
   </Folder>
   <Folder Name="/src/" />
+  <Folder Name="/src/consysto/">
+    <Project Path="src/Consysto.Collections/Consysto.Collections.csproj" />
+    <Project Path="src/Consysto.CadPreview/Consysto.CadPreview.csproj" />
+    <Project Path="src/Consysto.CadPreview.WinUI/Consysto.CadPreview.WinUI.csproj" />
+    <Project Path="src/Consysto.BookPreview/Consysto.BookPreview.csproj" />
+    <Project Path="src/Consysto.MediaPreview/Consysto.MediaPreview.csproj" />
+    <Project Path="src/Consysto.Torrents/Consysto.Torrents.csproj" />
+  </Folder>
   <Folder Name="/src/core/">
     <Project Path="src/Files.Core.SourceGenerator/Files.Core.SourceGenerator.csproj" />
     <Project Path="src/Files.Core.Storage/Files.Core.Storage.csproj">

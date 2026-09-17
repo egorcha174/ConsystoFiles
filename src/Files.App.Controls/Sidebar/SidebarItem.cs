@@ -476,6 +476,7 @@ namespace Files.App.Controls
 
 		private void UpdateExpansionState()
 		{
+			UpdateSectionHeaderState();
 			if (Owner?.SupportsExpansion == false)
 			{
 				VisualStateManager.GoToState(this, "NoExpansion", false);
@@ -498,6 +499,19 @@ namespace Files.App.Controls
 				VisualStateManager.GoToState(this, IsExpanded ? "ExpandedIconNormal" : "CollapsedIconNormal", false);
 			}
 			UpdateSelectionState();
+		}
+
+		// Consysto fork: top-level group rows (Pinned, Drives, ...) get the macOS section-heading look. Compact mode keeps the regular row because its icon is the only thing shown there.
+		internal void UpdateSectionHeaderState()
+		{
+			var isSectionHeader = Owner?.SupportsExpansion != false
+				&& !IsInFlyout
+				&& DisplayMode != SidebarDisplayMode.Compact
+				&& NestingLevel == 0
+				&& CollapseEnabled
+				&& Item?.Children is not null
+				&& Item.IsLeafWithChildren != true;
+			VisualStateManager.GoToState(this, isSectionHeader ? "SectionHeader" : "RegularRow", false);
 		}
 
 		private void ItemBorder_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)

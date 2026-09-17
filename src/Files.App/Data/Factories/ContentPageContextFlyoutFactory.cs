@@ -384,6 +384,20 @@ namespace Files.App.Data.Factories
 					IsVisible = currentInstanceViewModel.IsPageTypeRecycleBin && itemsSelected,
 				}.Build(),
 				new ContextMenuFlyoutItemViewModelBuilder(Commands.OpenItem).Build(),
+				// Consysto fork: an assembly opens in Inventor as usual; its parts are entered through this item
+				new ContextMenuFlyoutItemViewModel()
+				{
+					Text = Strings.ConsystoAssemblyShowParts.GetLocalizedResource(),
+					Glyph = Files.App.Books.Library.FluentGlyphs.Drawing,
+					ShowItem = selectedItems.Count == 1 && Files.App.Cad.InventorAssemblyPaths.IsAssemblyPath(selectedItems[0].ItemPath),
+					Command = new RelayCommand(() =>
+					{
+						if (selectedItems[0].ItemPath is not { Length: > 0 } assembly)
+							return;
+
+						Ioc.Default.GetService<IContentPageContext>()?.ShellPage?.NavigateToPath(assembly, new NavigationArguments() { NavPathParam = assembly });
+					}),
+				},
 				new ContextMenuFlyoutItemViewModelBuilder(Commands.OpenItemWithApplicationPicker)
 				{
 					Tag = "OpenWith",
@@ -650,6 +664,16 @@ namespace Files.App.Data.Factories
 				{
 					IsVisible = (!itemsSelected || areAllItemsFolders) &&
 						Commands.OpenTerminal.IsExecutable &&
+						UserSettingsService.GeneralSettingsService.ShowOpenTerminal
+				}.Build(),
+				new ContextMenuFlyoutItemViewModelBuilder(Commands.DownloadTorrent)
+				{
+					IsVisible = Commands.DownloadTorrent.IsExecutable
+				}.Build(),
+				new ContextMenuFlyoutItemViewModelBuilder(Commands.OpenTerminalInTab)
+				{
+					IsVisible = (!itemsSelected || areAllItemsFolders) &&
+						Commands.OpenTerminalInTab.IsExecutable &&
 						UserSettingsService.GeneralSettingsService.ShowOpenTerminal
 				}.Build(),
 				new ContextMenuFlyoutItemViewModelBuilder(Commands.OpenStorageSense).Build(),

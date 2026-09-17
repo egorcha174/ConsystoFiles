@@ -1,0 +1,80 @@
+﻿<!--  Consysto fork: DWG/DXF preview for the info pane, with the documents an Inventor assembly is built from.  -->
+<UserControl
+	x:Class="Files.App.Cad.CadPreview"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:cad="using:Files.App.Cad">
+	<Grid x:Name="Host" RowSpacing="8">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
+
+		<Image
+			HorizontalAlignment="Center"
+			VerticalAlignment="Center"
+			Source="{x:Bind ViewModel.EmbeddedImage, Mode=OneWay}"
+			Stretch="Uniform" />
+
+		<!--  iProperties: part number, material, mass and the user's own properties  -->
+		<ScrollViewer
+			Grid.Row="1"
+			MaxHeight="240"
+			Padding="12,0"
+			HorizontalScrollBarVisibility="Disabled"
+			Visibility="{x:Bind ViewModel.PropertiesVisibility, Mode=OneWay}">
+			<ItemsControl ItemsSource="{x:Bind ViewModel.Properties, Mode=OneWay}">
+				<ItemsControl.ItemTemplate>
+					<DataTemplate x:DataType="cad:CadPropertyRow">
+						<Grid Padding="0,2" ColumnSpacing="12">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="2*" />
+								<ColumnDefinition Width="3*" />
+							</Grid.ColumnDefinitions>
+							<TextBlock
+								Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+								Text="{x:Bind Name}"
+								TextTrimming="CharacterEllipsis"
+								ToolTipService.ToolTip="{x:Bind Name}" />
+							<TextBlock
+								Grid.Column="1"
+								IsTextSelectionEnabled="True"
+								Text="{x:Bind Value}"
+								TextWrapping="Wrap" />
+						</Grid>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</ScrollViewer>
+
+		<!--  The parts of an assembly; a file that moved away keeps its old path, dimmed  -->
+		<ListView
+			Grid.Row="2"
+			MaxHeight="220"
+			Padding="0,0,0,4"
+			IsItemClickEnabled="True"
+			ItemClick="References_ItemClick"
+			ItemsSource="{x:Bind ViewModel.References, Mode=OneWay}"
+			SelectionMode="None"
+			Visibility="{x:Bind ViewModel.ReferencesVisibility, Mode=OneWay}">
+			<ListView.ItemContainerStyle>
+				<Style TargetType="ListViewItem">
+					<Setter Property="MinHeight" Value="28" />
+					<Setter Property="Padding" Value="8,2" />
+					<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+				</Style>
+			</ListView.ItemContainerStyle>
+			<ListView.ItemTemplate>
+				<DataTemplate x:DataType="cad:CadReferenceRow">
+					<TextBlock
+						Opacity="{x:Bind Opacity}"
+						Text="{x:Bind Name}"
+						TextTrimming="CharacterEllipsis"
+						TextWrapping="NoWrap"
+						ToolTipService.ToolTip="{x:Bind Path}" />
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+	</Grid>
+</UserControl>

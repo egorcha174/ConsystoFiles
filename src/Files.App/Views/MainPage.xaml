@@ -8,6 +8,7 @@
 	xmlns:converters="using:Files.App.Converters"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:helpers="using:Files.App.Helpers"
+	xmlns:macstyle="using:Files.App.MacStyle"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:tabbar="using:Files.App.UserControls.TabBar"
 	xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
@@ -22,6 +23,7 @@
 	Loaded="Page_Loaded"
 	NavigationCacheMode="Required"
 	PointerReleased="Page_PointerReleased"
+	PreviewKeyDown="Page_PreviewKeyDown"
 	SizeChanged="Page_SizeChanged"
 	mc:Ignorable="d">
 
@@ -115,39 +117,158 @@
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
+		<!--  Consysto fork: the first column follows the sidebar width (set in code-behind) so the toolbar starts where the file area starts.  -->
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition x:Name="TitleBarSidebarColumn" Width="242" />
+			<ColumnDefinition Width="*" />
+		</Grid.ColumnDefinitions>
 
 		<!--  Background Image  -->
 		<Image
 			Grid.RowSpan="3"
+			Grid.ColumnSpan="2"
 			HorizontalAlignment="{x:Bind ViewModel.AppThemeBackgroundImageHorizontalAlignment, Mode=OneWay}"
 			VerticalAlignment="{x:Bind ViewModel.AppThemeBackgroundImageVerticalAlignment, Mode=OneWay}"
 			Opacity="{x:Bind ViewModel.AppThemeBackgroundImageOpacity, Mode=OneWay}"
 			Source="{x:Bind ViewModel.AppThemeBackgroundImageSource, Mode=OneWay}"
 			Stretch="{x:Bind ViewModel.AppThemeBackgroundImageFit, Mode=OneWay}" />
 
+		<!--  Consysto fork: title bar element covering the toolbar row only; SetTitleBarDragRegion carves the controls out of it.
+			The tab row stays outside: a caption over it swallowed the end of tab drag & drop and left tabs stuck mid-drag.  -->
+		<Border
+			x:Name="TitleBarDragSurface"
+			Grid.ColumnSpan="2"
+			Background="Transparent" />
+
+		<!--  Consysto fork: macOS-style window buttons above the sidebar; the system caption buttons are hidden in MainWindow.  -->
+		<macstyle:TrafficLights
+			x:Name="WindowButtons"
+			Margin="18,0,0,0"
+			HorizontalAlignment="Left"
+			VerticalAlignment="Center" />
+
+		<!--  Consysto fork: one toolbar row, navigation and address on the left, commands on the right.  -->
+		<Grid
+			Grid.Column="1"
+			Margin="0,0,8,0"
+			ColumnSpacing="8">
+			<Grid.ColumnDefinitions>
+				<!--  The address needs the larger share: the breadcrumb hides every folder once it runs out of room, while the command bar folds extra commands into its overflow menu.  -->
+				<ColumnDefinition Width="3*" MinWidth="360" />
+				<ColumnDefinition Width="2*" />
+				<ColumnDefinition Width="Auto" />
+			</Grid.ColumnDefinitions>
+
+			<!--  Address Bar  -->
+			<uc:NavigationToolbar
+				x:Name="NavToolbar"
+				HorizontalAlignment="Stretch"
+				HorizontalContentAlignment="Stretch"
+				x:Load="False"
+				Loaded="NavToolbar_Loaded"
+				ShowOngoingTasks="True"
+				TabIndex="1" />
+
+			<!--  File Navigation Toolbar  -->
+			<uc:Toolbar
+				x:Name="InnerNavigationToolbar"
+				Grid.Column="1"
+				VerticalAlignment="Center"
+				x:Load="False"
+				Loaded="NavToolbar_Loaded"
+				ShowPreviewPaneButton="{x:Bind ViewModel.ShouldPreviewPaneBeDisplayed, Mode=OneWay}"
+				TabIndex="2"
+				Visibility="{x:Bind ViewModel.ShowToolbar, Mode=OneWay}" />
+
+			<!--  Consysto fork: window commands kept in sight — panes, preview, and a new tab while the tab strip is hidden.  -->
+			<StackPanel
+				x:Name="WindowCommandButtons"
+				Grid.Column="2"
+				VerticalAlignment="Center"
+				Orientation="Horizontal"
+				Spacing="2">
+				<ToggleButton
+					x:Name="DualPaneToolbarButton"
+					Width="36"
+					Height="32"
+					Padding="0"
+					AutomationProperties.Name="{x:Bind Commands.ToggleDualPane.AutomationName}"
+					Background="Transparent"
+					BorderThickness="0"
+					IsChecked="{x:Bind Commands.ToggleDualPane.IsOn, Mode=TwoWay}"
+					ToolTipService.ToolTip="{x:Bind Commands.ToggleDualPane.LabelWithHotKey, Mode=OneWay}">
+					<FontIcon FontSize="14" Glyph="&#xE89F;" />
+				</ToggleButton>
+				<Button
+					x:Name="SwapPanesToolbarButton"
+					Width="36"
+					Height="32"
+					Padding="0"
+					AutomationProperties.Name="{x:Bind Commands.SwapPanes.AutomationName}"
+					Background="Transparent"
+					BorderThickness="0"
+					Command="{x:Bind Commands.SwapPanes}"
+					ToolTipService.ToolTip="{x:Bind Commands.SwapPanes.LabelWithHotKey, Mode=OneWay}">
+					<FontIcon FontSize="14" Glyph="&#xE8AB;" />
+				</Button>
+				<ToggleButton
+					x:Name="InfoPaneToolbarButton"
+					Width="36"
+					Height="32"
+					Padding="0"
+					AutomationProperties.Name="{x:Bind Commands.ToggleInfoPane.AutomationName}"
+					Background="Transparent"
+					BorderThickness="0"
+					IsChecked="{x:Bind Commands.ToggleInfoPane.IsOn, Mode=TwoWay}"
+					ToolTipService.ToolTip="{x:Bind Commands.ToggleInfoPane.LabelWithHotKey, Mode=OneWay}">
+					<FontIcon FontSize="14" Glyph="&#xE8A0;" />
+				</ToggleButton>
+				<Button
+					x:Name="TorrentsToolbarButton"
+					Width="36"
+					Height="32"
+					Padding="0"
+					AutomationProperties.Name="{x:Bind Commands.OpenTorrents.AutomationName}"
+					Background="Transparent"
+					BorderThickness="0"
+					Command="{x:Bind Commands.OpenTorrents}"
+					ToolTipService.ToolTip="{x:Bind Commands.OpenTorrents.LabelWithHotKey, Mode=OneWay}">
+					<FontIcon FontSize="14" Glyph="&#xE896;" />
+				</Button>
+				<!--  Consysto fork: stands in for the tab strip's "+" while the strip is hidden (a single tab).  -->
+				<Button
+					x:Name="NewTabToolbarButton"
+					Width="36"
+					Height="32"
+					Padding="0"
+					VerticalAlignment="Center"
+					AutomationProperties.Name="{x:Bind Commands.NewTab.AutomationName}"
+					Background="Transparent"
+					BorderThickness="0"
+					Command="{x:Bind Commands.NewTab}"
+					ToolTipService.ToolTip="{x:Bind Commands.NewTab.LabelWithHotKey, Mode=OneWay}"
+					Visibility="Collapsed">
+					<FontIcon FontSize="12" Glyph="&#xE710;" />
+				</Button>
+			</StackPanel>
+		</Grid>
+
 		<!--  Tab Bar  -->
+		<!--  Consysto fork: tabs sit under the toolbar, above the file area.  -->
 		<tabbar:TabBar
 			x:Name="TabControl"
+			Grid.Row="1"
+			Grid.Column="1"
 			HorizontalContentAlignment="Stretch"
 			x:Load="False"
 			Loaded="HorizontalMultitaskingControl_Loaded"
 			TabIndex="0" />
 
-		<!--  Address Bar  -->
-		<uc:NavigationToolbar
-			x:Name="NavToolbar"
-			Grid.Row="1"
-			HorizontalAlignment="Stretch"
-			HorizontalContentAlignment="Stretch"
-			x:Load="False"
-			Loaded="NavToolbar_Loaded"
-			ShowOngoingTasks="True"
-			TabIndex="1" />
-
 		<!--  Content Area  -->
 		<controls:SidebarView
 			x:Name="SidebarControl"
 			Grid.Row="2"
+			Grid.ColumnSpan="2"
 			HorizontalAlignment="Stretch"
 			HorizontalContentAlignment="Stretch"
 			DisplayMode="{x:Bind SidebarAdaptiveViewModel.SidebarDisplayMode, Mode=TwoWay}"
@@ -190,17 +311,7 @@
 						<ColumnDefinition x:Name="ShelfPaneColumn" Width="Auto" />
 					</Grid.ColumnDefinitions>
 
-					<!--  File Navigation Toolbar  -->
-					<uc:Toolbar
-						x:Name="InnerNavigationToolbar"
-						Grid.Row="0"
-						Grid.ColumnSpan="3"
-						Margin="0,0,0,4"
-						x:Load="False"
-						Loaded="NavToolbar_Loaded"
-						ShowPreviewPaneButton="{x:Bind ViewModel.ShouldPreviewPaneBeDisplayed, Mode=OneWay}"
-						TabIndex="2"
-						Visibility="{x:Bind ViewModel.ShowToolbar, Mode=OneWay}" />
+					<!--  Consysto fork: the file navigation toolbar moved into the top toolbar row.  -->
 
 					<InfoBar
 						x:Name="NetworkDiscoveryInfoBar"
@@ -360,6 +471,13 @@
 			CloseButtonContent="{helpers:ResourceString Name=Dismiss}"
 			IsOpen="{x:Bind ViewModel.ShowSponsorPrompt, Mode=OneWay}"
 			Subtitle="{helpers:ResourceString Name=SponsorSubtitle}" />
+
+		<!--  Consysto fork: quick preview on Space, over everything else  -->
+		<macstyle:QuickPreviewOverlay
+			x:Name="QuickPreview"
+			Grid.RowSpan="3"
+			Grid.ColumnSpan="2"
+			x:FieldModifier="public" />
 
 		<VisualStateManager.VisualStateGroups>
 			<VisualStateGroup x:Name="SidebarWidthStates">

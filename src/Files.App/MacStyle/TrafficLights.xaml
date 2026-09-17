@@ -1,0 +1,161 @@
+﻿<!--  Consysto fork: macOS-style window buttons (close, minimize, zoom), drawn as plain shapes.  -->
+<UserControl
+	x:Class="Files.App.MacStyle.TrafficLights"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:helpers="using:Files.App.Helpers"
+	PointerEntered="Lights_PointerEntered"
+	PointerExited="Lights_PointerExited">
+
+	<UserControl.Resources>
+		<ResourceDictionary>
+			<!--  A bare circle: no system chrome, just a slightly dimmed look while pressed.  -->
+			<Style x:Key="TrafficLightButtonStyle" TargetType="Button">
+				<Setter Property="Width" Value="14" />
+				<Setter Property="Height" Value="14" />
+				<Setter Property="Padding" Value="0" />
+				<Setter Property="BorderThickness" Value="0" />
+				<Setter Property="Background" Value="Transparent" />
+				<Setter Property="UseSystemFocusVisuals" Value="True" />
+				<Setter Property="Template">
+					<Setter.Value>
+						<ControlTemplate TargetType="Button">
+							<Grid x:Name="RootGrid" Background="Transparent">
+								<ContentPresenter
+									x:Name="ContentPresenter"
+									HorizontalAlignment="Center"
+									VerticalAlignment="Center"
+									Content="{TemplateBinding Content}" />
+								<VisualStateManager.VisualStateGroups>
+									<VisualStateGroup x:Name="CommonStates">
+										<VisualState x:Name="Normal" />
+										<VisualState x:Name="PointerOver" />
+										<VisualState x:Name="Pressed">
+											<VisualState.Setters>
+												<Setter Target="ContentPresenter.Opacity" Value="0.7" />
+											</VisualState.Setters>
+										</VisualState>
+										<VisualState x:Name="Disabled">
+											<VisualState.Setters>
+												<Setter Target="ContentPresenter.Opacity" Value="0.4" />
+											</VisualState.Setters>
+										</VisualState>
+									</VisualStateGroup>
+								</VisualStateManager.VisualStateGroups>
+							</Grid>
+						</ControlTemplate>
+					</Setter.Value>
+				</Setter>
+			</Style>
+		</ResourceDictionary>
+	</UserControl.Resources>
+
+	<StackPanel
+		VerticalAlignment="Center"
+		Orientation="Horizontal"
+		Spacing="6">
+
+		<!--  Close  -->
+		<Button
+			x:Name="CloseButton"
+			AutomationProperties.Name="{helpers:ResourceString Name=Close}"
+			Click="CloseButton_Click"
+			Style="{StaticResource TrafficLightButtonStyle}"
+			ToolTipService.ToolTip="{helpers:ResourceString Name=Close}">
+			<Grid Width="12" Height="12">
+				<Ellipse
+					x:Name="CloseFill"
+					Fill="#FFFF5F57"
+					Stroke="#FFE2463F"
+					StrokeThickness="0.5" />
+				<Path
+					x:Name="CloseGlyph"
+					Data="M4,4 L8,8 M8,4 L4,8"
+					Opacity="0"
+					Stroke="#FF4D0000"
+					StrokeEndLineCap="Round"
+					StrokeStartLineCap="Round"
+					StrokeThickness="1.2" />
+			</Grid>
+		</Button>
+
+		<!--  Minimize  -->
+		<Button
+			x:Name="MinimizeButton"
+			AutomationProperties.Name="{helpers:ResourceString Name=ConsystoWindowMinimize}"
+			Click="MinimizeButton_Click"
+			Style="{StaticResource TrafficLightButtonStyle}"
+			ToolTipService.ToolTip="{helpers:ResourceString Name=ConsystoWindowMinimize}">
+			<Grid Width="12" Height="12">
+				<Ellipse
+					x:Name="MinimizeFill"
+					Fill="#FFFEBC2E"
+					Stroke="#FFDFA123"
+					StrokeThickness="0.5" />
+				<Path
+					x:Name="MinimizeGlyph"
+					Data="M3.5,6 L8.5,6"
+					Opacity="0"
+					Stroke="#FF5A3E00"
+					StrokeEndLineCap="Round"
+					StrokeStartLineCap="Round"
+					StrokeThickness="1.2" />
+			</Grid>
+		</Button>
+
+		<!--  Zoom: click toggles maximized, resting the pointer opens the arrangement menu  -->
+		<Button
+			x:Name="ZoomButton"
+			AutomationProperties.Name="{helpers:ResourceString Name=ConsystoWindowZoom}"
+			Click="ZoomButton_Click"
+			PointerEntered="ZoomButton_PointerEntered"
+			PointerExited="ZoomButton_PointerExited"
+			RightTapped="ZoomButton_RightTapped"
+			Style="{StaticResource TrafficLightButtonStyle}">
+			<Grid Width="12" Height="12">
+				<Ellipse
+					x:Name="ZoomFill"
+					Fill="#FF28C840"
+					Stroke="#FF1AAB29"
+					StrokeThickness="0.5" />
+				<Path
+					x:Name="ZoomGlyph"
+					Data="M6,3.5 L6,8.5 M3.5,6 L8.5,6"
+					Opacity="0"
+					Stroke="#FF004D00"
+					StrokeEndLineCap="Round"
+					StrokeStartLineCap="Round"
+					StrokeThickness="1.2" />
+			</Grid>
+			<FlyoutBase.AttachedFlyout>
+				<MenuFlyout x:Name="ZoomMenu" Placement="BottomEdgeAlignedLeft">
+					<MenuFlyoutItem
+						Click="ArrangeMenuItem_Click"
+						Tag="Fill"
+						Text="{helpers:ResourceString Name=ConsystoWindowFill}" />
+					<MenuFlyoutItem
+						Click="ArrangeMenuItem_Click"
+						Tag="Center"
+						Text="{helpers:ResourceString Name=ConsystoWindowCenter}" />
+					<MenuFlyoutSeparator />
+					<MenuFlyoutItem
+						Click="ArrangeMenuItem_Click"
+						Tag="Left"
+						Text="{helpers:ResourceString Name=ConsystoWindowLeftHalf}" />
+					<MenuFlyoutItem
+						Click="ArrangeMenuItem_Click"
+						Tag="Right"
+						Text="{helpers:ResourceString Name=ConsystoWindowRightHalf}" />
+					<MenuFlyoutItem
+						Click="ArrangeMenuItem_Click"
+						Tag="Top"
+						Text="{helpers:ResourceString Name=ConsystoWindowTopHalf}" />
+					<MenuFlyoutItem
+						Click="ArrangeMenuItem_Click"
+						Tag="Bottom"
+						Text="{helpers:ResourceString Name=ConsystoWindowBottomHalf}" />
+				</MenuFlyout>
+			</FlyoutBase.AttachedFlyout>
+		</Button>
+	</StackPanel>
+</UserControl>

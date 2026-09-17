@@ -20,6 +20,31 @@
 				<ResourceDictionary Source="ms-appx:///Styles/ToolbarButtonStyle.xaml" />
 			</ResourceDictionary.MergedDictionaries>
 
+			<!--  Consysto fork: the view mode switch reads as a segmented control, the chosen mode on a plain raised fill instead of accent  -->
+			<ResourceDictionary.ThemeDictionaries>
+				<ResourceDictionary x:Key="Light">
+					<StaticResource x:Key="ToggleButtonBackgroundChecked" ResourceKey="ControlFillColorDefaultBrush" />
+					<StaticResource x:Key="ToggleButtonBackgroundCheckedPointerOver" ResourceKey="ControlFillColorSecondaryBrush" />
+					<StaticResource x:Key="ToggleButtonBackgroundCheckedPressed" ResourceKey="ControlFillColorTertiaryBrush" />
+					<StaticResource x:Key="ToggleButtonForegroundChecked" ResourceKey="TextFillColorPrimaryBrush" />
+					<StaticResource x:Key="ToggleButtonForegroundCheckedPointerOver" ResourceKey="TextFillColorPrimaryBrush" />
+					<StaticResource x:Key="ToggleButtonForegroundCheckedPressed" ResourceKey="TextFillColorSecondaryBrush" />
+				</ResourceDictionary>
+				<ResourceDictionary x:Key="Dark">
+					<StaticResource x:Key="ToggleButtonBackgroundChecked" ResourceKey="ControlFillColorDefaultBrush" />
+					<StaticResource x:Key="ToggleButtonBackgroundCheckedPointerOver" ResourceKey="ControlFillColorSecondaryBrush" />
+					<StaticResource x:Key="ToggleButtonBackgroundCheckedPressed" ResourceKey="ControlFillColorTertiaryBrush" />
+					<StaticResource x:Key="ToggleButtonForegroundChecked" ResourceKey="TextFillColorPrimaryBrush" />
+					<StaticResource x:Key="ToggleButtonForegroundCheckedPointerOver" ResourceKey="TextFillColorPrimaryBrush" />
+					<StaticResource x:Key="ToggleButtonForegroundCheckedPressed" ResourceKey="TextFillColorSecondaryBrush" />
+				</ResourceDictionary>
+			</ResourceDictionary.ThemeDictionaries>
+
+			<!--  Consysto fork: unselected view modes and unavailable toolbar buttons stay flat  -->
+			<SolidColorBrush x:Key="ToggleButtonBackground" Color="Transparent" />
+			<SolidColorBrush x:Key="ButtonBackgroundDisabled" Color="Transparent" />
+			<SolidColorBrush x:Key="ButtonBorderBrushDisabled" Color="Transparent" />
+
 			<SolidColorBrush x:Key="CommandBarBackground" Color="Transparent" />
 			<SolidColorBrush x:Key="CommandBarBackgroundOpen" Color="Transparent" />
 			<SolidColorBrush x:Key="CommandBarBorderBrushOpen" Color="Transparent" />
@@ -54,808 +79,937 @@
 		</ResourceDictionary>
 	</UserControl.Resources>
 
+	<!--  Consysto fork: no card border, the toolbar sits directly in the title bar row.  -->
 	<Grid
 		x:Name="RootGrid"
 		Background="{ThemeResource App.Theme.Toolbar.BackgroundBrush}"
 		BackgroundSizing="InnerBorderEdge"
 		BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-		BorderThickness="1"
+		BorderThickness="0"
 		CornerRadius="8">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="*" />
 			<ColumnDefinition Width="Auto" />
+			<ColumnDefinition Width="Auto" />
 		</Grid.ColumnDefinitions>
 
-		<!--  Context Commands  -->
+		<!--  Empty space keeps the toolbar customization menu  -->
 		<Grid Grid.Column="0" Background="Transparent">
 			<Grid.ContextFlyout>
 				<MenuFlyout>
 					<MenuFlyoutItem Click="CustomizeToolbar_Click" Text="{helpers:ResourceString Name=CustomizeToolbar}" />
 				</MenuFlyout>
 			</Grid.ContextFlyout>
-
-			<CommandBar
-				x:Name="ContextCommandBar"
-				HorizontalAlignment="Left"
-				x:Load="{x:Bind ViewModel.InstanceViewModel.IsPageTypeNotHome, Mode=OneWay}"
-				DefaultLabelPosition="Right"
-				IsDynamicOverflowEnabled="{x:Bind ViewModel.IsDynamicOverflowEnabled, Mode=OneWay}"
-				Loaded="ContextCommandBar_Loaded">
-				<!--  Primary commands are populated dynamically in code-behind  -->
-			</CommandBar>
 		</Grid>
 
-		<!--  Base Commands  -->
+		<!--  Consysto fork: Commander One-like buttons. The context commands and the former toolbar buttons moved into the "…" menu.  -->
+		<StackPanel
+			Grid.Column="1"
+			VerticalAlignment="Center"
+			Orientation="Horizontal"
+			Spacing="2">
+			<StackPanel.Resources>
+				<Style
+					x:Key="MacToolbarButtonStyle"
+					BasedOn="{StaticResource DefaultButtonStyle}"
+					TargetType="Button">
+					<Setter Property="Width" Value="36" />
+					<Setter Property="Height" Value="32" />
+					<Setter Property="Padding" Value="0" />
+					<Setter Property="Background" Value="Transparent" />
+					<Setter Property="BorderThickness" Value="0" />
+					<Setter Property="CornerRadius" Value="6" />
+				</Style>
+				<Style
+					x:Key="MacViewModeButtonStyle"
+					BasedOn="{StaticResource DefaultToggleButtonStyle}"
+					TargetType="RadioButton">
+					<Setter Property="Width" Value="34" />
+					<Setter Property="Height" Value="28" />
+					<Setter Property="MinWidth" Value="0" />
+					<Setter Property="Padding" Value="0" />
+					<Setter Property="BorderThickness" Value="0" />
+					<Setter Property="CornerRadius" Value="5" />
+					<Setter Property="HorizontalContentAlignment" Value="Center" />
+					<Setter Property="VerticalContentAlignment" Value="Center" />
+				</Style>
+			</StackPanel.Resources>
+
+			<!--  View mode: table, list, icons  -->
+			<Border
+				x:Name="ViewModeButtons"
+				Margin="0,0,6,0"
+				Padding="2"
+				x:Load="{x:Bind ViewModel.InstanceViewModel.IsPageTypeNotHome, Mode=OneWay}"
+				Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+				CornerRadius="7">
+				<StackPanel Orientation="Horizontal" Spacing="2">
+					<RadioButton
+						AutomationProperties.Name="{x:Bind Commands.LayoutDetails.AutomationName}"
+						Command="{x:Bind Commands.LayoutDetails}"
+						GroupName="MacViewMode"
+						IsChecked="{x:Bind ViewModel.IsDetailsLayout, Mode=OneWay}"
+						Style="{StaticResource MacViewModeButtonStyle}"
+						ToolTipService.ToolTip="{x:Bind Commands.LayoutDetails.LabelWithHotKey, Mode=OneWay}">
+						<FontIcon FontSize="14" Glyph="&#xE8FD;" />
+					</RadioButton>
+					<RadioButton
+						AutomationProperties.Name="{x:Bind Commands.LayoutList.AutomationName}"
+						Command="{x:Bind Commands.LayoutList}"
+						GroupName="MacViewMode"
+						IsChecked="{x:Bind ViewModel.IsListLayout, Mode=OneWay}"
+						Style="{StaticResource MacViewModeButtonStyle}"
+						ToolTipService.ToolTip="{x:Bind Commands.LayoutList.LabelWithHotKey, Mode=OneWay}">
+						<FontIcon FontSize="14" Glyph="&#xEA37;" />
+					</RadioButton>
+					<RadioButton
+						AutomationProperties.Name="{x:Bind Commands.LayoutGrid.AutomationName}"
+						Command="{x:Bind Commands.LayoutGrid}"
+						GroupName="MacViewMode"
+						IsChecked="{x:Bind ViewModel.IsGridLayout, Mode=OneWay}"
+						Style="{StaticResource MacViewModeButtonStyle}"
+						ToolTipService.ToolTip="{x:Bind Commands.LayoutGrid.LabelWithHotKey, Mode=OneWay}">
+						<FontIcon FontSize="14" Glyph="&#xF0E2;" />
+					</RadioButton>
+					<RadioButton
+						AutomationProperties.Name="{x:Bind Commands.LayoutGallery.AutomationName}"
+						Command="{x:Bind Commands.LayoutGallery}"
+						GroupName="MacViewMode"
+						IsChecked="{x:Bind ViewModel.IsGalleryLayout, Mode=OneWay}"
+						Style="{StaticResource MacViewModeButtonStyle}"
+						ToolTipService.ToolTip="{x:Bind Commands.LayoutGallery.LabelWithHotKey, Mode=OneWay}">
+						<FontIcon FontSize="14" Glyph="&#xE8B9;" />
+					</RadioButton>
+				</StackPanel>
+			</Border>
+
+			<!--  Hidden items  -->
+			<ToggleSwitch
+				Width="44"
+				MinWidth="0"
+				Margin="4,0,6,0"
+				VerticalAlignment="Center"
+				AutomationProperties.Name="{x:Bind Commands.ToggleShowHiddenItems.AutomationName}"
+				IsOn="{x:Bind Commands.ToggleShowHiddenItems.IsOn, Mode=TwoWay}"
+				OffContent=""
+				OnContent=""
+				ToolTipService.ToolTip="{x:Bind Commands.ToggleShowHiddenItems.LabelWithHotKey, Mode=OneWay}" />
+
+			<Button
+				AutomationProperties.Name="{x:Bind Commands.OpenProperties.AutomationName}"
+				Command="{x:Bind Commands.OpenProperties}"
+				Style="{StaticResource MacToolbarButtonStyle}"
+				ToolTipService.ToolTip="{x:Bind Commands.OpenProperties.LabelWithHotKey, Mode=OneWay}">
+				<FontIcon FontSize="16" Glyph="&#xE946;" />
+			</Button>
+
+			<Button
+				AutomationProperties.Name="{x:Bind Commands.LaunchPreviewPopup.AutomationName}"
+				Command="{x:Bind Commands.LaunchPreviewPopup}"
+				Style="{StaticResource MacToolbarButtonStyle}"
+				ToolTipService.ToolTip="{x:Bind Commands.LaunchPreviewPopup.LabelWithHotKey, Mode=OneWay}">
+				<FontIcon FontSize="16" Glyph="&#xE890;" />
+			</Button>
+
+			<Button
+				AutomationProperties.Name="{x:Bind Commands.Search.AutomationName}"
+				Command="{x:Bind Commands.Search}"
+				Style="{StaticResource MacToolbarButtonStyle}"
+				ToolTipService.ToolTip="{x:Bind Commands.Search.LabelWithHotKey, Mode=OneWay}">
+				<FontIcon FontSize="16" Glyph="&#xE721;" />
+			</Button>
+
+			<Button
+				AutomationProperties.Name="{x:Bind Commands.CompressIntoArchive.AutomationName}"
+				Command="{x:Bind Commands.CompressIntoArchive}"
+				Style="{StaticResource MacToolbarButtonStyle}"
+				ToolTipService.ToolTip="{x:Bind Commands.CompressIntoArchive.LabelWithHotKey, Mode=OneWay}">
+				<FontIcon FontSize="16" Glyph="&#xE7B8;" />
+			</Button>
+
+			<Button
+				AutomationProperties.Name="{helpers:ResourceString Name=ConsystoMapNetworkDrive}"
+				Click="MapNetworkDriveButton_Click"
+				Style="{StaticResource MacToolbarButtonStyle}"
+				ToolTipService.ToolTip="{helpers:ResourceString Name=ConsystoMapNetworkDrive}">
+				<FontIcon FontSize="16" Glyph="&#xE8CE;" />
+			</Button>
+		</StackPanel>
+
+		<!--  Base Commands: only the "…" menu shows; context commands are inserted ahead of these in code-behind  -->
 		<CommandBar
 			x:Name="BaseCommandBar"
-			Grid.Column="1"
-			DefaultLabelPosition="Right">
+			Grid.Column="2"
+			DefaultLabelPosition="Right"
+			OverflowButtonVisibility="Visible">
+			<CommandBar.SecondaryCommands>
 
-			<!--  Toggle filter header  -->
-			<AppBarToggleButton
-				x:Name="FilterHeader"
-				Width="Auto"
-				MinWidth="40"
-				AccessKey="F"
-				AccessKeyInvoked="AppBarButton_AccessKeyInvoked"
-				AutomationProperties.Name="{x:Bind Commands.ToggleFilterHeader.AutomationName}"
-				IsChecked="{x:Bind Commands.ToggleFilterHeader.IsOn, Mode=TwoWay}"
-				Label="{x:Bind Commands.ToggleFilterHeader.Label}"
-				LabelPosition="Collapsed"
-				ToolTipService.ToolTip="{x:Bind Commands.ToggleFilterHeader.LabelWithHotKey, Mode=OneWay}">
-				<controls:ThemedIcon Style="{StaticResource App.ThemedIcons.Filter}" />
-			</AppBarToggleButton>
+				<!--  Toggle filter header  -->
+				<AppBarToggleButton
+					x:Name="FilterHeader"
+					AccessKey="F"
+					AccessKeyInvoked="AppBarButton_AccessKeyInvoked"
+					AutomationProperties.Name="{x:Bind Commands.ToggleFilterHeader.AutomationName}"
+					IsChecked="{x:Bind Commands.ToggleFilterHeader.IsOn, Mode=TwoWay}"
+					Label="{x:Bind Commands.ToggleFilterHeader.Label}"
+					ToolTipService.ToolTip="{x:Bind Commands.ToggleFilterHeader.LabelWithHotKey, Mode=OneWay}">
+					<AppBarToggleButton.Icon>
+						<FontIcon Glyph="&#xE71C;" />
+					</AppBarToggleButton.Icon>
+				</AppBarToggleButton>
 
-			<!--  Selection Commands  -->
-			<AppBarButton
-				x:Name="SelectionOptions"
-				Width="Auto"
-				MinWidth="46"
-				x:Load="{x:Bind ViewModel.InstanceViewModel.IsPageTypeNotHome, Mode=OneWay}"
-				AccessKey="S"
-				AccessKeyInvoked="AppBarButton_AccessKeyInvoked"
-				AutomationProperties.Name="{helpers:ResourceString Name=SelectionOptions}"
-				Label="{helpers:ResourceString Name=NavToolbarSelectionOptions/Label}"
-				LabelPosition="Collapsed"
-				Style="{StaticResource ToolBarAppBarButtonFlyoutStyle}"
-				ToolTipService.ToolTip="{helpers:ResourceString Name=SelectionOptions}">
+				<!--  Selection Commands  -->
+				<AppBarButton
+					x:Name="SelectionOptions"
+					Width="Auto"
+					MinWidth="46"
+					x:Load="{x:Bind ViewModel.InstanceViewModel.IsPageTypeNotHome, Mode=OneWay}"
+					AccessKey="S"
+					AccessKeyInvoked="AppBarButton_AccessKeyInvoked"
+					AutomationProperties.Name="{helpers:ResourceString Name=SelectionOptions}"
+					Label="{helpers:ResourceString Name=NavToolbarSelectionOptions/Label}"
+					ToolTipService.ToolTip="{helpers:ResourceString Name=SelectionOptions}">
 
-				<controls:ThemedIcon Style="{StaticResource App.ThemedIcons.SelectMode}" />
+					<AppBarButton.Icon>
+						<FontIcon Glyph="&#xE762;" />
+					</AppBarButton.Icon>
 
-				<AppBarButton.Flyout>
-					<MenuFlyout Placement="Bottom">
-						<local:MenuFlyoutItemWithThemedIcon
-							x:Name="SelectAllMFI"
-							AccessKey="A"
-							Command="{x:Bind Commands.SelectAll}"
-							KeyboardAcceleratorTextOverride="{x:Bind Commands.SelectAll.HotKeyText, Mode=OneWay}"
-							Text="{x:Bind Commands.SelectAll.Label}"
-							ThemedIconStyle="{x:Bind Commands.SelectAll.ThemedIconStyle}" />
-						<local:MenuFlyoutItemWithThemedIcon
-							x:Name="InvertSelectionMFI"
-							AccessKey="I"
-							Command="{x:Bind Commands.InvertSelection}"
-							KeyboardAcceleratorTextOverride="{x:Bind Commands.InvertSelection.HotKeyText, Mode=OneWay}"
-							Text="{x:Bind Commands.InvertSelection.Label}"
-							ThemedIconStyle="{x:Bind Commands.InvertSelection.ThemedIconStyle}" />
-						<local:MenuFlyoutItemWithThemedIcon
-							x:Name="ClearSelectionMFI"
-							AccessKey="C"
-							Command="{x:Bind Commands.ClearSelection}"
-							KeyboardAcceleratorTextOverride="{x:Bind Commands.ClearSelection.HotKeyText, Mode=OneWay}"
-							Text="{x:Bind Commands.ClearSelection.Label}"
-							ThemedIconStyle="{x:Bind Commands.ClearSelection.ThemedIconStyle}" />
-					</MenuFlyout>
-				</AppBarButton.Flyout>
-
-			</AppBarButton>
-
-			<!--  Sort Commands  -->
-			<AppBarButton
-				x:Name="ArrangementOptions"
-				Width="Auto"
-				MinWidth="46"
-				x:Load="{x:Bind ViewModel.InstanceViewModel.IsPageTypeNotHome, Mode=OneWay}"
-				AccessKey="A"
-				AccessKeyInvoked="AppBarButton_AccessKeyInvoked"
-				AutomationProperties.Name="{helpers:ResourceString Name=Sort}"
-				Label="{helpers:ResourceString Name=Sort}"
-				LabelPosition="Collapsed"
-				Style="{StaticResource ToolBarAppBarButtonFlyoutStyle}"
-				ToolTipService.ToolTip="{helpers:ResourceString Name=Sort}">
-
-				<controls:ThemedIcon Style="{StaticResource App.ThemedIcons.Sorting}" />
-
-				<AppBarButton.Flyout>
-					<MenuFlyout contract8Present:ShouldConstrainToRootBounds="False" Placement="Bottom">
-						<MenuFlyoutSubItem
-							AccessKey="S"
-							AccessKeyInvoked="SortGroup_AccessKeyInvoked"
-							Text="{helpers:ResourceString Name=SortBy}">
-							<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.SortByName.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.SortByName.Label}" />
-							<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.SortByDateModified.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.SortByDateModified.Label}" />
-							<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.SortByDateCreated.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.SortByDateCreated.Label}" />
-							<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.SortBySize.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.SortBySize.Label}" />
-							<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.SortByType.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.SortByType.Label}" />
-							<ToggleMenuFlyoutItem
-								IsChecked="{x:Bind Commands.SortBySyncStatus.IsOn, Mode=TwoWay}"
-								IsEnabled="{x:Bind Commands.SortBySyncStatus.IsExecutable, Mode=OneWay}"
-								Text="{x:Bind Commands.SortBySyncStatus.Label}" />
-							<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.SortByTag.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.SortByTag.Label}" />
-							<ToggleMenuFlyoutItem
-								IsChecked="{x:Bind Commands.SortByPath.IsOn, Mode=TwoWay}"
-								IsEnabled="{x:Bind Commands.SortByPath.IsExecutable, Mode=OneWay}"
-								Text="{x:Bind Commands.SortByPath.Label}" />
-							<ToggleMenuFlyoutItem
-								IsChecked="{x:Bind Commands.SortByOriginalFolder.IsOn, Mode=TwoWay}"
-								IsEnabled="{x:Bind Commands.SortByOriginalFolder.IsExecutable, Mode=OneWay}"
-								Text="{x:Bind Commands.SortByOriginalFolder.Label}" />
-							<ToggleMenuFlyoutItem
-								IsChecked="{x:Bind Commands.SortByDateDeleted.IsOn, Mode=TwoWay}"
-								IsEnabled="{x:Bind Commands.SortByDateDeleted.IsExecutable, Mode=OneWay}"
-								Text="{x:Bind Commands.SortByDateDeleted.Label}" />
-							<MenuFlyoutSeparator />
-							<ToggleMenuFlyoutItem
+					<AppBarButton.Flyout>
+						<MenuFlyout Placement="Bottom">
+							<local:MenuFlyoutItemWithThemedIcon
+								x:Name="SelectAllMFI"
 								AccessKey="A"
-								IsChecked="{x:Bind Commands.SortAscending.IsOn, Mode=TwoWay}"
-								Text="{x:Bind Commands.SortAscending.Label}" />
-							<ToggleMenuFlyoutItem
-								AccessKey="D"
-								IsChecked="{x:Bind Commands.SortDescending.IsOn, Mode=TwoWay}"
-								Text="{x:Bind Commands.SortDescending.Label}" />
-						</MenuFlyoutSubItem>
-						<MenuFlyoutSubItem
-							AccessKey="G"
-							AccessKeyInvoked="SortGroup_AccessKeyInvoked"
-							Text="{helpers:ResourceString Name=GroupBy}">
-							<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByNone.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByNone.Label}" />
-							<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByName.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByName.Label}" />
-							<MenuFlyoutSubItem Text="{x:Bind Commands.GroupByDateModified.Label}">
-								<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByDateModifiedYear.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByDateModifiedYear.Label}" />
-								<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByDateModifiedMonth.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByDateModifiedMonth.Label}" />
-								<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByDateModifiedDay.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByDateModifiedDay.Label}" />
+								Command="{x:Bind Commands.SelectAll}"
+								KeyboardAcceleratorTextOverride="{x:Bind Commands.SelectAll.HotKeyText, Mode=OneWay}"
+								Text="{x:Bind Commands.SelectAll.Label}"
+								ThemedIconStyle="{x:Bind Commands.SelectAll.ThemedIconStyle}" />
+							<local:MenuFlyoutItemWithThemedIcon
+								x:Name="InvertSelectionMFI"
+								AccessKey="I"
+								Command="{x:Bind Commands.InvertSelection}"
+								KeyboardAcceleratorTextOverride="{x:Bind Commands.InvertSelection.HotKeyText, Mode=OneWay}"
+								Text="{x:Bind Commands.InvertSelection.Label}"
+								ThemedIconStyle="{x:Bind Commands.InvertSelection.ThemedIconStyle}" />
+							<local:MenuFlyoutItemWithThemedIcon
+								x:Name="ClearSelectionMFI"
+								AccessKey="C"
+								Command="{x:Bind Commands.ClearSelection}"
+								KeyboardAcceleratorTextOverride="{x:Bind Commands.ClearSelection.HotKeyText, Mode=OneWay}"
+								Text="{x:Bind Commands.ClearSelection.Label}"
+								ThemedIconStyle="{x:Bind Commands.ClearSelection.ThemedIconStyle}" />
+						</MenuFlyout>
+					</AppBarButton.Flyout>
+
+				</AppBarButton>
+
+				<!--  Sort Commands  -->
+				<AppBarButton
+					x:Name="ArrangementOptions"
+					Width="Auto"
+					MinWidth="46"
+					x:Load="{x:Bind ViewModel.InstanceViewModel.IsPageTypeNotHome, Mode=OneWay}"
+					AccessKey="A"
+					AccessKeyInvoked="AppBarButton_AccessKeyInvoked"
+					AutomationProperties.Name="{helpers:ResourceString Name=Sort}"
+					Label="{helpers:ResourceString Name=Sort}"
+					ToolTipService.ToolTip="{helpers:ResourceString Name=Sort}">
+
+					<AppBarButton.Icon>
+						<FontIcon Glyph="&#xE8CB;" />
+					</AppBarButton.Icon>
+
+					<AppBarButton.Flyout>
+						<MenuFlyout contract8Present:ShouldConstrainToRootBounds="False" Placement="Bottom">
+							<MenuFlyoutSubItem
+								AccessKey="S"
+								AccessKeyInvoked="SortGroup_AccessKeyInvoked"
+								Text="{helpers:ResourceString Name=SortBy}">
+								<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.SortByName.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.SortByName.Label}" />
+								<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.SortByDateModified.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.SortByDateModified.Label}" />
+								<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.SortByDateCreated.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.SortByDateCreated.Label}" />
+								<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.SortBySize.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.SortBySize.Label}" />
+								<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.SortByType.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.SortByType.Label}" />
+								<ToggleMenuFlyoutItem
+									IsChecked="{x:Bind Commands.SortBySyncStatus.IsOn, Mode=TwoWay}"
+									IsEnabled="{x:Bind Commands.SortBySyncStatus.IsExecutable, Mode=OneWay}"
+									Text="{x:Bind Commands.SortBySyncStatus.Label}" />
+								<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.SortByTag.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.SortByTag.Label}" />
+								<ToggleMenuFlyoutItem
+									IsChecked="{x:Bind Commands.SortByPath.IsOn, Mode=TwoWay}"
+									IsEnabled="{x:Bind Commands.SortByPath.IsExecutable, Mode=OneWay}"
+									Text="{x:Bind Commands.SortByPath.Label}" />
+								<ToggleMenuFlyoutItem
+									IsChecked="{x:Bind Commands.SortByOriginalFolder.IsOn, Mode=TwoWay}"
+									IsEnabled="{x:Bind Commands.SortByOriginalFolder.IsExecutable, Mode=OneWay}"
+									Text="{x:Bind Commands.SortByOriginalFolder.Label}" />
+								<ToggleMenuFlyoutItem
+									IsChecked="{x:Bind Commands.SortByDateDeleted.IsOn, Mode=TwoWay}"
+									IsEnabled="{x:Bind Commands.SortByDateDeleted.IsExecutable, Mode=OneWay}"
+									Text="{x:Bind Commands.SortByDateDeleted.Label}" />
+								<MenuFlyoutSeparator />
+								<ToggleMenuFlyoutItem
+									AccessKey="A"
+									IsChecked="{x:Bind Commands.SortAscending.IsOn, Mode=TwoWay}"
+									Text="{x:Bind Commands.SortAscending.Label}" />
+								<ToggleMenuFlyoutItem
+									AccessKey="D"
+									IsChecked="{x:Bind Commands.SortDescending.IsOn, Mode=TwoWay}"
+									Text="{x:Bind Commands.SortDescending.Label}" />
 							</MenuFlyoutSubItem>
-							<MenuFlyoutSubItem Text="{x:Bind Commands.GroupByDateCreated.Label}">
-								<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByDateCreatedYear.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByDateCreatedYear.Label}" />
-								<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByDateCreatedMonth.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByDateCreatedMonth.Label}" />
-								<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByDateCreatedDay.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByDateCreatedDay.Label}" />
+							<MenuFlyoutSubItem
+								AccessKey="G"
+								AccessKeyInvoked="SortGroup_AccessKeyInvoked"
+								Text="{helpers:ResourceString Name=GroupBy}">
+								<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByNone.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByNone.Label}" />
+								<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByName.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByName.Label}" />
+								<MenuFlyoutSubItem Text="{x:Bind Commands.GroupByDateModified.Label}">
+									<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByDateModifiedYear.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByDateModifiedYear.Label}" />
+									<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByDateModifiedMonth.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByDateModifiedMonth.Label}" />
+									<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByDateModifiedDay.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByDateModifiedDay.Label}" />
+								</MenuFlyoutSubItem>
+								<MenuFlyoutSubItem Text="{x:Bind Commands.GroupByDateCreated.Label}">
+									<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByDateCreatedYear.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByDateCreatedYear.Label}" />
+									<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByDateCreatedMonth.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByDateCreatedMonth.Label}" />
+									<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByDateCreatedDay.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByDateCreatedDay.Label}" />
+								</MenuFlyoutSubItem>
+								<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupBySize.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupBySize.Label}" />
+								<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByType.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByType.Label}" />
+								<ToggleMenuFlyoutItem
+									IsChecked="{x:Bind Commands.GroupBySyncStatus.IsOn, Mode=TwoWay}"
+									IsEnabled="{x:Bind Commands.GroupBySyncStatus.IsExecutable, Mode=OneWay}"
+									Text="{x:Bind Commands.GroupBySyncStatus.Label}" />
+								<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByTag.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByTag.Label}" />
+								<ToggleMenuFlyoutItem
+									IsChecked="{x:Bind Commands.GroupByOriginalFolder.IsOn, Mode=TwoWay}"
+									IsEnabled="{x:Bind Commands.GroupByOriginalFolder.IsExecutable, Mode=OneWay}"
+									Text="{x:Bind Commands.GroupByOriginalFolder.Label}" />
+								<MenuFlyoutSubItem IsEnabled="{x:Bind Commands.GroupByDateDeleted.IsExecutable, Mode=OneWay}" Text="{x:Bind Commands.GroupByDateDeleted.Label}">
+									<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByDateDeletedYear.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByDateDeletedYear.Label}" />
+									<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByDateDeletedMonth.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByDateDeletedMonth.Label}" />
+									<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByDateDeletedDay.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByDateDeletedDay.Label}" />
+								</MenuFlyoutSubItem>
+								<ToggleMenuFlyoutItem
+									IsChecked="{x:Bind Commands.GroupByFolderPath.IsOn, Mode=TwoWay}"
+									IsEnabled="{x:Bind Commands.GroupByFolderPath.IsExecutable, Mode=OneWay}"
+									Text="{x:Bind Commands.GroupByFolderPath.Label}" />
+								<MenuFlyoutSeparator />
+								<ToggleMenuFlyoutItem
+									AccessKey="A"
+									IsChecked="{x:Bind Commands.GroupAscending.IsOn, Mode=TwoWay}"
+									IsEnabled="{x:Bind Commands.GroupAscending.IsExecutable, Mode=OneWay}"
+									Text="{x:Bind Commands.GroupAscending.Label}" />
+								<ToggleMenuFlyoutItem
+									AccessKey="D"
+									IsChecked="{x:Bind Commands.GroupDescending.IsOn, Mode=TwoWay}"
+									IsEnabled="{x:Bind Commands.GroupDescending.IsExecutable, Mode=OneWay}"
+									Text="{x:Bind Commands.GroupDescending.Label}" />
 							</MenuFlyoutSubItem>
-							<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupBySize.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupBySize.Label}" />
-							<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByType.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByType.Label}" />
-							<ToggleMenuFlyoutItem
-								IsChecked="{x:Bind Commands.GroupBySyncStatus.IsOn, Mode=TwoWay}"
-								IsEnabled="{x:Bind Commands.GroupBySyncStatus.IsExecutable, Mode=OneWay}"
-								Text="{x:Bind Commands.GroupBySyncStatus.Label}" />
-							<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByTag.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByTag.Label}" />
-							<ToggleMenuFlyoutItem
-								IsChecked="{x:Bind Commands.GroupByOriginalFolder.IsOn, Mode=TwoWay}"
-								IsEnabled="{x:Bind Commands.GroupByOriginalFolder.IsExecutable, Mode=OneWay}"
-								Text="{x:Bind Commands.GroupByOriginalFolder.Label}" />
-							<MenuFlyoutSubItem IsEnabled="{x:Bind Commands.GroupByDateDeleted.IsExecutable, Mode=OneWay}" Text="{x:Bind Commands.GroupByDateDeleted.Label}">
-								<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByDateDeletedYear.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByDateDeletedYear.Label}" />
-								<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByDateDeletedMonth.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByDateDeletedMonth.Label}" />
-								<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.GroupByDateDeletedDay.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.GroupByDateDeletedDay.Label}" />
-							</MenuFlyoutSubItem>
-							<ToggleMenuFlyoutItem
-								IsChecked="{x:Bind Commands.GroupByFolderPath.IsOn, Mode=TwoWay}"
-								IsEnabled="{x:Bind Commands.GroupByFolderPath.IsExecutable, Mode=OneWay}"
-								Text="{x:Bind Commands.GroupByFolderPath.Label}" />
 							<MenuFlyoutSeparator />
-							<ToggleMenuFlyoutItem
-								AccessKey="A"
-								IsChecked="{x:Bind Commands.GroupAscending.IsOn, Mode=TwoWay}"
-								IsEnabled="{x:Bind Commands.GroupAscending.IsExecutable, Mode=OneWay}"
-								Text="{x:Bind Commands.GroupAscending.Label}" />
-							<ToggleMenuFlyoutItem
-								AccessKey="D"
-								IsChecked="{x:Bind Commands.GroupDescending.IsOn, Mode=TwoWay}"
-								IsEnabled="{x:Bind Commands.GroupDescending.IsExecutable, Mode=OneWay}"
-								Text="{x:Bind Commands.GroupDescending.Label}" />
-						</MenuFlyoutSubItem>
-						<MenuFlyoutSeparator />
-						<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.SortFoldersFirst.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.SortFoldersFirst.Label}" />
-						<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.SortFilesFirst.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.SortFilesFirst.Label}" />
-						<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.SortFilesAndFoldersTogether.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.SortFilesAndFoldersTogether.Label}" />
-					</MenuFlyout>
-				</AppBarButton.Flyout>
+							<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.SortFoldersFirst.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.SortFoldersFirst.Label}" />
+							<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.SortFilesFirst.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.SortFilesFirst.Label}" />
+							<ToggleMenuFlyoutItem IsChecked="{x:Bind Commands.SortFilesAndFoldersTogether.IsOn, Mode=TwoWay}" Text="{x:Bind Commands.SortFilesAndFoldersTogether.Label}" />
+						</MenuFlyout>
+					</AppBarButton.Flyout>
 
-			</AppBarButton>
+				</AppBarButton>
 
-			<!--  Layout Commands  -->
-			<AppBarButton
-				x:Name="LayoutOptionsButton"
-				Width="Auto"
-				MinWidth="46"
-				x:Load="{x:Bind ViewModel.InstanceViewModel.IsPageTypeNotHome, Mode=OneWay}"
-				AccessKey="L"
-				AccessKeyInvoked="AppBarButton_AccessKeyInvoked"
-				AutomationProperties.Name="{helpers:ResourceString Name=Layout}"
-				Label="{helpers:ResourceString Name=Layout}"
-				LabelPosition="Collapsed"
-				Style="{StaticResource ToolBarAppBarButtonFlyoutStyle}"
-				ToolTipService.ToolTip="{helpers:ResourceString Name=Layout}">
+				<!--  Layout Commands  -->
+				<AppBarButton
+					x:Name="LayoutOptionsButton"
+					Width="Auto"
+					MinWidth="46"
+					x:Load="{x:Bind ViewModel.InstanceViewModel.IsPageTypeNotHome, Mode=OneWay}"
+					AccessKey="L"
+					AccessKeyInvoked="AppBarButton_AccessKeyInvoked"
+					AutomationProperties.Name="{helpers:ResourceString Name=Layout}"
+					Label="{helpers:ResourceString Name=Layout}"
+					ToolTipService.ToolTip="{helpers:ResourceString Name=Layout}">
 
-				<controls:ThemedIcon Style="{x:Bind ViewModel.LayoutThemedIcon, Mode=OneWay}" />
+					<AppBarButton.Icon>
+						<FontIcon Glyph="&#xE8A9;" />
+					</AppBarButton.Icon>
 
-				<AppBarButton.Flyout>
-					<Flyout
-						x:Name="LayoutFlyout"
-						contract8Present:ShouldConstrainToRootBounds="False"
-						Placement="Bottom">
-						<StackPanel Spacing="12">
+					<AppBarButton.Flyout>
+						<Flyout
+							x:Name="LayoutFlyout"
+							contract8Present:ShouldConstrainToRootBounds="False"
+							Placement="Bottom">
+							<StackPanel Spacing="12">
 
-							<!--  Header  -->
-							<TextBlock FontWeight="Medium" Text="{helpers:ResourceString Name=Layout}" />
+								<!--  Header  -->
+								<TextBlock FontWeight="Medium" Text="{helpers:ResourceString Name=Layout}" />
 
-							<!--  Layout  -->
-							<StackPanel Orientation="Horizontal" Spacing="8">
+								<!--  Layout  -->
+								<StackPanel Orientation="Horizontal" Spacing="8">
 
-								<!--  Details  -->
-								<RadioButton
-									AutomationProperties.Name="{x:Bind Commands.LayoutDetails.AutomationName}"
-									Click="LayoutButton_Click"
-									Command="{x:Bind Commands.LayoutDetails}"
-									GroupName="LayoutRadio"
-									IsChecked="{x:Bind ViewModel.IsDetailsLayout, Mode=OneWay}"
-									Style="{StaticResource Local.RadioToggleButtonStyle}"
-									ToolTipService.ToolTip="{x:Bind Commands.LayoutDetails.LabelWithHotKey, Mode=OneWay}">
-									<StackPanel Spacing="4">
-										<controls:ThemedIcon
-											Width="28"
-											Height="28"
-											Style="{StaticResource App.ThemedIcons.IconLayout.Details.28}" />
+									<!--  Details  -->
+									<RadioButton
+										AutomationProperties.Name="{x:Bind Commands.LayoutDetails.AutomationName}"
+										Click="LayoutButton_Click"
+										Command="{x:Bind Commands.LayoutDetails}"
+										GroupName="LayoutRadio"
+										IsChecked="{x:Bind ViewModel.IsDetailsLayout, Mode=OneWay}"
+										Style="{StaticResource Local.RadioToggleButtonStyle}"
+										ToolTipService.ToolTip="{x:Bind Commands.LayoutDetails.LabelWithHotKey, Mode=OneWay}">
+										<StackPanel Spacing="4">
+											<controls:ThemedIcon
+												Width="28"
+												Height="28"
+												Style="{StaticResource App.ThemedIcons.IconLayout.Details.28}" />
 
-										<TextBlock
-											HorizontalAlignment="Center"
-											FontSize="12"
-											Text="{x:Bind Commands.LayoutDetails.Label}"
-											TextTrimming="CharacterEllipsis"
-											TextWrapping="NoWrap" />
-									</StackPanel>
-								</RadioButton>
-
-								<!--  List  -->
-								<RadioButton
-									AutomationProperties.Name="{x:Bind Commands.LayoutList.AutomationName}"
-									Click="LayoutButton_Click"
-									Command="{x:Bind Commands.LayoutList}"
-									GroupName="LayoutRadio"
-									IsChecked="{x:Bind ViewModel.IsListLayout, Mode=OneWay}"
-									Style="{StaticResource Local.RadioToggleButtonStyle}"
-									ToolTipService.ToolTip="{x:Bind Commands.LayoutList.LabelWithHotKey, Mode=OneWay}">
-
-									<StackPanel Spacing="4">
-										<controls:ThemedIcon
-											Width="28"
-											Height="28"
-											Style="{StaticResource App.ThemedIcons.IconLayout.List.28}" />
-
-										<TextBlock
-											HorizontalAlignment="Center"
-											FontSize="12"
-											Text="{x:Bind Commands.LayoutList.Label}"
-											TextTrimming="CharacterEllipsis"
-											TextWrapping="NoWrap" />
-									</StackPanel>
-								</RadioButton>
-
-								<!--  Cards  -->
-								<RadioButton
-									AutomationProperties.Name="{x:Bind Commands.LayoutCards.AutomationName}"
-									Click="LayoutButton_Click"
-									Command="{x:Bind Commands.LayoutCards}"
-									GroupName="LayoutRadio"
-									IsChecked="{x:Bind ViewModel.IsCardsLayout, Mode=OneWay}"
-									Style="{StaticResource Local.RadioToggleButtonStyle}"
-									ToolTipService.ToolTip="{x:Bind Commands.LayoutCards.LabelWithHotKey, Mode=OneWay}">
-
-									<StackPanel Spacing="4">
-										<controls:ThemedIcon
-											Width="28"
-											Height="28"
-											Style="{StaticResource App.ThemedIcons.IconLayout.Tiles.28}" />
-
-										<TextBlock
-											HorizontalAlignment="Center"
-											FontSize="12"
-											Text="{x:Bind Commands.LayoutCards.Label}"
-											TextTrimming="CharacterEllipsis"
-											TextWrapping="NoWrap" />
-									</StackPanel>
-								</RadioButton>
-
-								<!--  Grid  -->
-								<RadioButton
-									AutomationProperties.Name="{x:Bind Commands.LayoutGrid.AutomationName}"
-									Click="LayoutButton_Click"
-									Command="{x:Bind Commands.LayoutGrid}"
-									GroupName="LayoutRadio"
-									IsChecked="{x:Bind ViewModel.IsGridLayout, Mode=OneWay}"
-									Style="{StaticResource Local.RadioToggleButtonStyle}"
-									ToolTipService.ToolTip="{x:Bind Commands.LayoutGrid.LabelWithHotKey, Mode=OneWay}">
-
-									<StackPanel Spacing="4">
-										<controls:ThemedIcon
-											Width="28"
-											Height="28"
-											Style="{StaticResource App.ThemedIcons.IconLayout.Grid.28}" />
-
-										<TextBlock
-											HorizontalAlignment="Center"
-											FontSize="12"
-											Text="{x:Bind Commands.LayoutGrid.Label}"
-											TextTrimming="CharacterEllipsis"
-											TextWrapping="NoWrap" />
-									</StackPanel>
-								</RadioButton>
-
-								<!--  Columns  -->
-								<RadioButton
-									AutomationProperties.Name="{x:Bind Commands.LayoutColumns.AutomationName}"
-									Click="LayoutButton_Click"
-									Command="{x:Bind Commands.LayoutColumns}"
-									GroupName="LayoutRadio"
-									IsChecked="{x:Bind ViewModel.IsColumnLayout, Mode=OneWay}"
-									Style="{StaticResource Local.RadioToggleButtonStyle}"
-									ToolTipService.ToolTip="{x:Bind Commands.LayoutColumns.LabelWithHotKey, Mode=OneWay}">
-
-									<StackPanel Spacing="4">
-										<controls:ThemedIcon
-											Width="28"
-											Height="28"
-											Style="{StaticResource App.ThemedIcons.IconLayout.Columns.28}" />
-
-										<TextBlock
-											HorizontalAlignment="Center"
-											FontSize="12"
-											Text="{x:Bind Commands.LayoutColumns.Label}"
-											TextTrimming="CharacterEllipsis"
-											TextWrapping="NoWrap" />
-									</StackPanel>
-								</RadioButton>
-							</StackPanel>
-
-							<!--  (Divider)  -->
-							<Border
-								Margin="-20,0"
-								HorizontalAlignment="Stretch"
-								BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
-								BorderThickness=".5" />
-
-							<!--  Sizes  -->
-							<TextBlock FontWeight="Medium" Text="{helpers:ResourceString Name=Size}" />
-							<Grid>
-
-								<!--  Details  -->
-								<StackPanel
-									x:Name="DetailsView"
-									Spacing="4"
-									Visibility="{x:Bind ViewModel.IsDetailsLayout, Mode=OneWay}">
-									<Slider
-										x:Name="DetailsViewSlider"
-										Padding="4,0,4,0"
-										Maximum="5"
-										Minimum="1"
-										SnapsTo="Ticks"
-										ThumbToolTipValueConverter="{StaticResource DetailsViewSizeKindEnumToHumanizedConverter}"
-										TickFrequency="1"
-										TickPlacement="BottomRight"
-										Value="{x:Bind UserSettingsService.LayoutSettingsService.DetailsViewSize, Mode=TwoWay, Converter={StaticResource GenericEnumConverter}, ConverterParameter='1-1,2-2,3-3,4-4,5-5'}" />
-
-									<Grid HorizontalAlignment="Stretch">
-										<Grid.ColumnDefinitions>
-											<ColumnDefinition Width="Auto" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="Auto" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="Auto" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="Auto" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="Auto" />
-										</Grid.ColumnDefinitions>
-
-										<controls:ThemedIcon
-											Grid.Column="0"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeCompact, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.Compact.28}" />
-
-										<controls:ThemedIcon
-											Grid.Column="2"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeSmall, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.Small.28}" />
-
-										<controls:ThemedIcon
-											Grid.Column="4"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeMedium, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.Medium.28}" />
-
-										<controls:ThemedIcon
-											Grid.Column="6"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeLarge, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.Large.28}" />
-
-										<controls:ThemedIcon
-											Grid.Column="8"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeExtraLarge, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.ExtraLarge.28}" />
-									</Grid>
-								</StackPanel>
-
-								<!--  List  -->
-								<StackPanel
-									x:Name="ListView"
-									Spacing="4"
-									Visibility="{x:Bind ViewModel.IsListLayout, Mode=OneWay}">
-									<Slider
-										x:Name="ListViewSlider"
-										Padding="4,0,4,0"
-										Maximum="5"
-										Minimum="1"
-										SnapsTo="Ticks"
-										ThumbToolTipValueConverter="{StaticResource ListViewSizeKindEnumToHumanizedConverter}"
-										TickFrequency="1"
-										TickPlacement="BottomRight"
-										Value="{x:Bind UserSettingsService.LayoutSettingsService.ListViewSize, Mode=TwoWay, Converter={StaticResource GenericEnumConverter}, ConverterParameter='1-1,2-2,3-3,4-4,5-5'}" />
+											<TextBlock
+												HorizontalAlignment="Center"
+												FontSize="12"
+												Text="{x:Bind Commands.LayoutDetails.Label}"
+												TextTrimming="CharacterEllipsis"
+												TextWrapping="NoWrap" />
+										</StackPanel>
+									</RadioButton>
 
 									<!--  List  -->
-									<Grid HorizontalAlignment="Stretch">
-										<Grid.ColumnDefinitions>
-											<ColumnDefinition Width="Auto" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="Auto" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="Auto" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="Auto" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="Auto" />
-										</Grid.ColumnDefinitions>
+									<RadioButton
+										AutomationProperties.Name="{x:Bind Commands.LayoutList.AutomationName}"
+										Click="LayoutButton_Click"
+										Command="{x:Bind Commands.LayoutList}"
+										GroupName="LayoutRadio"
+										IsChecked="{x:Bind ViewModel.IsListLayout, Mode=OneWay}"
+										Style="{StaticResource Local.RadioToggleButtonStyle}"
+										ToolTipService.ToolTip="{x:Bind Commands.LayoutList.LabelWithHotKey, Mode=OneWay}">
 
-										<controls:ThemedIcon
-											Grid.Column="0"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeCompact, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.Compact.28}" />
+										<StackPanel Spacing="4">
+											<controls:ThemedIcon
+												Width="28"
+												Height="28"
+												Style="{StaticResource App.ThemedIcons.IconLayout.List.28}" />
 
-										<controls:ThemedIcon
-											Grid.Column="2"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeSmall, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.Small.28}" />
-
-										<controls:ThemedIcon
-											Grid.Column="4"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeMedium, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.Medium.28}" />
-
-										<controls:ThemedIcon
-											Grid.Column="6"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeLarge, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.Large.28}" />
-
-										<controls:ThemedIcon
-											Grid.Column="8"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeExtraLarge, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.ExtraLarge.28}" />
-									</Grid>
-								</StackPanel>
-
-								<!--  Cards  -->
-								<StackPanel
-									x:Name="CardsView"
-									Spacing="4"
-									Visibility="{x:Bind ViewModel.IsCardsLayout, Mode=OneWay}">
-									<Slider
-										x:Name="CardsViewSlider"
-										Padding="4,0,4,0"
-										Maximum="4"
-										Minimum="1"
-										SnapsTo="Ticks"
-										ThumbToolTipValueConverter="{StaticResource CardsViewSizeKindEnumToHumanizedConverter}"
-										TickFrequency="1"
-										TickPlacement="BottomRight"
-										Value="{x:Bind UserSettingsService.LayoutSettingsService.CardsViewSize, Mode=TwoWay, Converter={StaticResource GenericEnumConverter}, ConverterParameter='1-1,2-2,3-3,4-4'}" />
+											<TextBlock
+												HorizontalAlignment="Center"
+												FontSize="12"
+												Text="{x:Bind Commands.LayoutList.Label}"
+												TextTrimming="CharacterEllipsis"
+												TextWrapping="NoWrap" />
+										</StackPanel>
+									</RadioButton>
 
 									<!--  Cards  -->
-									<Grid HorizontalAlignment="Stretch">
-										<Grid.ColumnDefinitions>
-											<ColumnDefinition Width="Auto" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="Auto" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="Auto" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="Auto" />
-										</Grid.ColumnDefinitions>
+									<RadioButton
+										AutomationProperties.Name="{x:Bind Commands.LayoutCards.AutomationName}"
+										Click="LayoutButton_Click"
+										Command="{x:Bind Commands.LayoutCards}"
+										GroupName="LayoutRadio"
+										IsChecked="{x:Bind ViewModel.IsCardsLayout, Mode=OneWay}"
+										Style="{StaticResource Local.RadioToggleButtonStyle}"
+										ToolTipService.ToolTip="{x:Bind Commands.LayoutCards.LabelWithHotKey, Mode=OneWay}">
 
-										<controls:ThemedIcon
-											Grid.Column="0"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeSmall, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.Small.28}" />
+										<StackPanel Spacing="4">
+											<controls:ThemedIcon
+												Width="28"
+												Height="28"
+												Style="{StaticResource App.ThemedIcons.IconLayout.Tiles.28}" />
 
-										<controls:ThemedIcon
-											Grid.Column="2"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeMedium, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.Medium.28}" />
+											<TextBlock
+												HorizontalAlignment="Center"
+												FontSize="12"
+												Text="{x:Bind Commands.LayoutCards.Label}"
+												TextTrimming="CharacterEllipsis"
+												TextWrapping="NoWrap" />
+										</StackPanel>
+									</RadioButton>
 
-										<controls:ThemedIcon
-											Grid.Column="4"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeLarge, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.Large.28}" />
+									<!--  Grid  -->
+									<RadioButton
+										AutomationProperties.Name="{x:Bind Commands.LayoutGrid.AutomationName}"
+										Click="LayoutButton_Click"
+										Command="{x:Bind Commands.LayoutGrid}"
+										GroupName="LayoutRadio"
+										IsChecked="{x:Bind ViewModel.IsGridLayout, Mode=OneWay}"
+										Style="{StaticResource Local.RadioToggleButtonStyle}"
+										ToolTipService.ToolTip="{x:Bind Commands.LayoutGrid.LabelWithHotKey, Mode=OneWay}">
 
-										<controls:ThemedIcon
-											Grid.Column="6"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeExtraLarge, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.ExtraLarge.28}" />
-									</Grid>
+										<StackPanel Spacing="4">
+											<controls:ThemedIcon
+												Width="28"
+												Height="28"
+												Style="{StaticResource App.ThemedIcons.IconLayout.Grid.28}" />
+
+											<TextBlock
+												HorizontalAlignment="Center"
+												FontSize="12"
+												Text="{x:Bind Commands.LayoutGrid.Label}"
+												TextTrimming="CharacterEllipsis"
+												TextWrapping="NoWrap" />
+										</StackPanel>
+									</RadioButton>
+
+									<!--  Columns  -->
+									<RadioButton
+										AutomationProperties.Name="{x:Bind Commands.LayoutColumns.AutomationName}"
+										Click="LayoutButton_Click"
+										Command="{x:Bind Commands.LayoutColumns}"
+										GroupName="LayoutRadio"
+										IsChecked="{x:Bind ViewModel.IsColumnLayout, Mode=OneWay}"
+										Style="{StaticResource Local.RadioToggleButtonStyle}"
+										ToolTipService.ToolTip="{x:Bind Commands.LayoutColumns.LabelWithHotKey, Mode=OneWay}">
+
+										<StackPanel Spacing="4">
+											<controls:ThemedIcon
+												Width="28"
+												Height="28"
+												Style="{StaticResource App.ThemedIcons.IconLayout.Columns.28}" />
+
+											<TextBlock
+												HorizontalAlignment="Center"
+												FontSize="12"
+												Text="{x:Bind Commands.LayoutColumns.Label}"
+												TextTrimming="CharacterEllipsis"
+												TextWrapping="NoWrap" />
+										</StackPanel>
+									</RadioButton>
 								</StackPanel>
 
-								<!--  Grid  -->
-								<StackPanel
-									x:Name="GridView"
-									Spacing="4"
-									Visibility="{x:Bind ViewModel.IsGridLayout, Mode=OneWay}">
-									<Slider
-										x:Name="GridViewSlider"
-										Padding="4,0,4,0"
-										Maximum="12"
-										Minimum="1"
-										SnapsTo="Ticks"
-										ThumbToolTipValueConverter="{StaticResource GridViewSizeKindEnumToHumanizedConverter}"
-										TickFrequency="1"
-										TickPlacement="BottomRight"
-										Value="{x:Bind UserSettingsService.LayoutSettingsService.GridViewSize, Mode=TwoWay, Converter={StaticResource GenericEnumConverter}, ConverterParameter='1-1,2-2,3-3,4-4,5-5,6-6,7-7,8-8,9-9,10-10,11-11,12-12'}" />
+								<!--  (Divider)  -->
+								<Border
+									Margin="-20,0"
+									HorizontalAlignment="Stretch"
+									BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+									BorderThickness=".5" />
 
-									<Grid HorizontalAlignment="Stretch">
-										<Grid.ColumnDefinitions>
-											<ColumnDefinition Width="28" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="28" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="28" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="28" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="28" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="28" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="28" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="28" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="28" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="28" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="28" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="28" />
-										</Grid.ColumnDefinitions>
+								<!--  Sizes  -->
+								<TextBlock FontWeight="Medium" Text="{helpers:ResourceString Name=Size}" />
+								<Grid>
 
-										<controls:ThemedIcon
-											Grid.Column="0"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeSmall, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.Small.28}" />
+									<!--  Details  -->
+									<StackPanel
+										x:Name="DetailsView"
+										Spacing="4"
+										Visibility="{x:Bind ViewModel.IsDetailsLayout, Mode=OneWay}">
+										<Slider
+											x:Name="DetailsViewSlider"
+											Padding="4,0,4,0"
+											Maximum="5"
+											Minimum="1"
+											SnapsTo="Ticks"
+											ThumbToolTipValueConverter="{StaticResource DetailsViewSizeKindEnumToHumanizedConverter}"
+											TickFrequency="1"
+											TickPlacement="BottomRight"
+											Value="{x:Bind UserSettingsService.LayoutSettingsService.DetailsViewSize, Mode=TwoWay, Converter={StaticResource GenericEnumConverter}, ConverterParameter='1-1,2-2,3-3,4-4,5-5'}" />
 
-										<controls:ThemedIcon
-											Grid.Column="2"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeMedium, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.Medium.28}" />
+										<Grid HorizontalAlignment="Stretch">
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition Width="Auto" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="Auto" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="Auto" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="Auto" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="Auto" />
+											</Grid.ColumnDefinitions>
 
-										<controls:ThemedIcon
-											Grid.Column="14"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeLarge, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.Large.28}" />
+											<controls:ThemedIcon
+												Grid.Column="0"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeCompact, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.Compact.28}" />
 
-										<controls:ThemedIcon
-											Grid.Column="22"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeExtraLarge, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.ExtraLarge.28}" />
-									</Grid>
-								</StackPanel>
+											<controls:ThemedIcon
+												Grid.Column="2"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeSmall, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.Small.28}" />
 
-								<!--  Columns  -->
-								<StackPanel
-									x:Name="ColumnsView"
-									Spacing="4"
-									Visibility="{x:Bind ViewModel.IsColumnLayout, Mode=OneWay}">
-									<Slider
-										x:Name="ColumnViewSlider"
-										Padding="4,0,4,0"
-										Maximum="5"
-										Minimum="1"
-										SnapsTo="Ticks"
-										ThumbToolTipValueConverter="{StaticResource ColumnsViewSizeKindEnumToHumanizedConverter}"
-										TickFrequency="1"
-										TickPlacement="BottomRight"
-										Value="{x:Bind UserSettingsService.LayoutSettingsService.ColumnsViewSize, Mode=TwoWay, Converter={StaticResource GenericEnumConverter}, ConverterParameter='1-1,2-2,3-3,4-4,5-5'}" />
+											<controls:ThemedIcon
+												Grid.Column="4"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeMedium, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.Medium.28}" />
 
-									<Grid HorizontalAlignment="Stretch">
-										<Grid.ColumnDefinitions>
-											<ColumnDefinition Width="Auto" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="Auto" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="Auto" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="Auto" />
-											<ColumnDefinition Width="*" />
-											<ColumnDefinition Width="Auto" />
-										</Grid.ColumnDefinitions>
+											<controls:ThemedIcon
+												Grid.Column="6"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeLarge, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.Large.28}" />
 
-										<controls:ThemedIcon
-											Grid.Column="0"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeCompact, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.Compact.28}" />
+											<controls:ThemedIcon
+												Grid.Column="8"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeExtraLarge, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.ExtraLarge.28}" />
+										</Grid>
+									</StackPanel>
 
-										<controls:ThemedIcon
-											Grid.Column="2"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeSmall, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.Small.28}" />
+									<!--  List  -->
+									<StackPanel
+										x:Name="ListView"
+										Spacing="4"
+										Visibility="{x:Bind ViewModel.IsListLayout, Mode=OneWay}">
+										<Slider
+											x:Name="ListViewSlider"
+											Padding="4,0,4,0"
+											Maximum="5"
+											Minimum="1"
+											SnapsTo="Ticks"
+											ThumbToolTipValueConverter="{StaticResource ListViewSizeKindEnumToHumanizedConverter}"
+											TickFrequency="1"
+											TickPlacement="BottomRight"
+											Value="{x:Bind UserSettingsService.LayoutSettingsService.ListViewSize, Mode=TwoWay, Converter={StaticResource GenericEnumConverter}, ConverterParameter='1-1,2-2,3-3,4-4,5-5'}" />
 
-										<controls:ThemedIcon
-											Grid.Column="4"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeMedium, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.Medium.28}" />
+										<!--  List  -->
+										<Grid HorizontalAlignment="Stretch">
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition Width="Auto" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="Auto" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="Auto" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="Auto" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="Auto" />
+											</Grid.ColumnDefinitions>
 
-										<controls:ThemedIcon
-											Grid.Column="6"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeLarge, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.Large.28}" />
+											<controls:ThemedIcon
+												Grid.Column="0"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeCompact, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.Compact.28}" />
 
-										<controls:ThemedIcon
-											Grid.Column="8"
-											Width="28"
-											Height="28"
-											IsFilled="{x:Bind ViewModel.IsLayoutSizeExtraLarge, Mode=OneWay}"
-											Style="{StaticResource App.ThemedIcons.IconSize.ExtraLarge.28}" />
-									</Grid>
-								</StackPanel>
+											<controls:ThemedIcon
+												Grid.Column="2"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeSmall, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.Small.28}" />
 
-							</Grid>
+											<controls:ThemedIcon
+												Grid.Column="4"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeMedium, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.Medium.28}" />
 
-							<!--  (Divider)  -->
-							<Border
-								Margin="-20,0"
-								HorizontalAlignment="Stretch"
-								BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
-								BorderThickness=".5" />
+											<controls:ThemedIcon
+												Grid.Column="6"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeLarge, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.Large.28}" />
 
-							<!--  Toggle Options  -->
-							<Grid RowSpacing="4">
-								<Grid.ColumnDefinitions>
-									<ColumnDefinition Width="*" />
-									<ColumnDefinition Width="Auto" />
-								</Grid.ColumnDefinitions>
-								<Grid.RowDefinitions>
-									<RowDefinition Height="Auto" />
-									<RowDefinition Height="Auto" />
-									<RowDefinition Height="Auto" />
-								</Grid.RowDefinitions>
+											<controls:ThemedIcon
+												Grid.Column="8"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeExtraLarge, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.ExtraLarge.28}" />
+										</Grid>
+									</StackPanel>
 
-								<!--  Show Hidden Files  -->
-								<TextBlock
-									Grid.Row="0"
-									Grid.Column="0"
-									VerticalAlignment="Center"
-									Text="{x:Bind Commands.ToggleShowHiddenItems.Label}" />
+									<!--  Cards  -->
+									<StackPanel
+										x:Name="CardsView"
+										Spacing="4"
+										Visibility="{x:Bind ViewModel.IsCardsLayout, Mode=OneWay}">
+										<Slider
+											x:Name="CardsViewSlider"
+											Padding="4,0,4,0"
+											Maximum="4"
+											Minimum="1"
+											SnapsTo="Ticks"
+											ThumbToolTipValueConverter="{StaticResource CardsViewSizeKindEnumToHumanizedConverter}"
+											TickFrequency="1"
+											TickPlacement="BottomRight"
+											Value="{x:Bind UserSettingsService.LayoutSettingsService.CardsViewSize, Mode=TwoWay, Converter={StaticResource GenericEnumConverter}, ConverterParameter='1-1,2-2,3-3,4-4'}" />
 
-								<ToggleSwitch
-									Grid.Row="0"
-									Grid.Column="1"
-									MinWidth="68"
-									HorizontalAlignment="Right"
-									AccessKey="H"
-									AutomationProperties.Name="{x:Bind Commands.ToggleShowHiddenItems.AutomationName}"
-									IsOn="{x:Bind Commands.ToggleShowHiddenItems.IsOn, Mode=TwoWay}"
-									ToolTipService.ToolTip="{x:Bind Commands.ToggleShowHiddenItems.HotKeyText, Mode=OneWay}" />
+										<!--  Cards  -->
+										<Grid HorizontalAlignment="Stretch">
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition Width="Auto" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="Auto" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="Auto" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="Auto" />
+											</Grid.ColumnDefinitions>
 
-								<!--  Show File Extensions  -->
-								<TextBlock
-									Grid.Row="1"
-									Grid.Column="0"
-									VerticalAlignment="Center"
-									Text="{x:Bind Commands.ToggleShowFileExtensions.Label}" />
+											<controls:ThemedIcon
+												Grid.Column="0"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeSmall, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.Small.28}" />
 
-								<ToggleSwitch
-									Grid.Row="1"
-									Grid.Column="1"
-									MinWidth="68"
-									HorizontalAlignment="Right"
-									AccessKey="E"
-									AutomationProperties.Name="{x:Bind Commands.ToggleShowFileExtensions.AutomationName}"
-									IsOn="{x:Bind Commands.ToggleShowFileExtensions.IsOn, Mode=TwoWay}"
-									Rotation="1"
-									ToolTipService.ToolTip="{x:Bind Commands.ToggleShowFileExtensions.HotKeyText, Mode=OneWay}" />
+											<controls:ThemedIcon
+												Grid.Column="2"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeMedium, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.Medium.28}" />
 
-								<!--  Adaptive Layout  -->
-								<TextBlock
-									x:Name="AdaptiveLayoutTextBlock"
-									Grid.Row="2"
-									Grid.Column="0"
-									VerticalAlignment="Center"
-									x:Load="{x:Bind Commands.LayoutAdaptive.IsExecutable, Mode=OneWay}"
-									Text="{x:Bind Commands.LayoutAdaptive.Label}" />
+											<controls:ThemedIcon
+												Grid.Column="4"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeLarge, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.Large.28}" />
 
-								<ToggleSwitch
-									x:Name="AdaptiveLayoutToggleSwitch"
-									Grid.Row="2"
-									Grid.Column="1"
-									MinWidth="68"
-									HorizontalAlignment="Right"
-									x:Load="{x:Bind Commands.LayoutAdaptive.IsExecutable, Mode=OneWay}"
-									AutomationProperties.Name="{x:Bind Commands.LayoutAdaptive.AutomationName}"
-									IsEnabled="{x:Bind Commands.LayoutAdaptive.IsExecutable, Mode=OneWay}"
-									IsOn="{x:Bind Commands.LayoutAdaptive.IsOn, Mode=TwoWay}"
-									Rotation="1"
-									ToolTipService.ToolTip="{x:Bind Commands.LayoutAdaptive.LabelWithHotKey, Mode=OneWay}" />
-							</Grid>
+											<controls:ThemedIcon
+												Grid.Column="6"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeExtraLarge, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.ExtraLarge.28}" />
+										</Grid>
+									</StackPanel>
 
-						</StackPanel>
-					</Flyout>
-				</AppBarButton.Flyout>
+									<!--  Grid  -->
+									<StackPanel
+										x:Name="GridView"
+										Spacing="4"
+										Visibility="{x:Bind ViewModel.IsGridLayout, Mode=OneWay}">
+										<Slider
+											x:Name="GridViewSlider"
+											Padding="4,0,4,0"
+											Maximum="12"
+											Minimum="1"
+											SnapsTo="Ticks"
+											ThumbToolTipValueConverter="{StaticResource GridViewSizeKindEnumToHumanizedConverter}"
+											TickFrequency="1"
+											TickPlacement="BottomRight"
+											Value="{x:Bind UserSettingsService.LayoutSettingsService.GridViewSize, Mode=TwoWay, Converter={StaticResource GenericEnumConverter}, ConverterParameter='1-1,2-2,3-3,4-4,5-5,6-6,7-7,8-8,9-9,10-10,11-11,12-12'}" />
 
-			</AppBarButton>
+										<Grid HorizontalAlignment="Stretch">
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition Width="28" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="28" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="28" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="28" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="28" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="28" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="28" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="28" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="28" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="28" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="28" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="28" />
+											</Grid.ColumnDefinitions>
 
-			<!--  Toggle Preview\Details Pane  -->
-			<AppBarToggleButton
-				x:Name="PreviewPane"
-				Width="Auto"
-				MinWidth="40"
-				AccessKey="P"
-				AccessKeyInvoked="AppBarButton_AccessKeyInvoked"
-				AutomationProperties.Name="{x:Bind Commands.ToggleInfoPane.AutomationName}"
-				IsChecked="{x:Bind Commands.ToggleInfoPane.IsOn, Mode=TwoWay}"
-				Label="{x:Bind Commands.ToggleInfoPane.Label}"
-				LabelPosition="Collapsed"
-				ToolTipService.ToolTip="{x:Bind Commands.ToggleInfoPane.LabelWithHotKey, Mode=OneWay}"
-				Visibility="{x:Bind ShowPreviewPaneButton, Mode=OneWay}">
-				<controls:ThemedIcon Style="{StaticResource App.ThemedIcons.PanelRight}" />
-			</AppBarToggleButton>
+											<controls:ThemedIcon
+												Grid.Column="0"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeSmall, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.Small.28}" />
+
+											<controls:ThemedIcon
+												Grid.Column="2"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeMedium, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.Medium.28}" />
+
+											<controls:ThemedIcon
+												Grid.Column="14"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeLarge, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.Large.28}" />
+
+											<controls:ThemedIcon
+												Grid.Column="22"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeExtraLarge, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.ExtraLarge.28}" />
+										</Grid>
+									</StackPanel>
+
+									<!--  Columns  -->
+									<StackPanel
+										x:Name="ColumnsView"
+										Spacing="4"
+										Visibility="{x:Bind ViewModel.IsColumnLayout, Mode=OneWay}">
+										<Slider
+											x:Name="ColumnViewSlider"
+											Padding="4,0,4,0"
+											Maximum="5"
+											Minimum="1"
+											SnapsTo="Ticks"
+											ThumbToolTipValueConverter="{StaticResource ColumnsViewSizeKindEnumToHumanizedConverter}"
+											TickFrequency="1"
+											TickPlacement="BottomRight"
+											Value="{x:Bind UserSettingsService.LayoutSettingsService.ColumnsViewSize, Mode=TwoWay, Converter={StaticResource GenericEnumConverter}, ConverterParameter='1-1,2-2,3-3,4-4,5-5'}" />
+
+										<Grid HorizontalAlignment="Stretch">
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition Width="Auto" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="Auto" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="Auto" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="Auto" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="Auto" />
+											</Grid.ColumnDefinitions>
+
+											<controls:ThemedIcon
+												Grid.Column="0"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeCompact, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.Compact.28}" />
+
+											<controls:ThemedIcon
+												Grid.Column="2"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeSmall, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.Small.28}" />
+
+											<controls:ThemedIcon
+												Grid.Column="4"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeMedium, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.Medium.28}" />
+
+											<controls:ThemedIcon
+												Grid.Column="6"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeLarge, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.Large.28}" />
+
+											<controls:ThemedIcon
+												Grid.Column="8"
+												Width="28"
+												Height="28"
+												IsFilled="{x:Bind ViewModel.IsLayoutSizeExtraLarge, Mode=OneWay}"
+												Style="{StaticResource App.ThemedIcons.IconSize.ExtraLarge.28}" />
+										</Grid>
+									</StackPanel>
+
+								</Grid>
+
+								<!--  (Divider)  -->
+								<Border
+									Margin="-20,0"
+									HorizontalAlignment="Stretch"
+									BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+									BorderThickness=".5" />
+
+								<!--  Toggle Options  -->
+								<Grid RowSpacing="4">
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="*" />
+										<ColumnDefinition Width="Auto" />
+									</Grid.ColumnDefinitions>
+									<Grid.RowDefinitions>
+										<RowDefinition Height="Auto" />
+										<RowDefinition Height="Auto" />
+										<RowDefinition Height="Auto" />
+									</Grid.RowDefinitions>
+
+									<!--  Show Hidden Files  -->
+									<TextBlock
+										Grid.Row="0"
+										Grid.Column="0"
+										VerticalAlignment="Center"
+										Text="{x:Bind Commands.ToggleShowHiddenItems.Label}" />
+
+									<ToggleSwitch
+										Grid.Row="0"
+										Grid.Column="1"
+										MinWidth="68"
+										HorizontalAlignment="Right"
+										AccessKey="H"
+										AutomationProperties.Name="{x:Bind Commands.ToggleShowHiddenItems.AutomationName}"
+										IsOn="{x:Bind Commands.ToggleShowHiddenItems.IsOn, Mode=TwoWay}"
+										ToolTipService.ToolTip="{x:Bind Commands.ToggleShowHiddenItems.HotKeyText, Mode=OneWay}" />
+
+									<!--  Show File Extensions  -->
+									<TextBlock
+										Grid.Row="1"
+										Grid.Column="0"
+										VerticalAlignment="Center"
+										Text="{x:Bind Commands.ToggleShowFileExtensions.Label}" />
+
+									<ToggleSwitch
+										Grid.Row="1"
+										Grid.Column="1"
+										MinWidth="68"
+										HorizontalAlignment="Right"
+										AccessKey="E"
+										AutomationProperties.Name="{x:Bind Commands.ToggleShowFileExtensions.AutomationName}"
+										IsOn="{x:Bind Commands.ToggleShowFileExtensions.IsOn, Mode=TwoWay}"
+										Rotation="1"
+										ToolTipService.ToolTip="{x:Bind Commands.ToggleShowFileExtensions.HotKeyText, Mode=OneWay}" />
+
+									<!--  Adaptive Layout  -->
+									<TextBlock
+										x:Name="AdaptiveLayoutTextBlock"
+										Grid.Row="2"
+										Grid.Column="0"
+										VerticalAlignment="Center"
+										x:Load="{x:Bind Commands.LayoutAdaptive.IsExecutable, Mode=OneWay}"
+										Text="{x:Bind Commands.LayoutAdaptive.Label}" />
+
+									<ToggleSwitch
+										x:Name="AdaptiveLayoutToggleSwitch"
+										Grid.Row="2"
+										Grid.Column="1"
+										MinWidth="68"
+										HorizontalAlignment="Right"
+										x:Load="{x:Bind Commands.LayoutAdaptive.IsExecutable, Mode=OneWay}"
+										AutomationProperties.Name="{x:Bind Commands.LayoutAdaptive.AutomationName}"
+										IsEnabled="{x:Bind Commands.LayoutAdaptive.IsExecutable, Mode=OneWay}"
+										IsOn="{x:Bind Commands.LayoutAdaptive.IsOn, Mode=TwoWay}"
+										Rotation="1"
+										ToolTipService.ToolTip="{x:Bind Commands.LayoutAdaptive.LabelWithHotKey, Mode=OneWay}" />
+								</Grid>
+
+							</StackPanel>
+						</Flyout>
+					</AppBarButton.Flyout>
+
+				</AppBarButton>
+
+				<!--  Toggle Preview\Details Pane  -->
+				<AppBarToggleButton
+					x:Name="PreviewPane"
+					Width="Auto"
+					MinWidth="40"
+					AccessKey="P"
+					AccessKeyInvoked="AppBarButton_AccessKeyInvoked"
+					AutomationProperties.Name="{x:Bind Commands.ToggleInfoPane.AutomationName}"
+					IsChecked="{x:Bind Commands.ToggleInfoPane.IsOn, Mode=TwoWay}"
+					Label="{x:Bind Commands.ToggleInfoPane.Label}"
+					ToolTipService.ToolTip="{x:Bind Commands.ToggleInfoPane.LabelWithHotKey, Mode=OneWay}"
+					Visibility="{x:Bind ShowPreviewPaneButton, Mode=OneWay}">
+					<AppBarToggleButton.Icon>
+						<FontIcon Glyph="&#xE8A0;" />
+					</AppBarToggleButton.Icon>
+				</AppBarToggleButton>
+			</CommandBar.SecondaryCommands>
 		</CommandBar>
 
 	</Grid>

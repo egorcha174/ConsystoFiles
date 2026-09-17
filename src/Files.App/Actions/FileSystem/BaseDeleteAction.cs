@@ -16,6 +16,7 @@ namespace Files.App.Actions
 
 		public override bool IsExecutable =>
 			context.HasSelection &&
+			!Files.App.Cad.InventorAssemblyPaths.IsShowingAssembly(context.ShellPage) &&
 			(!context.ShellPage?.SlimContentPage?.IsRenamingItem ?? false) &&
 			UIHelpers.CanShowDialog;
 

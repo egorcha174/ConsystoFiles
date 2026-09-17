@@ -3,6 +3,7 @@
 
 using CommunityToolkit.WinUI;
 using Files.App.UserControls.Selection;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -59,8 +60,15 @@ namespace Files.App.Views.Layouts
 		protected override SemanticZoom RootZoom => RootGridZoom;
 
 		[DynamicWindowsRuntimeCast(typeof(ItemsWrapGrid))]
+		[DynamicWindowsRuntimeCast(typeof(ItemsStackPanel))]
 		protected override (int First, int Last) GetVisibleIndexRange()
-			=> FileList.ItemsPanelRoot is ItemsWrapGrid panel ? (panel.FirstVisibleIndex, panel.LastVisibleIndex) : (-1, -1);
+			=> FileList.ItemsPanelRoot switch
+			{
+				ItemsWrapGrid panel => (panel.FirstVisibleIndex, panel.LastVisibleIndex),
+				// Consysto fork: the gallery strip
+				ItemsStackPanel strip => (strip.FirstVisibleIndex, strip.LastVisibleIndex),
+				_ => (-1, -1),
+			};
 
 
 		// List View properties
@@ -85,13 +93,13 @@ namespace Files.App.Views.Layouts
 		/// Item width in the Grid View layout
 		/// </summary>
 		public int ItemWidthGridView =>
-			LayoutSizeKindHelper.GetGridViewItemWidth(LayoutSettingsService.GridViewSize);
+			IsGalleryLayout ? GalleryItemWidth : LayoutSizeKindHelper.GetGridViewItemWidth(LayoutSettingsService.GridViewSize);
 
 		/// <summary>
 		/// Gets the icon size for items in the Grid View layout.
 		/// </summary>
 		public int GridViewIconSize =>
-			(int)LayoutSizeKindHelper.GetIconSize(FolderLayoutModes.GridView);
+			(int)LayoutSizeKindHelper.GetIconSize(IsGalleryLayout ? FolderLayoutModes.GalleryView : FolderLayoutModes.GridView);
 
 
 
@@ -193,7 +201,7 @@ namespace Files.App.Views.Layouts
 
 		protected override void ItemManipulationModel_ScrollToTopInvoked(object? sender, EventArgs e)
 		{
-			if (FolderSettings?.LayoutMode is FolderLayoutModes.ListView)
+			if (FolderSettings?.LayoutMode is FolderLayoutModes.ListView or FolderLayoutModes.GalleryView)
 				ContentScroller?.ChangeView(0, null, null, true);
 			else
 				ContentScroller?.ChangeView(null, 0, null, true);
@@ -246,6 +254,7 @@ namespace Files.App.Views.Layouts
 			SetItemTemplate();
 			SetItemContainerStyle();
 			FileList.ItemsSource ??= shellViewModel.FilesAndFolders;
+			UpdateGalleryLayout();
 
 			var parameters = (NavigationArguments)eventArgs.Parameter;
 			if (parameters.IsLayoutSwitch)
@@ -255,6 +264,8 @@ namespace Files.App.Views.Layouts
 		protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
 		{
 			base.OnNavigatingFrom(e);
+
+			ClearGalleryPreview();
 
 			if (FolderSettings != null)
 				FolderSettings.LayoutModeChangeRequested -= FolderSettings_LayoutModeChangeRequested;
@@ -313,7 +324,8 @@ namespace Files.App.Views.Layouts
 
 			if (folderSettings.LayoutMode == FolderLayoutModes.ListView
 				|| folderSettings.LayoutMode == FolderLayoutModes.CardsView
-				|| folderSettings.LayoutMode == FolderLayoutModes.GridView)
+				|| folderSettings.LayoutMode == FolderLayoutModes.GridView
+				|| folderSettings.LayoutMode == FolderLayoutModes.GalleryView)
 			{
 				// SetItemTemplate clears FileList.ItemsSource on style swap, which drops the selection
 				var preservedSelection = SelectedItems?.ToList();
@@ -322,6 +334,11 @@ namespace Files.App.Views.Layouts
 				SetItemTemplate();
 				SetItemContainerStyle();
 				FolderSettings_IconSizeChanged();
+
+				// Consysto fork: the grid template's sizes and the page split differ between the grid and the gallery
+				NotifyPropertyChanged(nameof(ItemWidthGridView));
+				NotifyPropertyChanged(nameof(GridViewIconSize));
+				UpdateGalleryLayout();
 
 				if (preservedSelection is { Count: > 0 })
 				{
@@ -346,6 +363,7 @@ namespace Files.App.Views.Layouts
 			{
 				FolderLayoutModes.ListView => (Style)Resources["VerticalLayoutGridView"],
 				FolderLayoutModes.CardsView => (Style)Resources["HorizontalLayoutGridView"],
+				FolderLayoutModes.GalleryView => (Style)Resources["GalleryLayoutGridView"],
 				_ => (Style)Resources["HorizontalLayoutGridView"]
 			};
 
@@ -379,7 +397,7 @@ namespace Files.App.Views.Layouts
 			if (itemContainerLayout == layout)
 				return;
 
-			if (FolderSettings?.LayoutMode == FolderLayoutModes.CardsView || FolderSettings?.LayoutMode == FolderLayoutModes.GridView)
+			if (FolderSettings?.LayoutMode is FolderLayoutModes.CardsView or FolderLayoutModes.GridView or FolderLayoutModes.GalleryView)
 			{
 				// Toggle style to force item size to update
 				FileList.ItemContainerStyle = LocalListItemContainerStyle;
@@ -421,6 +439,8 @@ namespace Files.App.Views.Layouts
 
 			foreach (var item in e.RemovedItems)
 				SetCheckboxSelectionState(item);
+
+			_ = UpdateGalleryPreviewAsync();
 		}
 
 		[DynamicWindowsRuntimeCast(typeof(GridViewItem))]
@@ -447,7 +467,7 @@ namespace Files.App.Views.Layouts
 			var templateRoot = gridViewItem.ContentTemplateRoot as FrameworkElement;
 
 			// Grid View
-			if (FolderSettings.LayoutMode == FolderLayoutModes.GridView)
+			if (FolderSettings.LayoutMode is FolderLayoutModes.GridView or FolderLayoutModes.GalleryView)
 			{
 				// FindName from inside the template's namescope realizes the x:Load-deferred popup
 				if (textBlock.FindName("EditPopup") is not Popup popup)
@@ -543,7 +563,7 @@ namespace Files.App.Views.Layouts
 				var layoutMode = (FolderSettings
 					?? throw new InvalidOperationException("The grid layout does not have folder settings."))
 					.LayoutMode;
-				if (layoutMode == FolderLayoutModes.GridView)
+				if (layoutMode is FolderLayoutModes.GridView or FolderLayoutModes.GalleryView)
 				{
 					Popup? popup = gridViewItem.FindDescendant("EditPopup") as Popup;
 					TextBlock? textBlock = gridViewItem.FindDescendant("ItemName") as TextBlock;
@@ -754,7 +774,7 @@ namespace Files.App.Views.Layouts
 						var layoutMode = (FolderSettings
 							?? throw new InvalidOperationException("The grid layout does not have folder settings."))
 							.LayoutMode;
-						if (layoutMode == FolderLayoutModes.GridView)
+						if (layoutMode is FolderLayoutModes.GridView or FolderLayoutModes.GalleryView)
 						{
 							Popup? popup = gridViewItem.FindDescendant("EditPopup") as Popup;
 							var textBox = popup?.Child as TextBox;
@@ -895,7 +915,7 @@ namespace Files.App.Views.Layouts
 			{
 				shouldSetVerticalScrollMode = false;
 
-				if (FolderSettings?.LayoutMode is FolderLayoutModes.ListView)
+				if (FolderSettings?.LayoutMode is FolderLayoutModes.ListView or FolderLayoutModes.GalleryView)
 					ScrollViewer.SetVerticalScrollMode(FileList, ScrollMode.Disabled);
 				else
 					ScrollViewer.SetVerticalScrollMode(FileList, ScrollMode.Enabled);
@@ -918,6 +938,99 @@ namespace Files.App.Views.Layouts
 		private void SelectionCheckbox_PointerCanceled(object sender, PointerRoutedEventArgs e)
 		{
 			UpdateCheckboxVisibility((sender as FrameworkElement)!.FindAscendant<GridViewItem>()!, false);
+		}
+
+		// Consysto fork: gallery view, Finder-like. A large preview of the selected item sits above a single row of
+		// thumbnails; the strip keeps the regular grid template, the preview reuses the preview pane's chain (CAD included).
+		private const int GalleryItemWidth = 104;
+		private const double GalleryStripHeight = 204;
+		private ListedItem? galleryPreviewItem;
+		private int galleryPreviewVersion;
+
+		private bool IsGalleryLayout
+			=> FolderSettings?.LayoutMode is FolderLayoutModes.GalleryView;
+
+		// The strip and the preview share the page's single grid cell: the strip docks to the bottom, the preview fills the rest.
+		private void UpdateGalleryLayout()
+		{
+			if (IsGalleryLayout)
+			{
+				RootGridZoom.VerticalAlignment = VerticalAlignment.Bottom;
+				RootGridZoom.Height = GalleryStripHeight;
+				GalleryPreview.Margin = new Thickness(0, 0, 0, GalleryStripHeight);
+				GalleryPreview.Visibility = Visibility.Visible;
+				_ = UpdateGalleryPreviewAsync();
+			}
+			else
+			{
+				RootGridZoom.ClearValue(VerticalAlignmentProperty);
+				RootGridZoom.ClearValue(HeightProperty);
+				GalleryPreview.Visibility = Visibility.Collapsed;
+				ClearGalleryPreview();
+			}
+		}
+
+		private void ClearGalleryPreview()
+		{
+			galleryPreviewVersion++;
+			galleryPreviewItem = null;
+			GalleryPreviewHost.Content = null;
+			GalleryPreviewLoading.IsActive = false;
+		}
+
+		private async Task UpdateGalleryPreviewAsync()
+		{
+			if (!IsGalleryLayout)
+				return;
+
+			var version = ++galleryPreviewVersion;
+
+			// The arrow keys move the selection quickly; only the item the user stops on gets loaded.
+			await Task.Delay(120);
+			if (version != galleryPreviewVersion || !IsGalleryLayout)
+				return;
+
+			var item = SelectedItems?.Count() == 1 ? SelectedItem : null;
+			GalleryPreviewPlaceholder.Visibility = item is null ? Visibility.Visible : Visibility.Collapsed;
+			GalleryPreviewName.Text = item?.ItemNameRaw ?? item?.Name ?? string.Empty;
+
+			if (item is null)
+			{
+				galleryPreviewItem = null;
+				GalleryPreviewHost.Content = null;
+				GalleryPreviewLoading.IsActive = false;
+				return;
+			}
+
+			if (ReferenceEquals(item, galleryPreviewItem) && GalleryPreviewHost.Content is not null)
+				return;
+
+			galleryPreviewItem = item;
+			GalleryPreviewHost.Content = null;
+			GalleryPreviewLoading.IsActive = true;
+
+			UIElement? control = null;
+			try
+			{
+				control = await InfoPaneViewModel.GetBuiltInPreviewControlAsync(item, false);
+				if (control is null)
+				{
+					var model = new Files.App.ViewModels.Previews.BasicPreviewViewModel(item);
+					await model.LoadAsync();
+					control = new Files.App.UserControls.FilePreviews.BasicPreview(model);
+				}
+			}
+			catch (Exception ex)
+			{
+				App.Logger.LogWarning(ex, "Gallery preview failed to load");
+			}
+
+			// A newer selection or a layout change came in while this item was loading.
+			if (version != galleryPreviewVersion)
+				return;
+
+			GalleryPreviewLoading.IsActive = false;
+			GalleryPreviewHost.Content = control;
 		}
 
 		// To avoid crashes, disable scrolling when drag-and-drop if grouped. (#14484)

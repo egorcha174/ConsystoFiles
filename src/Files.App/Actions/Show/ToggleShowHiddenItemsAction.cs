@@ -20,6 +20,10 @@ namespace Files.App.Actions
 		public HotKey HotKey
 			=> new(Keys.H, KeyModifiers.Ctrl);
 
+		// Consysto fork: Ctrl+Shift+. as Cmd+Shift+. in Finder
+		public HotKey SecondHotKey
+			=> new(Keys.OemPeriod, KeyModifiers.CtrlShift);
+
 		public bool IsOn
 			=> settings.ShowHiddenItems;
 

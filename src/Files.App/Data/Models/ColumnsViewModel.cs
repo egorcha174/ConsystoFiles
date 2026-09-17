@@ -15,6 +15,13 @@ namespace Files.App.Data.Models
 			nameof(GitLastCommitShaColumn),
 			nameof(TagColumn),
 			nameof(NameColumn),
+			nameof(ExtensionColumn),
+			nameof(BookAuthorColumn),
+			nameof(BookSeriesColumn),
+			nameof(CadPartNumberColumn),
+			nameof(CadMaterialColumn),
+			nameof(CadMassColumn),
+			nameof(CadVersionColumn),
 			nameof(StatusColumn),
 			nameof(DateModifiedColumn),
 			nameof(PathColumn),
@@ -90,6 +97,97 @@ namespace Files.App.Data.Models
 		{
 			get => nameColumn;
 			set => SetProperty(ref nameColumn, value);
+		}
+
+		// Consysto fork: file extension column right after the name, like Commander One
+		private DetailsLayoutColumnItem extensionColumn = new()
+		{
+			// Wide enough for the localized header ("Расширение") next to the sort glyph
+			UserLength = new GridLength(90, GridUnitType.Pixel),
+			NormalMinLength = 40,
+			NormalMaxLength = 200,
+		};
+		public DetailsLayoutColumnItem ExtensionColumn
+		{
+			get => extensionColumn;
+			set => SetProperty(ref extensionColumn, value);
+		}
+
+		// Consysto fork: book author and series after the extension; hidden in folders without books, like the Git columns
+		private DetailsLayoutColumnItem bookAuthorColumn = new()
+		{
+			UserLength = new GridLength(180, GridUnitType.Pixel),
+			NormalMaxLength = 500,
+			IsHidden = true,
+		};
+		public DetailsLayoutColumnItem BookAuthorColumn
+		{
+			get => bookAuthorColumn;
+			set => SetProperty(ref bookAuthorColumn, value);
+		}
+
+		private DetailsLayoutColumnItem bookSeriesColumn = new()
+		{
+			UserLength = new GridLength(180, GridUnitType.Pixel),
+			NormalMaxLength = 500,
+			IsHidden = true,
+		};
+		public DetailsLayoutColumnItem BookSeriesColumn
+		{
+			get => bookSeriesColumn;
+			set => SetProperty(ref bookSeriesColumn, value);
+		}
+		private DetailsLayoutColumnItem cadPartNumberColumn = new()
+		{
+			UserLength = new GridLength(140, GridUnitType.Pixel),
+			NormalMaxLength = 500,
+			IsHidden = true,
+		};
+		public DetailsLayoutColumnItem CadPartNumberColumn
+		{
+			get => cadPartNumberColumn;
+			set => SetProperty(ref cadPartNumberColumn, value);
+		}
+		private DetailsLayoutColumnItem cadMaterialColumn = new()
+		{
+			UserLength = new GridLength(140, GridUnitType.Pixel),
+			NormalMaxLength = 500,
+			IsHidden = true,
+		};
+		public DetailsLayoutColumnItem CadMaterialColumn
+		{
+			get => cadMaterialColumn;
+			set => SetProperty(ref cadMaterialColumn, value);
+		}
+		private DetailsLayoutColumnItem cadMassColumn = new()
+		{
+			UserLength = new GridLength(100, GridUnitType.Pixel),
+			NormalMaxLength = 500,
+			IsHidden = true,
+		};
+		public DetailsLayoutColumnItem CadMassColumn
+		{
+			get => cadMassColumn;
+			set => SetProperty(ref cadMassColumn, value);
+		}
+		private DetailsLayoutColumnItem cadVersionColumn = new()
+		{
+			UserLength = new GridLength(130, GridUnitType.Pixel),
+			NormalMaxLength = 500,
+			IsHidden = true,
+		};
+		public DetailsLayoutColumnItem CadVersionColumn
+		{
+			get => cadVersionColumn;
+			set => SetProperty(ref cadVersionColumn, value);
+		}
+
+		// Consysto fork: user order of the columns after the name, as comma-separated property names; empty keeps the default order
+		private string? columnOrder;
+		public string? ColumnOrder
+		{
+			get => columnOrder;
+			set => SetProperty(ref columnOrder, value);
 		}
 
 		private DetailsLayoutColumnItem statusColumn = new()
@@ -170,6 +268,13 @@ namespace Files.App.Data.Models
 			GitLastCommitShaColumn.Length.Value +
 			TagColumn.Length.Value +
 			NameColumn.Length.Value +
+			ExtensionColumn.Length.Value +
+			BookAuthorColumn.Length.Value +
+			BookSeriesColumn.Length.Value +
+			CadPartNumberColumn.Length.Value +
+			CadMaterialColumn.Length.Value +
+			CadMassColumn.Length.Value +
+			CadVersionColumn.Length.Value +
 			DateModifiedColumn.Length.Value +
 			PathColumn.Length.Value +
 			OriginalPathColumn.Length.Value +
@@ -195,6 +300,14 @@ namespace Files.App.Data.Models
 					model.DateModifiedColumn.Equals(DateModifiedColumn) &&
 					model.ItemTypeColumn.Equals(ItemTypeColumn) &&
 					model.NameColumn.Equals(NameColumn) &&
+					model.ExtensionColumn.Equals(ExtensionColumn) &&
+					model.BookAuthorColumn.Equals(BookAuthorColumn) &&
+					model.BookSeriesColumn.Equals(BookSeriesColumn) &&
+					model.CadPartNumberColumn.Equals(CadPartNumberColumn) &&
+					model.CadMaterialColumn.Equals(CadMaterialColumn) &&
+					model.CadMassColumn.Equals(CadMassColumn) &&
+					model.CadVersionColumn.Equals(CadVersionColumn) &&
+					string.Equals(model.ColumnOrder, ColumnOrder, StringComparison.Ordinal) &&
 					model.PathColumn.Equals(PathColumn) &&
 					model.OriginalPathColumn.Equals(OriginalPathColumn) &&
 					model.SizeColumn.Equals(SizeColumn) &&
@@ -217,6 +330,14 @@ namespace Files.App.Data.Models
 			hashCode = (hashCode * 397) ^ DateModifiedColumn.GetHashCode();
 			hashCode = (hashCode * 397) ^ ItemTypeColumn.GetHashCode();
 			hashCode = (hashCode * 397) ^ NameColumn.GetHashCode();
+			hashCode = (hashCode * 397) ^ ExtensionColumn.GetHashCode();
+			hashCode = (hashCode * 397) ^ BookAuthorColumn.GetHashCode();
+			hashCode = (hashCode * 397) ^ BookSeriesColumn.GetHashCode();
+			hashCode = (hashCode * 397) ^ CadPartNumberColumn.GetHashCode();
+			hashCode = (hashCode * 397) ^ CadMaterialColumn.GetHashCode();
+			hashCode = (hashCode * 397) ^ CadMassColumn.GetHashCode();
+			hashCode = (hashCode * 397) ^ CadVersionColumn.GetHashCode();
+			hashCode = (hashCode * 397) ^ (ColumnOrder?.GetHashCode(StringComparison.Ordinal) ?? 0);
 			hashCode = (hashCode * 397) ^ PathColumn.GetHashCode();
 			hashCode = (hashCode * 397) ^ OriginalPathColumn.GetHashCode();
 			hashCode = (hashCode * 397) ^ SizeColumn.GetHashCode();

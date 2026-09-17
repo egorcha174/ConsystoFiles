@@ -1,4 +1,4 @@
-﻿// Copyright (c) Files Community
+// Copyright (c) Files Community
 // Licensed under the MIT License.
 
 namespace Files.App.Actions
@@ -77,6 +77,28 @@ namespace Files.App.Actions
 
 		public override HotKey HotKey
 			=> new(Keys.Number4, KeyModifiers.CtrlShift);
+	}
+
+	/// <summary>
+	/// Consysto fork: Finder-like gallery, a large preview of the selected item above a row of thumbnails.
+	/// </summary>
+	[GeneratedRichCommand]
+	internal sealed partial class LayoutGalleryAction : ToggleLayoutAction
+	{
+		protected override LayoutTypes LayoutType
+			=> LayoutTypes.Gallery;
+
+		public override string Label
+			=> Strings.ConsystoGallery.GetLocalizedResource();
+
+		public override string Description
+			=> Strings.ConsystoGalleryDescription.GetLocalizedResource();
+
+		public override RichGlyph Glyph
+			=> new("\uE8B9");
+
+		public override HotKey HotKey
+			=> new(Keys.Number7, KeyModifiers.CtrlShift);
 	}
 
 	[GeneratedRichCommand]

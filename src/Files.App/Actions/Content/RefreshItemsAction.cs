@@ -23,9 +23,7 @@ namespace Files.App.Actions
 		public HotKey HotKey
 			=> new(Keys.R, KeyModifiers.Ctrl);
 
-		public HotKey SecondHotKey
-			=> new(Keys.F5);
-
+		// Consysto fork: F5 copies into the other pane (Commander One), refresh stays on Ctrl+R
 		public bool IsExecutable
 			=> context.CanRefresh;
 

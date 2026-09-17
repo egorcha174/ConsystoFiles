@@ -114,18 +114,24 @@ namespace Files.App.UserControls
 			toolbarRefreshTimer.Debounce(PopulateToolbarItems, TimeSpan.FromMilliseconds(100), ignoreDebounce);
 		}
 
-		private void ContextCommandBar_Loaded(object sender, RoutedEventArgs e)
-			=> RequestToolbarRefresh(true);
+		// Consysto fork: the context commands live in the "…" menu, ahead of the former toolbar buttons there
+		private readonly List<ICommandBarElement> contextToolbarItems = [];
 
 		[DynamicWindowsRuntimeCast(typeof(FrameworkElement))]
 		[DynamicWindowsRuntimeCast(typeof(AppBarSeparator))]
 		private void PopulateToolbarItems()
 		{
-			if (ContextCommandBar is null)
+			if (BaseCommandBar is null)
 				return;
 
 			DetachToggleButtons();
-			ContextCommandBar.PrimaryCommands.Clear();
+			foreach (var item in contextToolbarItems)
+				BaseCommandBar.SecondaryCommands.Remove(item);
+			contextToolbarItems.Clear();
+
+			// The context commands used to be loaded only away from the Home page
+			if (ViewModel?.InstanceViewModel?.IsPageTypeNotHome != true)
+				return;
 
 			var active = GetActiveToolbarContexts();
 			var itemsByContext = ToolbarDefaultsTemplate.ResolveToolbarItemsByContext(UserSettingsService.AppearanceSettingsService);
@@ -137,7 +143,7 @@ namespace Files.App.UserControls
 					continue;
 
 				if (contextId != ToolbarDefaultsTemplate.AlwaysVisibleContextId)
-					ContextCommandBar.PrimaryCommands.Add(new AppBarSeparator());
+					contextToolbarItems.Add(new AppBarSeparator());
 
 				for (int i = 0; i < entries.Count; i++)
 				{
@@ -146,12 +152,19 @@ namespace Files.App.UserControls
 						if (el is FrameworkElement btn and not AppBarSeparator && !ToolbarItemDescriptor.IsSeparatorCode(entries[i].CommandCode ?? ""))
 							AttachContextFlyout(btn, contextId, entries[i], i);
 
-						ContextCommandBar.PrimaryCommands.Add(el);
+						contextToolbarItems.Add(el);
 					}
 				}
 			}
 
-			UpdateCommandBarSeparatorVisibility(ContextCommandBar.PrimaryCommands);
+			UpdateCommandBarSeparatorVisibility(contextToolbarItems);
+
+			// Divides the context commands from the static options below them
+			if (contextToolbarItems.Count > 0)
+				contextToolbarItems.Add(new AppBarSeparator());
+
+			for (int i = 0; i < contextToolbarItems.Count; i++)
+				BaseCommandBar.SecondaryCommands.Insert(i, contextToolbarItems[i]);
 		}
 
 		private HashSet<string> GetActiveToolbarContexts()
@@ -233,10 +246,9 @@ namespace Files.App.UserControls
 					btn.IsEnabled = group.Commands.Any(c => c is not CommandCodes.None && Commands[c].IsExecutable);
 				}
 
-				btn.Style = (Style)Resources["ToolBarAppBarButtonFlyoutStyle"];
-
+				// Consysto fork: a button in the "…" menu shows its Icon; the flyout style's themed content would stay empty there
 				if (showIcon)
-					ApplyIcon(btn, group.Glyph, setContent: true);
+					ApplyIcon(btn, group.Glyph, setContent: false);
 
 				return btn;
 			}
@@ -256,13 +268,9 @@ namespace Files.App.UserControls
 				var tooltip = cmd.HotKeyText is null ? cmd.ExtendedLabel : $"{cmd.ExtendedLabel} ({cmd.HotKeyText})";
 				var btn = CreateButton(showIcon, showLabel, cmd.ExtendedLabel, tooltip,
 					cmd.AccessKey, cmd.AutomationId, cmd.Glyph, cmd.HotKeyText);
-				var useStyled = showIcon && !string.IsNullOrEmpty(cmd.Glyph.ThemedIconStyle);
-
-				if (useStyled)
-					btn.Style = (Style)Resources["ToolBarAppBarButtonFlyoutStyle"];
-
+				// Consysto fork: plain overflow item, see the group case above
 				if (showIcon)
-					ApplyIcon(btn, cmd.Glyph, setContent: useStyled);
+					ApplyIcon(btn, cmd.Glyph, setContent: false);
 
 				btn.Command = cmd;
 
@@ -623,5 +631,8 @@ namespace Files.App.UserControls
 
 		private void CustomizeToolbar_Click(object sender, RoutedEventArgs e)
 			=> Commands.CustomizeToolbar.Execute(null);
+
+		private async void MapNetworkDriveButton_Click(object sender, RoutedEventArgs e)
+			=> await Ioc.Default.GetRequiredService<INetworkService>().OpenMapNetworkDriveDialogAsync();
 	}
 }

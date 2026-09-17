@@ -1,0 +1,154 @@
+﻿<!--  Consysto fork: Commander One-like header over a shell pane in dual-pane mode: a drive bar with free space and the pane's own path.  -->
+<UserControl
+	x:Class="Files.App.MacStyle.PaneHeader"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:controls="using:Files.App.Controls"
+	xmlns:dataitems="using:Files.App.Data.Items"
+	xmlns:helpers="using:Files.App.Helpers"
+	Visibility="Collapsed">
+
+	<UserControl.Resources>
+		<ResourceDictionary>
+			<Style
+				x:Key="DriveButtonStyle"
+				BasedOn="{StaticResource DefaultButtonStyle}"
+				TargetType="Button">
+				<Setter Property="Padding" Value="6,2,8,2" />
+				<Setter Property="MinHeight" Value="24" />
+				<Setter Property="Background" Value="Transparent" />
+				<Setter Property="BorderThickness" Value="0" />
+				<Setter Property="CornerRadius" Value="5" />
+			</Style>
+			<Style
+				x:Key="CurrentDriveButtonStyle"
+				BasedOn="{StaticResource DriveButtonStyle}"
+				TargetType="Button">
+				<Setter Property="Background" Value="{ThemeResource SubtleFillColorSecondaryBrush}" />
+			</Style>
+		</ResourceDictionary>
+	</UserControl.Resources>
+
+	<Grid BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
+
+		<!--  Faint accent tint marks the active pane  -->
+		<Border
+			x:Name="ActiveTint"
+			Grid.RowSpan="2"
+			Background="{ThemeResource AccentFillColorDefaultBrush}"
+			CornerRadius="8,8,0,0"
+			IsHitTestVisible="False"
+			Opacity="0" />
+
+		<!--  Drive bar  -->
+		<Grid
+			Grid.Row="0"
+			Padding="8,6,12,0"
+			ColumnSpacing="12">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="Auto" />
+			</Grid.ColumnDefinitions>
+
+			<ScrollViewer
+				HorizontalScrollBarVisibility="Hidden"
+				HorizontalScrollMode="Enabled"
+				VerticalScrollBarVisibility="Disabled"
+				VerticalScrollMode="Disabled">
+				<StackPanel
+					x:Name="DrivesPanel"
+					Orientation="Horizontal"
+					Spacing="2" />
+			</ScrollViewer>
+
+			<TextBlock
+				x:Name="FreeSpaceText"
+				Grid.Column="1"
+				VerticalAlignment="Center"
+				FontSize="12"
+				Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+				TextTrimming="CharacterEllipsis" />
+
+			<!--  Synchronized navigation, shared by both panes of the tab  -->
+			<ToggleButton
+				x:Name="SyncNavigationButton"
+				Grid.Column="2"
+				MinWidth="0"
+				MinHeight="24"
+				Padding="6,3"
+				VerticalAlignment="Center"
+				AutomationProperties.Name="{helpers:ResourceString Name=ConsystoSyncNavigation}"
+				Click="SyncNavigationButton_Click"
+				CornerRadius="5"
+				ToolTipService.ToolTip="{helpers:ResourceString Name=ConsystoSyncNavigationDescription}">
+				<FontIcon FontSize="12" Glyph="&#xE71B;" />
+			</ToggleButton>
+
+			<!--  Folder comparison with copying of the differences  -->
+			<Button
+				x:Name="CompareFoldersButton"
+				Grid.Column="3"
+				MinWidth="0"
+				MinHeight="24"
+				Padding="6,3"
+				VerticalAlignment="Center"
+				AutomationProperties.Name="{helpers:ResourceString Name=ConsystoCompareFolders}"
+				Background="Transparent"
+				BorderThickness="0"
+				Click="CompareFoldersButton_Click"
+				CornerRadius="5"
+				ToolTipService.ToolTip="{helpers:ResourceString Name=ConsystoCompareFoldersDescription}">
+				<FontIcon FontSize="12" Glyph="&#xE895;" />
+			</Button>
+
+			<!--  Closes this pane, whichever of the two is active  -->
+			<Button
+				x:Name="ClosePaneButton"
+				Grid.Column="4"
+				MinWidth="0"
+				MinHeight="24"
+				Padding="6,3"
+				VerticalAlignment="Center"
+				AutomationProperties.Name="{helpers:ResourceString Name=ConsystoClosePane}"
+				Background="Transparent"
+				BorderThickness="0"
+				Click="ClosePaneButton_Click"
+				CornerRadius="5"
+				ToolTipService.ToolTip="{helpers:ResourceString Name=ConsystoClosePane}">
+				<FontIcon FontSize="12" Glyph="&#xE711;" />
+			</Button>
+		</Grid>
+
+		<!--  The pane's own path  -->
+		<controls:BreadcrumbBar
+			x:Name="PathBar"
+			Grid.Row="1"
+			Margin="4,2,8,4"
+			ItemClicked="PathBar_ItemClicked"
+			RootItemToolTip="{helpers:ResourceString Name=Home}">
+			<controls:BreadcrumbBar.RootItem>
+				<Image
+					Width="16"
+					Height="16"
+					Source="/Assets/FluentIcons/SidebarSections/Home.png" />
+			</controls:BreadcrumbBar.RootItem>
+			<controls:BreadcrumbBar.ItemTemplate>
+				<DataTemplate x:DataType="dataitems:PathBoxItem">
+					<controls:BreadcrumbBarItem
+						AutomationProperties.AccessibilityView="Content"
+						AutomationProperties.Name="{x:Bind Title, Mode=OneTime}"
+						Content="{x:Bind Title, Mode=OneTime}"
+						DataContext="{x:Bind}"
+						IsChevronVisible="False" />
+				</DataTemplate>
+			</controls:BreadcrumbBar.ItemTemplate>
+		</controls:BreadcrumbBar>
+	</Grid>
+</UserControl>

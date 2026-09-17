@@ -24,6 +24,13 @@ namespace Files.App.Utils.Storage
 				SortOption.Path => item => item.ItemPath,
 				SortOption.OriginalFolder => item => (item as RecycleBinItem)?.ItemOriginalFolder,
 				SortOption.DateDeleted => item => (item as RecycleBinItem)?.ItemDateDeletedReal,
+				SortOption.FileExtension => item => item.FileExtensionDisplay,
+				SortOption.BookAuthor => item => item.BookAuthor,
+				SortOption.BookSeries => item => item.BookSeriesSortKey,
+				SortOption.CadPartNumber => item => item.CadPartNumber,
+				SortOption.CadMaterial => item => item.CadMaterial,
+				SortOption.CadMass => item => item.CadMassSortKey,
+				SortOption.CadVersion => item => item.CadVersion,
 				_ => item => item.Name,
 			};
 		}
@@ -48,11 +55,17 @@ namespace Files.App.Utils.Storage
 						? filesAndFolders.OrderBy(orderFunc, naturalStringComparer)
 						: filesAndFolders.OrderBy(PrioritizeFilesOrFolders).ThenBy(orderFunc, naturalStringComparer),
 
-					SortOption.FileTag => sortDirectoriesAlongsideFiles
+					// Consysto fork: items without a book author or series go last, like items without tags
+					SortOption.FileTag or SortOption.BookAuthor or SortOption.BookSeries or SortOption.CadPartNumber or SortOption.CadMaterial or SortOption.CadVersion => sortDirectoriesAlongsideFiles
 						? filesAndFolders.OrderBy(x => string.IsNullOrEmpty(orderFunc(x) as string)).ThenBy(orderFunc)
 						: filesAndFolders.OrderBy(PrioritizeFilesOrFolders)
 							.ThenBy(x => string.IsNullOrEmpty(orderFunc(x) as string))
 							.ThenBy(orderFunc),
+
+					// Consysto fork: items without a mass go last
+					SortOption.CadMass => sortDirectoriesAlongsideFiles
+						? filesAndFolders.OrderBy(x => orderFunc(x) is null).ThenBy(orderFunc)
+						: filesAndFolders.OrderBy(PrioritizeFilesOrFolders).ThenBy(x => orderFunc(x) is null).ThenBy(orderFunc),
 
 					_ => sortDirectoriesAlongsideFiles
 						? filesAndFolders.OrderBy(orderFunc)
@@ -68,12 +81,16 @@ namespace Files.App.Utils.Storage
 						: filesAndFolders.OrderBy(PrioritizeFilesOrFolders)
 							.ThenByDescending(orderFunc, naturalStringComparer),
 
-					SortOption.FileTag => sortDirectoriesAlongsideFiles
+					SortOption.FileTag or SortOption.BookAuthor or SortOption.BookSeries or SortOption.CadPartNumber or SortOption.CadMaterial or SortOption.CadVersion => sortDirectoriesAlongsideFiles
 						? filesAndFolders.OrderBy(x => string.IsNullOrEmpty(orderFunc(x) as string))
 							.ThenByDescending(orderFunc)
 						: filesAndFolders.OrderBy(PrioritizeFilesOrFolders)
 							.ThenBy(x => string.IsNullOrEmpty(orderFunc(x) as string))
 							.ThenByDescending(orderFunc),
+
+					SortOption.CadMass => sortDirectoriesAlongsideFiles
+						? filesAndFolders.OrderBy(x => orderFunc(x) is null).ThenByDescending(orderFunc)
+						: filesAndFolders.OrderBy(PrioritizeFilesOrFolders).ThenBy(x => orderFunc(x) is null).ThenByDescending(orderFunc),
 
 					_ => sortDirectoriesAlongsideFiles
 						? filesAndFolders.OrderByDescending(orderFunc)

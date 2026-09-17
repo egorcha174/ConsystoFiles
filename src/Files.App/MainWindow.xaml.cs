@@ -38,6 +38,9 @@ namespace Files.App
 			AppWindow.TitleBar.ButtonPressedBackgroundColor = Colors.Transparent;
 			AppWindow.TitleBar.ButtonHoverBackgroundColor = Colors.Transparent;
 
+			// Consysto fork: hide the system caption buttons; MacStyle.TrafficLights replaces them.
+			AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Collapsed;
+
 			// Deferred: reads the .ico from disk
 			DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
 				AppWindow.SetIcon(AppLifecycleHelper.AppIconPath));
@@ -93,6 +96,16 @@ namespace Files.App
 					{
 						rootFrame.Navigate(typeof(MainPage), null, new SuppressNavigationTransitionInfo());
 					}
+					break;
+
+				// Consysto fork: a magnet link from a browser starts a download
+				case IProtocolActivatedEventArgs magnetArgs when magnetArgs.Uri.Scheme.Equals("magnet", StringComparison.OrdinalIgnoreCase):
+					if (rootFrame.Content is null || rootFrame.Content is SplashScreenPage || !MainPageViewModel.AppInstances.Any())
+						rootFrame.Navigate(typeof(MainPage), null, new SuppressNavigationTransitionInfo());
+					else
+						Win32Helper.BringToForegroundEx(new(WindowHandle));
+
+					_ = Files.App.Torrents.TorrentHost.AddAsync(magnetArgs.Uri.OriginalString, null);
 					break;
 
 				case IProtocolActivatedEventArgs eventArgs:
@@ -162,6 +175,17 @@ namespace Files.App
 					{
 						rootFrame.Navigate(typeof(MainPage), null, new SuppressNavigationTransitionInfo());
 					}
+					break;
+
+				// Consysto fork: a .torrent file opened from Explorer or a browser starts a download
+				case IFileActivatedEventArgs torrentArgs when torrentArgs.Files?.Count > 0 && torrentArgs.Files.All(file => Files.App.Torrents.TorrentHost.IsTorrentFile(file.Path)):
+					if (rootFrame.Content is null || rootFrame.Content is SplashScreenPage || !MainPageViewModel.AppInstances.Any())
+						rootFrame.Navigate(typeof(MainPage), null, new SuppressNavigationTransitionInfo());
+					else
+						Win32Helper.BringToForegroundEx(new(WindowHandle));
+
+					foreach (var torrent in torrentArgs.Files)
+						await Files.App.Torrents.TorrentHost.AddAsync(torrent.Path, null);
 					break;
 
 				case IFileActivatedEventArgs fileArgs:

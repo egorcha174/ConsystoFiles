@@ -29,6 +29,10 @@ namespace Files.App.Actions
 		public HotKey HotKey
 			=> new(Keys.Enter, KeyModifiers.Alt);
 
+		// Consysto fork: Ctrl+I as Cmd+I in Finder
+		public HotKey SecondHotKey
+			=> new(Keys.I, KeyModifiers.Ctrl);
+
 		public bool IsExecutable =>
 			context.PageType is not ContentPageTypes.Home &&
 			context.PageType is not ContentPageTypes.ReleaseNotes &&

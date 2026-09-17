@@ -446,7 +446,9 @@ namespace Files.App.Views.Layouts
 				var folderSettings = parentShellPage.InstanceViewModel.FolderSettings;
 				var workingDirectory = shellViewModel.WorkingDirectory
 					?? throw new InvalidOperationException("The shell page does not have a working directory.");
-				var layoutType = folderSettings.GetLayoutType(workingDirectory);
+				// Consysto fork: the page comes from the mode the user just chose; the saved preferences still hold the old one
+				var layoutType = LayoutPreferencesManager.GetLayoutTypeForMode(e.LayoutMode)
+					?? folderSettings.GetLayoutType(workingDirectory);
 
 				if (layoutType != parentShellPage.CurrentPageType)
 				{
@@ -546,7 +548,7 @@ namespace Files.App.Views.Layouts
 
 				parentShellPage.InstanceViewModel.IsPageTypeMtpDevice = workingDir.StartsWith("\\\\?\\", StringComparison.Ordinal);
 				parentShellPage.InstanceViewModel.IsPageTypeFtp = FtpHelpers.IsFtpPath(workingDir);
-				parentShellPage.InstanceViewModel.IsPageTypeZipFolder = ZipStorageFolder.IsZipPath(workingDir);
+				parentShellPage.InstanceViewModel.IsPageTypeZipFolder = ZipStorageFolder.IsZipPath(workingDir) || Files.App.Cad.InventorAssemblyPaths.IsAssemblyPath(workingDir);
 				parentShellPage.InstanceViewModel.IsPageTypeLibrary = LibraryManager.IsLibraryPath(workingDir);
 				parentShellPage.InstanceViewModel.IsPageTypeReleaseNotes = false;
 				parentShellPage.InstanceViewModel.IsPageTypeSettings = false;
@@ -583,7 +585,7 @@ namespace Files.App.Views.Layouts
 				parentShellPage.InstanceViewModel.IsPageTypeRecycleBin = workingDir.StartsWith(Constants.UserEnvironmentPaths.RecycleBinPath, StringComparison.Ordinal);
 				parentShellPage.InstanceViewModel.IsPageTypeMtpDevice = workingDir.StartsWith("\\\\?\\", StringComparison.Ordinal);
 				parentShellPage.InstanceViewModel.IsPageTypeFtp = FtpHelpers.IsFtpPath(workingDir);
-				parentShellPage.InstanceViewModel.IsPageTypeZipFolder = ZipStorageFolder.IsZipPath(workingDir);
+				parentShellPage.InstanceViewModel.IsPageTypeZipFolder = ZipStorageFolder.IsZipPath(workingDir) || Files.App.Cad.InventorAssemblyPaths.IsAssemblyPath(workingDir);
 				parentShellPage.InstanceViewModel.IsPageTypeLibrary = LibraryManager.IsLibraryPath(workingDir);
 				parentShellPage.InstanceViewModel.IsPageTypeReleaseNotes = false;
 				parentShellPage.InstanceViewModel.IsPageTypeSettings = false;
@@ -1054,6 +1056,10 @@ namespace Files.App.Views.Layouts
 					}
 				}
 
+				// Parts dragged out of an assembly are copied: moving them would break the assembly.
+				if (Files.App.Cad.InventorAssemblyPaths.IsShowingAssembly(ParentShellPageInstance))
+					e.Data.RequestedOperation = DataPackageOperation.Copy;
+
 				// Set can window to front (#13255)
 				MainWindow.Instance.SetCanWindowToFront(false);
 				itemDragging = true;
@@ -1098,7 +1104,7 @@ namespace Files.App.Views.Layouts
 
 					var draggedItems = await FilesystemHelpers.GetDraggedStorageItems(e.DataView);
 
-					if (draggedItems.Any(draggedItem => draggedItem.Path == item.ItemPath))
+					if (draggedItems.Any(draggedItem => draggedItem.Path == item.ItemPath) || Files.App.Cad.InventorAssemblyPaths.IsAssemblyPath(item.ItemPath))
 					{
 						e.AcceptedOperation = DataPackageOperation.None;
 					}

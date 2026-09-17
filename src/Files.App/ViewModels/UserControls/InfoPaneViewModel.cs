@@ -246,7 +246,8 @@ namespace Files.App.ViewModels.UserControls
 			PreviewPaneState = SelectedDriveItem is not null ? PreviewPaneStates.DriveStorageDetailsAvailable : PreviewPaneStates.PreviewAndDetailsAvailable;
 		}
 
-		private async Task<UserControl?> GetBuiltInPreviewControlAsync(ListedItem item, bool downloadItem)
+		// Consysto fork: internal so the quick preview on Space builds its control through the same chain
+		internal async Task<UserControl?> GetBuiltInPreviewControlAsync(ListedItem item, bool downloadItem)
 		{
 			ShowCloudItemButton = false;
 
@@ -274,6 +275,19 @@ namespace Files.App.ViewModels.UserControls
 				await model.LoadAsync();
 
 				return new BasicPreview(model);
+			}
+
+			// Consysto fork: books show their cover and description. Checked by path and before archives: a zipped FictionBook is *.fb2.zip.
+			if (Files.App.Books.BookPreviewViewModel.IsSupported(item.ItemPath) &&
+				item.PrimaryItemAttribute != StorageItemTypes.Folder &&
+				!item.IsFtpItem &&
+				item.SyncStatusUI.SyncStatus is not CloudDriveSyncStatus.FileOnline)
+			{
+				var model = new Files.App.Books.BookPreviewViewModel(item);
+				await model.LoadAsync();
+
+				if (model.HasPreview)
+					return new Files.App.Books.BookPreview(model);
 			}
 
 			if (FileExtensionHelpers.IsBrowsableZipFile(item.FileExtension, out _))
@@ -371,6 +385,16 @@ namespace Files.App.ViewModels.UserControls
 				await model.LoadAsync();
 
 				return new CodePreview(model);
+			}
+
+			// Consysto fork: CAD formats (DWG/DXF, STL/OBJ/3MF, Inventor) have no usable shell preview handler; the fork draws them itself.
+			if (Files.App.Cad.CadPreviewViewModel.IsSupported(ext))
+			{
+				var model = new Files.App.Cad.CadPreviewViewModel(item);
+				await model.LoadAsync();
+
+				if (model.HasPreview)
+					return new Files.App.Cad.CadPreview(model);
 			}
 
 			if (ShellPreviewViewModel.FindPreviewHandlerFor(item.FileExtension, 0) is not null &&

@@ -265,7 +265,72 @@ namespace Files.App.Utils
 			}
 		}
 
-		public string? FileExtension { get; set; }
+		private string? fileExtension;
+		public string? FileExtension
+		{
+			get => fileExtension;
+			set
+			{
+				// Consysto fork: notify so the details view extension column follows renames
+				if (SetProperty(ref fileExtension, value))
+					OnPropertyChanged(nameof(FileExtensionDisplay));
+			}
+		}
+
+		// Consysto fork: the extension column shows it without the leading dot, like Commander One
+		public string? FileExtensionDisplay
+			=> string.IsNullOrEmpty(fileExtension) ? null : fileExtension.TrimStart('.');
+
+		// Consysto fork: book columns of the details view, filled in the background by ShellViewModel
+		private string? bookAuthor;
+		public string? BookAuthor
+		{
+			get => bookAuthor;
+			set => SetProperty(ref bookAuthor, value);
+		}
+
+		private string? bookSeries;
+		public string? BookSeries
+		{
+			get => bookSeries;
+			set => SetProperty(ref bookSeries, value);
+		}
+
+		/// <summary>Series name followed by the zero-padded position, so book 2 sorts before book 10.</summary>
+		public string? BookSeriesSortKey { get; set; }
+
+		// Consysto fork: iProperties columns of Inventor documents, filled in the background by ShellViewModel
+		private string? cadPartNumber;
+		public string? CadPartNumber
+		{
+			get => cadPartNumber;
+			set => SetProperty(ref cadPartNumber, value);
+		}
+
+		private string? cadMaterial;
+		public string? CadMaterial
+		{
+			get => cadMaterial;
+			set => SetProperty(ref cadMaterial, value);
+		}
+
+		private string? cadMass;
+		public string? CadMass
+		{
+			get => cadMass;
+			set => SetProperty(ref cadMass, value);
+		}
+
+		/// <summary>Mass in kilograms, so 9 kg sorts before 10 kg.</summary>
+		public double? CadMassSortKey { get; set; }
+
+		/// <summary>The program version that wrote the file: "AutoCAD 2018", "Inventor 2027".</summary>
+		private string? cadVersion;
+		public string? CadVersion
+		{
+			get => cadVersion;
+			set => SetProperty(ref cadVersion, value);
+		}
 
 		private string? fileSize;
 		public string? FileSize

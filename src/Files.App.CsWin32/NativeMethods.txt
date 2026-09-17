@@ -400,3 +400,7 @@ ShellExecuteW
 SBSP_SAMEBROWSER
 SBSP_ABSOLUTE
 K32EmptyWorkingSet
+// Consysto fork: drag & drop is allowed when the shell runs elevated too
+GetShellWindow
+OpenProcess
+OpenProcessToken

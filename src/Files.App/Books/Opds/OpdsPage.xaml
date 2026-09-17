@@ -1,0 +1,253 @@
+﻿<!--  Consysto fork: a page of an OPDS catalog, opened in a tab from the sidebar.  -->
+<Page
+	x:Class="Files.App.Books.Opds.OpdsPage"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:opds="using:Files.App.Books.Opds">
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="*" />
+			<ColumnDefinition Width="Auto" />
+		</Grid.ColumnDefinitions>
+
+		<!--  Header: page title, catalog name, search  -->
+		<Grid
+			x:Name="HeaderGrid"
+			Grid.ColumnSpan="2"
+			Padding="24,16,24,8"
+			ColumnSpacing="16"
+			RowSpacing="8"
+			SizeChanged="HeaderGrid_SizeChanged">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition x:Name="SearchColumn" Width="Auto" />
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+
+			<StackPanel VerticalAlignment="Center" Spacing="2">
+				<TextBlock
+					x:Name="PageTitle"
+					MaxLines="1"
+					Style="{StaticResource SubtitleTextBlockStyle}"
+					TextTrimming="CharacterEllipsis"
+					TextWrapping="NoWrap" />
+				<TextBlock
+					x:Name="PageSubtitle"
+					MaxLines="1"
+					Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+					Style="{StaticResource CaptionTextBlockStyle}"
+					TextTrimming="CharacterEllipsis"
+					TextWrapping="NoWrap" />
+			</StackPanel>
+
+			<!--  Beside the title in a wide pane, under it in a narrow one (see HeaderGrid_SizeChanged)  -->
+			<AutoSuggestBox
+				x:Name="SearchBox"
+				Grid.Column="1"
+				Width="300"
+				VerticalAlignment="Center"
+				QueryIcon="Find"
+				QuerySubmitted="SearchBox_QuerySubmitted"
+				Visibility="Collapsed" />
+		</Grid>
+
+		<!--  Errors and downloads  -->
+		<InfoBar
+			x:Name="StatusBar"
+			Grid.Row="1"
+			Grid.ColumnSpan="2"
+			Margin="24,0,24,8"
+			IsOpen="False">
+			<InfoBar.ActionButton>
+				<Button
+					x:Name="RevealButton"
+					Click="RevealButton_Click"
+					Visibility="Collapsed" />
+			</InfoBar.ActionButton>
+			<InfoBar.Content>
+				<ProgressBar
+					x:Name="DownloadProgress"
+					Margin="0,0,0,12"
+					Maximum="1"
+					Visibility="Collapsed" />
+			</InfoBar.Content>
+		</InfoBar>
+
+		<!--  Entries  -->
+		<ListView
+			x:Name="EntryList"
+			Grid.Row="2"
+			Padding="12,0,12,16"
+			IsItemClickEnabled="True"
+			ItemClick="EntryList_ItemClick"
+			SelectionMode="Single">
+			<ListView.ItemTemplate>
+				<DataTemplate x:DataType="opds:OpdsEntryViewModel">
+					<StackPanel Padding="0,6">
+						<TextBlock
+							Margin="0,8,0,6"
+							Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+							Style="{StaticResource BodyStrongTextBlockStyle}"
+							Text="{x:Bind GroupHeader}"
+							Visibility="{x:Bind GroupHeaderVisibility}" />
+						<Grid ColumnSpacing="12">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="Auto" />
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="Auto" />
+							</Grid.ColumnDefinitions>
+
+							<Border
+								Width="{x:Bind CoverWidth}"
+								Height="{x:Bind CoverHeight}"
+								VerticalAlignment="Center"
+								Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+								CornerRadius="4">
+								<Image Source="{x:Bind Thumbnail, Mode=OneWay}" Stretch="UniformToFill" />
+							</Border>
+
+							<StackPanel
+								Grid.Column="1"
+								VerticalAlignment="Center"
+								Spacing="2">
+								<TextBlock
+									Style="{StaticResource BodyStrongTextBlockStyle}"
+									Text="{x:Bind Title}"
+									TextTrimming="CharacterEllipsis" />
+								<TextBlock
+									MaxLines="2"
+									Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+									Style="{StaticResource CaptionTextBlockStyle}"
+									Text="{x:Bind Subtitle}"
+									TextTrimming="CharacterEllipsis"
+									TextWrapping="Wrap"
+									Visibility="{x:Bind SubtitleVisibility}" />
+							</StackPanel>
+
+							<SplitButton
+								Grid.Column="2"
+								VerticalAlignment="Center"
+								Click="DownloadButton_Click"
+								Content="{x:Bind DownloadLabel}"
+								Visibility="{x:Bind DownloadVisibility}">
+								<SplitButton.Flyout>
+									<MenuFlyout Opening="DownloadFlyout_Opening" Placement="BottomEdgeAlignedRight" />
+								</SplitButton.Flyout>
+							</SplitButton>
+
+							<FontIcon
+								Grid.Column="2"
+								VerticalAlignment="Center"
+								FontSize="12"
+								Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+								Glyph="&#xE76C;"
+								Visibility="{x:Bind ChevronVisibility}" />
+						</Grid>
+					</StackPanel>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+			<ListView.Footer>
+				<Button
+					x:Name="LoadMoreButton"
+					Margin="0,12"
+					HorizontalAlignment="Center"
+					Click="LoadMoreButton_Click"
+					Visibility="Collapsed" />
+			</ListView.Footer>
+		</ListView>
+
+		<ProgressRing
+			x:Name="LoadingRing"
+			Grid.Row="2"
+			Width="40"
+			Height="40"
+			HorizontalAlignment="Center"
+			VerticalAlignment="Center"
+			IsActive="False" />
+
+		<TextBlock
+			x:Name="EmptyText"
+			Grid.Row="2"
+			HorizontalAlignment="Center"
+			VerticalAlignment="Center"
+			Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+			Visibility="Collapsed" />
+
+		<!--  Book details  -->
+		<Grid
+			x:Name="DetailsPanel"
+			Grid.Row="2"
+			Grid.Column="1"
+			Width="360"
+			BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+			BorderThickness="1,0,0,0"
+			Visibility="Collapsed">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
+
+			<Button
+				Margin="8"
+				HorizontalAlignment="Right"
+				Background="Transparent"
+				BorderThickness="0"
+				Click="CloseDetails_Click">
+				<FontIcon FontSize="12" Glyph="&#xE711;" />
+			</Button>
+
+			<ScrollViewer Grid.Row="1">
+				<StackPanel Padding="20,0,20,20" Spacing="8">
+					<Border
+						x:Name="DetailsCoverBorder"
+						HorizontalAlignment="Center"
+						CornerRadius="6">
+						<Image
+							x:Name="DetailsCover"
+							MaxHeight="320"
+							Stretch="Uniform" />
+					</Border>
+					<TextBlock
+						x:Name="DetailsTitle"
+						IsTextSelectionEnabled="True"
+						Style="{StaticResource SubtitleTextBlockStyle}"
+						TextWrapping="WrapWholeWords" />
+					<TextBlock
+						x:Name="DetailsAuthors"
+						Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+						IsTextSelectionEnabled="True"
+						Style="{StaticResource BodyStrongTextBlockStyle}"
+						TextWrapping="WrapWholeWords" />
+					<TextBlock
+						x:Name="DetailsMeta"
+						Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+						Style="{StaticResource CaptionTextBlockStyle}"
+						TextWrapping="Wrap" />
+					<StackPanel
+						x:Name="DetailsDownloads"
+						Margin="0,8,0,4"
+						Spacing="6" />
+					<TextBlock
+						x:Name="DetailsSummary"
+						IsTextSelectionEnabled="True"
+						Style="{StaticResource BodyTextBlockStyle}"
+						TextWrapping="Wrap" />
+					<TextBlock
+						x:Name="DetailsRelatedHeader"
+						Margin="0,8,0,0"
+						Style="{StaticResource BodyStrongTextBlockStyle}" />
+					<StackPanel x:Name="DetailsRelated" />
+				</StackPanel>
+			</ScrollViewer>
+		</Grid>
+	</Grid>
+</Page>

@@ -1,0 +1,74 @@
+<!doctype html>
+<!-- Consysto fork: the terminal tab's emulator. The shell runs in the app; this page only draws and sends keys. -->
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="xterm.css">
+<style>
+	html, body { margin: 0; height: 100%; overflow: hidden; background: var(--background, #1e1e1e); }
+	#terminal { position: absolute; inset: 6px 4px 4px 10px; }
+</style>
+</head>
+<body>
+<div id="terminal"></div>
+<script src="xterm.js"></script>
+<script src="addon-fit.js"></script>
+<script>
+	const host = window.chrome.webview;
+	const query = new URLSearchParams(location.search);
+	const dark = query.get('theme') !== 'light';
+	const theme = dark
+		? { background: '#1e1e1e', foreground: '#d4d4d4', cursor: '#d4d4d4', selectionBackground: '#264f78' }
+		: { background: '#ffffff', foreground: '#1f1f1f', cursor: '#1f1f1f', selectionBackground: '#add6ff',
+			black: '#000000', brightBlack: '#666666', white: '#aaaaaa', brightWhite: '#555555', yellow: '#946b00', brightYellow: '#7a5a00' };
+	document.body.style.setProperty('--background', theme.background);
+
+	const term = new Terminal({
+		fontFamily: "'Cascadia Mono', Consolas, 'Courier New', monospace",
+		fontSize: Number(query.get('fontSize')) || 13,
+		cursorBlink: true,
+		scrollback: 5000,
+		theme,
+	});
+	const fit = new FitAddon.FitAddon();
+	term.loadAddon(fit);
+	term.open(document.getElementById('terminal'));
+
+	const send = message => host.postMessage(JSON.stringify(message));
+	const resize = () => { fit.fit(); send({ type: 'resize', columns: term.cols, rows: term.rows }); };
+
+	term.onData(data => send({ type: 'input', data }));
+
+	// Ctrl+C copies when there is a selection, otherwise it interrupts; Ctrl+V pastes.
+	term.attachCustomKeyEventHandler(event => {
+		if (event.type !== 'keydown' || !event.ctrlKey || event.altKey)
+			return true;
+		if (event.key === 'c' && term.hasSelection()) {
+			navigator.clipboard.writeText(term.getSelection());
+			term.clearSelection();
+			return false;
+		}
+		if (event.key === 'v') {
+			navigator.clipboard.readText().then(text => term.paste(text));
+			return false;
+		}
+		return true;
+	});
+
+	host.addEventListener('message', event => {
+		const message = event.data;
+		if (message.type === 'output')
+			term.write(message.data);
+		else if (message.type === 'exited')
+			term.write('\r\n\x1b[90m' + message.text + '\x1b[0m\r\n');
+		else if (message.type === 'focus')
+			term.focus();
+	});
+
+	new ResizeObserver(resize).observe(document.getElementById('terminal'));
+	resize();
+	term.focus();
+	send({ type: 'ready', columns: term.cols, rows: term.rows });
+</script>
+</body>
+</html>

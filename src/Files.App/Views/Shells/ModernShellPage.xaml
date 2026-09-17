@@ -6,6 +6,7 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:helpers="using:Files.App.Helpers"
 	xmlns:local="using:Files.App.Views.Shells"
+	xmlns:macstyle="using:Files.App.MacStyle"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:uc="using:Files.App.UserControls"
 	xmlns:wct="using:CommunityToolkit.WinUI"
@@ -44,13 +45,18 @@
 			<ThemeShadow x:Name="ShellContentThemeShadow" x:FieldModifier="public" />
 		</Grid.Shadow>
 		<Grid.RowDefinitions>
+			<!--  Consysto fork: pane header (drive bar and path) in dual-pane mode; the rows below moved down by one  -->
+			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
 			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
 
+		<macstyle:PaneHeader x:Name="PaneHeaderControl" Grid.Row="0" />
+
 		<Image
+			Grid.Row="1"
 			Grid.RowSpan="3"
 			HorizontalAlignment="{x:Bind ShellViewModel.FolderBackgroundImageHorizontalAlignment, Mode=OneWay}"
 			VerticalAlignment="{x:Bind ShellViewModel.FolderBackgroundImageVerticalAlignment, Mode=OneWay}"
@@ -61,6 +67,7 @@
 		<!--  Swipe Backward Icon  -->
 		<Border
 			x:Name="BackIcon"
+			Grid.Row="1"
 			Grid.RowSpan="3"
 			Width="48"
 			Height="48"
@@ -83,6 +90,7 @@
 		<!--  Swipe Forward Icon  -->
 		<Border
 			x:Name="ForwardIcon"
+			Grid.Row="1"
 			Grid.RowSpan="3"
 			Width="48"
 			Height="48"
@@ -105,7 +113,7 @@
 		<!--  Search header  -->
 		<Grid
 			x:Name="SearchHeader"
-			Grid.Row="0"
+			Grid.Row="1"
 			Padding="26,16,16,16"
 			BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
 			BorderThickness="0,0,0,1"
@@ -128,7 +136,7 @@
 		<!--  Filter header  -->
 		<Grid
 			x:Name="FilterHeader"
-			Grid.Row="1"
+			Grid.Row="2"
 			Padding="26,8,12,8"
 			BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
 			BorderThickness="0,0,0,1"
@@ -159,7 +167,7 @@
 		<!--  Shell Frame  -->
 		<Frame
 			x:Name="ItemDisplayFrame"
-			Grid.Row="2"
+			Grid.Row="3"
 			x:FieldModifier="public"
 			Navigated="ItemDisplayFrame_Navigated"
 			TabIndex="1" />
@@ -167,7 +175,7 @@
 		<!--  Status Bar  -->
 		<uc:StatusBar
 			x:Name="StatusBar"
-			Grid.Row="3"
+			Grid.Row="4"
 			ShowInfoText="{x:Bind IsStatusBarVisible, Mode=OneWay}"
 			Visibility="{x:Bind IsStatusBarVisible, Mode=OneWay}" />
 

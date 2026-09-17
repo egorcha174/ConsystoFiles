@@ -64,6 +64,10 @@ namespace Files.App.Helpers
 			if (folderSettings.IsLayoutModeFixed || !folderSettings.IsAdaptiveLayoutEnabled)
 				return;
 
+			// Consysto fork: the adaptive layout only knows details and grid, so it must not throw the gallery away
+			if (folderSettings.LayoutMode is FolderLayoutModes.GalleryView)
+				return;
+
 			switch (GetAdaptiveLayout(filesAndFolders))
 			{
 				case Layouts.Detail when folderSettings.LayoutMode is not FolderLayoutModes.DetailsView:

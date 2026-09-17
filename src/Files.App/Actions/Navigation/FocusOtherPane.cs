@@ -20,6 +20,10 @@ namespace Files.App.Actions
 		public HotKey HotKey
 			=> new(Keys.Right, KeyModifiers.CtrlShift);
 
+		// Consysto fork: Tab switches panes as in Commander One; with a single pane the command is off and Tab moves focus as usual
+		public HotKey SecondHotKey
+			=> new(Keys.Tab);
+
 		public bool IsExecutable
 			=> context.IsMultiPaneActive;
 

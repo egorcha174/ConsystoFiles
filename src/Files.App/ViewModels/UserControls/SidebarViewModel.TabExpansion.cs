@@ -37,6 +37,10 @@ namespace Files.App.ViewModels.UserControls
 				yield return SectionKeyByEnum[(int)SectionType.WSL];
 			if (general.IsFileTagsSectionExpanded)
 				yield return SectionKeyByEnum[(int)SectionType.FileTag];
+			if (general.IsCollectionsSectionExpanded)
+				yield return SectionKeyByEnum[(int)SectionType.Collections];
+			if (general.IsOpdsCatalogsSectionExpanded)
+				yield return SectionKeyByEnum[(int)SectionType.OpdsCatalogs];
 		}
 
 		private void PersistSectionExpansion(SectionType section, bool isExpanded)
@@ -64,6 +68,12 @@ namespace Files.App.ViewModels.UserControls
 					break;
 				case SectionType.FileTag:
 					general.IsFileTagsSectionExpanded = isExpanded;
+					break;
+				case SectionType.Collections:
+					general.IsCollectionsSectionExpanded = isExpanded;
+					break;
+				case SectionType.OpdsCatalogs:
+					general.IsOpdsCatalogsSectionExpanded = isExpanded;
 					break;
 			}
 		}

@@ -237,6 +237,10 @@ namespace Files.App.Utils.Storage
 			bool isTargetExecutable = false,
 			bool isTargetScriptFile = false)
 		{
+			// An assembly shows its parts as a folder, but nothing can be put inside it.
+			if (Files.App.Cad.InventorAssemblyPaths.IsAssemblyPath(destination))
+				return ReturnResult.Cancelled;
+
 			try
 			{
 				if (destination is null)
@@ -301,7 +305,7 @@ namespace Files.App.Utils.Storage
 			=> CopyItemAsync(source.FromStorageItem()
 				?? throw new InvalidOperationException("The storage item could not be converted for copying."), destination, showDialog, registerHistory);
 
-		public async Task<ReturnResult> CopyItemsAsync(IEnumerable<IStorageItemWithPath> source, IEnumerable<string> destination, bool showDialog, bool registerHistory)
+		public async Task<ReturnResult> CopyItemsAsync(IEnumerable<IStorageItemWithPath> source, IEnumerable<string> destination, bool showDialog, bool registerHistory, FileNameConflictResolveOptionType? collisionOption = null)
 		{
 			source = await source.ToListAsync();
 			destination = await destination.ToListAsync();
@@ -318,7 +322,10 @@ namespace Files.App.Utils.Storage
 
 			var token = banner.CancellationToken;
 
-			var (collisions, cancelOperation, itemsResult) = await GetCollisions(FilesystemOperationType.Copy, source, destination, showDialog);
+			// Consysto fork: a caller that has already confirmed the overwrite (folder sync) skips the conflict dialog
+			var (collisions, cancelOperation, itemsResult) = collisionOption is { } forcedOption
+				? (source.Select(_ => forcedOption).ToList(), false, Enumerable.Empty<IFileSystemDialogConflictItemViewModel>())
+				: await GetCollisions(FilesystemOperationType.Copy, source, destination, showDialog);
 
 			if (cancelOperation)
 			{
@@ -372,6 +379,9 @@ namespace Files.App.Utils.Storage
 
 		public async Task<ReturnResult> CopyItemsFromClipboard(DataPackageView packageView, string destination, bool showDialog, bool registerHistory)
 		{
+			if (Files.App.Cad.InventorAssemblyPaths.IsAssemblyPath(destination))
+				return ReturnResult.Cancelled;
+
 			var source = await GetDraggedStorageItems(packageView);
 
 			if (!source.IsEmpty())
@@ -524,6 +534,9 @@ namespace Files.App.Utils.Storage
 
 		public async Task<ReturnResult> MoveItemsFromClipboard(DataPackageView packageView, string destination, bool showDialog, bool registerHistory)
 		{
+			if (Files.App.Cad.InventorAssemblyPaths.IsAssemblyPath(destination))
+				return ReturnResult.Cancelled;
+
 			if (!HasDraggedStorageItems(packageView))
 			{
 				// Happens if you copy some text and then you Ctrl+V in Files

@@ -1,4 +1,4 @@
-// Copyright (c) Files Community
+﻿// Copyright (c) Files Community
 // Licensed under the MIT License.
 
 using CommunityToolkit.WinUI;
@@ -27,6 +27,7 @@ namespace Files.App.Views
 	{
 		private IGeneralSettingsService generalSettingsService { get; } = Ioc.Default.GetRequiredService<IGeneralSettingsService>();
 		private readonly IContentPageContext ContentPageContext = Ioc.Default.GetRequiredService<IContentPageContext>();
+		private readonly IDisplayPageContext DisplayPageContext = Ioc.Default.GetRequiredService<IDisplayPageContext>();
 		public IUserSettingsService UserSettingsService { get; }
 		private readonly IWindowContext WindowContext = Ioc.Default.GetRequiredService<IWindowContext>();
 		private readonly ICommandManager Commands = Ioc.Default.GetRequiredService<ICommandManager>();
@@ -63,6 +64,7 @@ namespace Files.App.Views
 			ViewModel.PropertyChanged += ViewModel_PropertyChanged;
 			UserSettingsService.OnSettingChangedEvent += UserSettingsService_OnSettingChangedEvent;
 			ContentPageContext.PropertyChanged += ContentPageContext_PropertyChanged;
+			DisplayPageContext.PropertyChanged += DisplayPageContext_PropertyChanged;
 
 			_updateDateDisplayTimer = DispatcherQueue.CreateTimer();
 			_updateDateDisplayTimer.Interval = TimeSpan.FromSeconds(1);
@@ -70,6 +72,36 @@ namespace Files.App.Views
 			App.AppModel.PropertyChanged += AppModel_PropertyChanged;
 
 			ApplySidebarWidthState();
+
+			TitleBarDragSurface.SizeChanged += TitleBarElement_SizeChanged;
+			// Deferred: reordering a tab removes and re-inserts it, and hiding the strip in between (two tabs → one) kills the drag.
+			MainPageViewModel.AppInstances.CollectionChanged += (_, _) => DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, UpdateTabStripVisibility);
+		}
+
+		// Consysto fork: like Safari and Finder, the tab strip appears only once there are two tabs; while it is hidden a
+		// toolbar button takes over its "+".
+		private void UpdateTabStripVisibility()
+		{
+			var hasSeveralTabs = MainPageViewModel.AppInstances.Count > 1;
+			if (TabControl is not null)
+			{
+				// Never Collapsed: a collapsed TabBar is never loaded (no template, no Loaded, so a window that starts with
+				// one tab never hooks up the multitasking control) and stops raising tab events. Both toolbars were then
+				// left without a view model: no address bar, no commands. Squeezed to zero height it stays alive.
+				if (hasSeveralTabs)
+				{
+					TabControl.ClearValue(HeightProperty);
+					TabControl.Opacity = 1;
+					TabControl.IsHitTestVisible = true;
+				}
+				else
+				{
+					TabControl.Height = 0;
+					TabControl.Opacity = 0;
+					TabControl.IsHitTestVisible = false;
+				}
+			}
+			NewTabToolbarButton.Visibility = hasSeveralTabs ? Visibility.Collapsed : Visibility.Visible;
 		}
 
 		private void NumberedTabKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs e)
@@ -119,8 +151,12 @@ namespace Files.App.Views
 
 		private void HorizontalMultitaskingControl_Loaded(object sender, RoutedEventArgs e)
 		{
+			// Consysto fork: with the caption buttons collapsed the non-client input window shrinks to a thin strip; a title bar
+			// element over the toolbar row stretches it back so dragging keeps working.
+			MainWindow.Instance.SetTitleBar(TitleBarDragSurface);
 			TabControl.DragArea.SizeChanged += (_, _) => MainWindow.Instance.RaiseSetTitleBarDragRegion(SetTitleBarDragRegion);
 			TabControl.SizeChanged += (_, _) => MainWindow.Instance.RaiseSetTitleBarDragRegion(SetTitleBarDragRegion);
+			UpdateTabStripVisibility();
 			if (ViewModel.MultitaskingControl is not TabBar)
 			{
 				ViewModel.MultitaskingControl = TabControl;
@@ -131,11 +167,39 @@ namespace Files.App.Views
 
 		private int SetTitleBarDragRegion(InputNonClientPointerSource source, SizeInt32 size, double scaleFactor, Func<UIElement, RectInt32?, RectInt32> getScaledRect)
 		{
-			var height = (int)TabControl.ActualHeight;
-			source.SetRegionRects(NonClientRegionKind.Passthrough, [getScaledRect(this, new RectInt32(0, 0, (int)(TabControl.ActualWidth + TabControl.Margin.Left - TabControl.DragArea.ActualWidth), height))]);
+			// Consysto fork: the caption covers the toolbar row only (the tab row must stay plain XAML for tab drag & drop);
+			// every control in it is carved out as passthrough, so only the empty gaps drag the window.
+			var passthrough = new List<RectInt32>();
+			AddPassthrough(WindowButtons);
+			AddPassthrough(NavToolbar);
+			AddPassthrough(InnerNavigationToolbar);
+			AddPassthrough(WindowCommandButtons);
+
+			source.SetRegionRects(NonClientRegionKind.Passthrough, [.. passthrough]);
 			AttachTitleBarMessageMonitor();
-			return height;
+			return (int)TitleBarDragSurface.ActualHeight;
+
+			void AddPassthrough(FrameworkElement? element)
+			{
+				if (element is { XamlRoot: not null, Visibility: Visibility.Visible, ActualWidth: > 0 })
+					passthrough.Add(getScaledRect(element, null));
+			}
 		}
+
+		// Consysto fork: keeps the first page column (traffic lights, drag area) as wide as the sidebar pane.
+		private void UpdateTitleBarSidebarColumn()
+		{
+			var paneWidth = SidebarControl.DisplayMode switch
+			{
+				SidebarDisplayMode.Expanded => SidebarControl.OpenPaneLength,
+				SidebarDisplayMode.Compact => 56d,
+				_ => 0d,
+			};
+			TitleBarSidebarColumn.Width = new(Math.Max(paneWidth + 2, 86));
+		}
+
+		private void TitleBarElement_SizeChanged(object sender, SizeChangedEventArgs e)
+			=> MainWindow.Instance.RaiseSetTitleBarDragRegion(SetTitleBarDragRegion);
 
 		// Caption regions live in a dedicated child window
 		private void AttachTitleBarMessageMonitor()
@@ -234,6 +298,13 @@ namespace Files.App.Views
 				LoadPaneChanged();
 		}
 
+		// Consysto fork: the gallery has its own big preview, so the info pane is hidden while it is shown.
+		private void DisplayPageContext_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+		{
+			if (e.PropertyName is nameof(IDisplayPageContext.DisplayedLayoutType))
+				LoadPaneChanged();
+		}
+
 		private void UpdateNavToolbarProperties()
 		{
 			var toolbarViewModel = SidebarAdaptiveViewModel.PaneHolder?.ActivePaneOrColumn!.ToolbarViewModel;
@@ -278,6 +349,10 @@ namespace Files.App.Views
 
 					// Execute command for hotkey
 					var command = Commands[hotKey];
+
+					// Consysto fork: Ctrl+[ goes back as Cmd+[ in Finder; NavigateBack has no free hotkey slot left
+					if (command.Code is CommandCodes.None && hotKey == new HotKey(Keys.Oem4, KeyModifiers.Ctrl))
+						command = Commands.NavigateBack;
 
 					if (command.Code is CommandCodes.OpenItem && (source?.FindAscendantOrSelf<Omnibar>() is not null || source?.FindAscendantOrSelf<AppBarButton>() is not null))
 						break;
@@ -404,7 +479,12 @@ namespace Files.App.Views
 			// VM.SidebarDisplayMode rejects Minimal (it only tracks user preference) so the flat tree mirrors SidebarView.DisplayMode separately.
 			SidebarAdaptiveViewModel.ActualDisplayMode = SidebarControl.DisplayMode;
 			SidebarControl.RegisterPropertyChangedCallback(SidebarView.DisplayModeProperty, (_, _) =>
-				SidebarAdaptiveViewModel.ActualDisplayMode = SidebarControl.DisplayMode);
+			{
+				SidebarAdaptiveViewModel.ActualDisplayMode = SidebarControl.DisplayMode;
+				UpdateTitleBarSidebarColumn();
+			});
+			SidebarControl.RegisterPropertyChangedCallback(SidebarView.OpenPaneLengthProperty, (_, _) => UpdateTitleBarSidebarColumn());
+			UpdateTitleBarSidebarColumn();
 		}
 
 		private void RootGrid_SizeChanged(object sender, SizeChangedEventArgs e) => LoadPaneChanged();
@@ -473,7 +553,9 @@ namespace Files.App.Views
 				var isBigEnough = !App.AppModel.IsMainWindowClosed &&
 					(MainWindow.Instance.Bounds.Width > 450 && MainWindow.Instance.Bounds.Height > 450 || RootGrid.ActualWidth > 700 && MainWindow.Instance.Bounds.Height > 360);
 
-				ViewModel.ShouldPreviewPaneBeDisplayed = ((!isHomePage && !isReleaseNotesPage && !isSettingsPage) || isMultiPane) && isBigEnough;
+				var isGallery = DisplayPageContext.DisplayedLayoutType is LayoutTypes.Gallery;
+
+				ViewModel.ShouldPreviewPaneBeDisplayed = ((!isHomePage && !isReleaseNotesPage && !isSettingsPage) || isMultiPane) && isBigEnough && !isGallery;
 				ViewModel.ShouldPreviewPaneBeActive = UserSettingsService.InfoPaneSettingsService.IsInfoPaneEnabled && ViewModel.ShouldPreviewPaneBeDisplayed;
 
 				UpdatePositioning();
@@ -527,6 +609,16 @@ namespace Files.App.Views
 				_previousSidebarTab = null;
 		}
 
+		// Consysto fork: Esc closes the quick preview. The file list keeps focus while it is open, and the page sees the key first.
+		private void Page_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
+		{
+			if (e.Key is VirtualKey.Escape && QuickPreview.IsOpen)
+			{
+				QuickPreview.Close();
+				e.Handled = true;
+			}
+		}
+
 		private void RootGrid_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
 		{
 			switch (e.Key)
@@ -548,7 +640,17 @@ namespace Files.App.Views
 			}
 		}
 
-		private void NavToolbar_Loaded(object sender, RoutedEventArgs e) => UpdateNavToolbarProperties();
+		private void NavToolbar_Loaded(object sender, RoutedEventArgs e)
+		{
+			UpdateNavToolbarProperties();
+
+			// Consysto fork: both toolbars live in the title bar row now, so their size changes move the drag gaps.
+			if (sender is FrameworkElement toolbar)
+			{
+				toolbar.SizeChanged -= TitleBarElement_SizeChanged;
+				toolbar.SizeChanged += TitleBarElement_SizeChanged;
+			}
+		}
 
 		private void PaneSplitter_ManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
 		{

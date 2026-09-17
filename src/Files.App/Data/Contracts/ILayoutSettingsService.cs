@@ -66,6 +66,42 @@ namespace Files.App.Data.Contracts
 		bool ShowTypeColumn { get; set; }
 
 		/// <summary>
+		/// Gets or sets a value indicating whether or not the file extension column should be visible by default (Consysto fork).
+		/// </summary>
+		bool ShowExtensionColumn { get; set; }
+
+		/// <summary>
+		/// Gets or sets a value indicating whether or not the book author column should be visible in folders with books (Consysto fork).
+		/// </summary>
+		bool ShowBookAuthorColumn { get; set; }
+
+		/// <summary>
+		/// Gets or sets a value indicating whether or not the book series column should be visible in folders with books (Consysto fork).
+		/// </summary>
+		bool ShowBookSeriesColumn { get; set; }
+		/// <summary>
+		/// Gets or sets a value indicating whether or not the Inventor part number column should be visible in folders with Inventor documents (Consysto fork).
+		/// </summary>
+		bool ShowCadPartNumberColumn { get; set; }
+		/// <summary>
+		/// Gets or sets a value indicating whether or not the Inventor material column should be visible in folders with Inventor documents (Consysto fork).
+		/// </summary>
+		bool ShowCadMaterialColumn { get; set; }
+		/// <summary>
+		/// Gets or sets a value indicating whether or not the Inventor mass column should be visible in folders with Inventor documents (Consysto fork).
+		/// </summary>
+		bool ShowCadMassColumn { get; set; }
+		/// <summary>
+		/// Gets or sets a value indicating whether or not the program version column should be visible in folders with Inventor documents (Consysto fork).
+		/// </summary>
+		bool ShowCadVersionColumn { get; set; }
+
+		/// <summary>
+		/// Gets or sets the default order of the details view columns after the name, as comma-separated column names (Consysto fork).
+		/// </summary>
+		string DetailsColumnOrder { get; set; }
+
+		/// <summary>
 		/// Gets or sets a value indicating whether or not the size column should be visible by default.
 		/// </summary>
 		bool ShowSizeColumn { get; set; }
@@ -164,6 +200,37 @@ namespace Files.App.Data.Contracts
 		/// Gets or sets a value indicating item type column's default width
 		/// </summary>
 		double TypeColumnWidth { get; set; }
+
+		/// <summary>
+		/// Gets or sets a value indicating file extension column's default width (Consysto fork).
+		/// </summary>
+		double ExtensionColumnWidth { get; set; }
+
+		/// <summary>
+		/// Gets or sets a value indicating book author column's default width (Consysto fork).
+		/// </summary>
+		double BookAuthorColumnWidth { get; set; }
+
+		/// <summary>
+		/// Gets or sets a value indicating book series column's default width (Consysto fork).
+		/// </summary>
+		double BookSeriesColumnWidth { get; set; }
+		/// <summary>
+		/// Gets or sets a value indicating Inventor part number column's default width (Consysto fork).
+		/// </summary>
+		double CadPartNumberColumnWidth { get; set; }
+		/// <summary>
+		/// Gets or sets a value indicating Inventor material column's default width (Consysto fork).
+		/// </summary>
+		double CadMaterialColumnWidth { get; set; }
+		/// <summary>
+		/// Gets or sets a value indicating Inventor mass column's default width (Consysto fork).
+		/// </summary>
+		double CadMassColumnWidth { get; set; }
+		/// <summary>
+		/// Gets or sets a value indicating program version column's default width (Consysto fork).
+		/// </summary>
+		double CadVersionColumnWidth { get; set; }
 
 		/// <summary>
 		/// Gets or sets a value indicating date created column's default width

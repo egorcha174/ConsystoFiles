@@ -77,15 +77,34 @@
 				Margin="12,0"
 				ColumnSpacing="8">
 				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="*" />
 					<ColumnDefinition Width="Auto" />
 				</Grid.ColumnDefinitions>
 
-				<TextBox x:Name="PickedDllFilePathTextBox" Text="{x:Bind CustomizationViewModel.IconResourceItemPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+				<!--  Consysto fork: ready-made icon sets  -->
+				<ComboBox
+					x:Name="IconSetComboBox"
+					MinWidth="160"
+					AutomationProperties.Name="{helpers:ResourceString Name=ConsystoIconSet}"
+					ItemsSource="{x:Bind CustomizationViewModel.IconSets, Mode=OneWay}"
+					PlaceholderText="{helpers:ResourceString Name=ConsystoIconSet}"
+					SelectedItem="{x:Bind CustomizationViewModel.SelectedIconSet, Mode=TwoWay}">
+					<ComboBox.ItemTemplate>
+						<DataTemplate x:DataType="vm:IconSetOption">
+							<TextBlock Text="{x:Bind Name}" />
+						</DataTemplate>
+					</ComboBox.ItemTemplate>
+				</ComboBox>
+
+				<TextBox
+					x:Name="PickedDllFilePathTextBox"
+					Grid.Column="1"
+					Text="{x:Bind CustomizationViewModel.IconResourceItemPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
 				<Button
 					x:Name="PickDllFileButton"
-					Grid.Column="1"
+					Grid.Column="2"
 					Command="{x:Bind CustomizationViewModel.OpenFilePickerCommand, Mode=OneWay}"
 					Content="{helpers:ResourceString Name=Browse}" />
 

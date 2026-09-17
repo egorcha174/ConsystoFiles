@@ -38,6 +38,21 @@ namespace Files.App.Data.Contracts
 		public IShellPage? ActivePaneOrColumn { get; }
 
 		/// <summary>
+		/// Consysto fork: gets or sets whether stepping into a subfolder or up in the active pane repeats the step in the other pane.
+		/// </summary>
+		public bool IsSyncNavigationEnabled { get; set; }
+
+		/// <summary>
+		/// Consysto fork: gets the pane that is not focused, or null while a single pane is shown.
+		/// </summary>
+		public IShellPage? GetOtherPane();
+
+		/// <summary>
+		/// Consysto fork: swaps the folders shown in the two panes.
+		/// </summary>
+		public void SwapPanes();
+
+		/// <summary>
 		/// Adds a new pane with path and pane addition direction if needed.
 		/// </summary>
 		/// <param name="path">The path to open in the new pane.</param>

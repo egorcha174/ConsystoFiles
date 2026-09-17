@@ -80,6 +80,8 @@ namespace Files.App.ViewModels.UserControls
 				SectionType.Home,
 				SectionType.Pinned,
 				SectionType.Library,
+				SectionType.Downloads,
+				SectionType.Sync,
 				SectionType.Drives,
 				SectionType.CloudDrives,
 				SectionType.Network,
@@ -116,6 +118,7 @@ namespace Files.App.ViewModels.UserControls
 			{
 				"Home" => sidebarItems.FirstOrDefault(x => x.Path == "Home"),
 				"Settings" => SettingsSidebarItem,
+				_ when Files.App.Books.Library.ConsystoPages.IsPagePath(value) => Files.App.Books.Library.ConsystoPages.SidebarItemOf(value),
 				_ => FindDeepestVisibleAncestor(value),
 			};
 
@@ -308,6 +311,8 @@ namespace Files.App.ViewModels.UserControls
 			sidebarItems = [];
 			UserSettingsService.OnSettingChangedEvent += UserSettingsService_OnSettingChangedEvent;
 			CreateItemHomeAsync();
+			CreateDownloadsSection();
+			CreateSyncSection();
 
 			Manager_DataChanged(SectionType.Pinned, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 			Manager_DataChanged(SectionType.Library, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
@@ -333,6 +338,34 @@ namespace Files.App.ViewModels.UserControls
 			EjectDeviceCommand = new RelayCommand(EjectDevice);
 			OpenPropertiesCommand = new RelayCommand<FlyoutBase>(OpenProperties);
 			ReorderItemsCommand = new AsyncRelayCommand(ReorderItemsAsync);
+		}
+
+		// Consysto fork: torrent downloads, one item per filter, like the left panel of qBittorrent
+		private void CreateDownloadsSection()
+		{
+			var section = BuildSection(Strings.ConsystoTorrentDownloads.GetLocalizedResource(), SectionType.Downloads, new ContextMenuOptions(), false);
+			section.IsHeader = true;
+			foreach (var item in Files.App.Torrents.TorrentSidebar.CreateItems())
+				section.ChildItems!.Add(item);
+			AddSectionToSideBar(section);
+		}
+
+		// Consysto fork: backup pairs, one item per pair and "Add pair…" last; rebuilt when a pair is added, renamed or removed
+		private void CreateSyncSection()
+		{
+			var section = BuildSection(Strings.ConsystoSync.GetLocalizedResource(), SectionType.Sync, new ContextMenuOptions(), false);
+			section.IsHeader = true;
+			void Fill()
+			{
+				section.ChildItems!.Clear();
+				foreach (var item in Files.App.Sync.SyncManager.Instance.SidebarItems)
+					section.ChildItems.Add(item);
+			}
+
+			_ = Files.App.Sync.SyncManager.Instance.Pairs;
+			Fill();
+			Files.App.Sync.SyncManager.Instance.Changed += (_, _) => dispatcherQueue?.TryEnqueue(Fill);
+			AddSectionToSideBar(section);
 		}
 
 		private Task<LocationItem?> CreateItemHomeAsync()
@@ -387,6 +420,15 @@ namespace Files.App.ViewModels.UserControls
 					_ => throw new ArgumentOutOfRangeException(nameof(sectionType), sectionType, "The sidebar section type is not supported.")
 				};
 				await SyncSidebarItemsAsync(section, getElements, e);
+
+				// Consysto fork: "Create library…" always closes the libraries section
+				if (sectionType is SectionType.Library && section.ChildItems is { } children)
+				{
+					var create = children.FirstOrDefault(x => x.Path == Files.App.Books.Library.CollectionPaths.AddCollectionPath)
+						?? Files.App.Books.Library.CollectionManager.Instance.CreateLibraryItem;
+					children.Remove(create);
+					children.Add(create);
+				}
 			});
 		}
 
@@ -804,10 +846,21 @@ namespace Files.App.ViewModels.UserControls
 			rightClickedItem = item;
 			RightClickedItemChanged?.Invoke(this, item);
 
+			// Consysto fork: "Create library…" has no folder commands
+			if (item.Path == Files.App.Books.Library.CollectionPaths.AddCollectionPath)
+			{
+				var createFlyout = new MenuFlyout();
+				createFlyout.Items.Add(CreateOpdsMenuItem(Strings.ConsystoLibraryCreate.GetLocalizedResource(), Files.App.Books.Library.FluentGlyphs.Add, CreateTypedLibraryAsync));
+				createFlyout.ShowAt(sidebarItem, new FlyoutShowOptions() { Position = args.Position });
+				return;
+			}
+
 			var menuOptions = item.MenuOptions
 				?? throw new InvalidOperationException("The sidebar item does not have context-menu options.");
 			var flyout = new FastContextFlyout();
 			var menuItems = GetLocationItemMenuItems(item, flyout.Flyout);
+			if (item is LibraryLocationItem { Path: { } libraryPath })
+				menuItems.InsertRange(0, GetLibraryKindMenuItems(libraryPath));
 			flyout.Build(menuItems);
 
 			// Pre-add "Show more options" before showing so filling it with shell items never resizes the menu
@@ -821,6 +874,71 @@ namespace Files.App.ViewModels.UserControls
 
 			if (menuOptions.ShowShellItems)
 				await ShellContextFlyoutFactory.LoadShellMenuItemsAsync(item.GetRequiredPath(), flyout, menuOptions, moreOptions, moreSeparator);
+		}
+
+		// Consysto fork: a library is shown as folders or as a page of books, photos or music
+		private List<ContextMenuFlyoutItemViewModel> GetLibraryKindMenuItems(string libraryPath)
+		{
+			var manager = Files.App.Books.Library.CollectionManager.Instance;
+			var current = manager.KindOfLibrary(libraryPath);
+			var kinds = new List<ContextMenuFlyoutItemViewModel>
+			{
+				new()
+				{
+					Text = Strings.ConsystoLibraryKindFolder.GetLocalizedResource(),
+					ItemType = ContextMenuFlyoutItemType.Toggle,
+					IsChecked = current is null,
+					Command = new RelayCommand(() => manager.SetKind(libraryPath, null)),
+				},
+			};
+			foreach (var kind in Files.App.Books.Library.CollectionKinds.All)
+			{
+				var kindId = kind.Id;
+				kinds.Add(new()
+				{
+					Text = kind.Name,
+					ItemType = ContextMenuFlyoutItemType.Toggle,
+					IsChecked = current == kindId,
+					Command = new RelayCommand(() => manager.SetKind(libraryPath, kindId)),
+				});
+			}
+
+			return
+			[
+				new()
+				{
+					Text = Strings.ConsystoLibraryOpenAsFolder.GetLocalizedResource(),
+					Glyph = Files.App.Books.Library.FluentGlyphs.Library,
+					ShowItem = current is not null,
+					Command = new RelayCommand(() => PaneHolder?.ActivePane?.NavigateToPath(libraryPath)),
+				},
+				new()
+				{
+					Text = Strings.ConsystoLibraryKindMenu.GetLocalizedResource(),
+					Glyph = Files.App.Books.Library.FluentGlyphs.Tag,
+					Items = kinds,
+				},
+				new() { ItemType = ContextMenuFlyoutItemType.Separator },
+			];
+		}
+
+		private static MenuFlyoutItem CreateOpdsMenuItem(string text, string glyph, Func<Task> action)
+		{
+			var menuItem = new MenuFlyoutItem { Text = text, Icon = new FontIcon { Glyph = glyph } };
+			menuItem.Click += async (_, _) => await action();
+			return menuItem;
+		}
+
+		private async Task AddOpdsCatalogAsync()
+		{
+			if (await Files.App.Books.Opds.OpdsCatalogDialogs.AddAsync() is { } added && PaneHolder?.ActivePane is IShellPage shellPage)
+				shellPage.NavigateToConsystoPage(Files.App.Books.Opds.OpdsPaths.ForCatalog(added.Id));
+		}
+
+		private async Task CreateTypedLibraryAsync()
+		{
+			if (await Files.App.Books.Library.CollectionDialogs.CreateLibraryAsync() is { } added && PaneHolder?.ActivePane is IShellPage shellPage)
+				shellPage.NavigateToConsystoPage(Files.App.Books.Library.CollectionPaths.ForCollection(added.Id));
 		}
 
 		public async void HandleItemInvokedAsync(object item, PointerUpdateKind pointerUpdateKind)
@@ -843,6 +961,34 @@ namespace Files.App.ViewModels.UserControls
 
 				if (PaneHolder?.ActivePane is IShellPage settingsShellPage)
 					settingsShellPage.NavigateToSettings();
+				return;
+			}
+
+			// Consysto fork: a typed library opens its page of books, photos or music; the last item creates a library
+			if (navigationControlItem.Path == Files.App.Books.Library.CollectionPaths.AddCollectionPath)
+			{
+				await CreateTypedLibraryAsync();
+				return;
+			}
+
+			var consystoPath = navigationControlItem is LibraryLocationItem && Files.App.Books.Library.CollectionManager.Instance.FindByLibrary(navigationControlItem.Path) is { } typed
+				? Files.App.Books.Library.CollectionPaths.ForCollection(typed.Id)
+				: navigationControlItem.Path;
+			if (Files.App.Books.Library.ConsystoPages.IsPagePath(consystoPath))
+			{
+				var opdsPath = consystoPath!;
+				if (opdsPath == Files.App.Books.Opds.OpdsPaths.AddCatalogPath)
+					await AddOpdsCatalogAsync();
+				else if (opdsPath == Files.App.Sync.SyncPaths.AddPath)
+				{
+					if (await Files.App.Sync.SyncDialogs.AddAsync() is { } added && PaneHolder?.ActivePane is IShellPage syncShellPage)
+						syncShellPage.NavigateToConsystoPage(Files.App.Sync.SyncPaths.ForPair(added.Id));
+				}
+				else if (ctrlPressed || middleClickPressed)
+					await NavigationHelpers.OpenPathInNewTab(opdsPath);
+				else if (PaneHolder?.ActivePane is IShellPage opdsShellPage)
+					opdsShellPage.NavigateToConsystoPage(opdsPath);
+
 				return;
 			}
 
@@ -1251,7 +1397,9 @@ namespace Files.App.ViewModels.UserControls
 					(hasStorageItems && storageItems.AreItemsAlreadyInFolder(path!)) ||
 					path!.StartsWith("Home", StringComparison.OrdinalIgnoreCase) ||
 					path.StartsWith("ReleaseNotes", StringComparison.OrdinalIgnoreCase) ||
-					path.StartsWith("Settings", StringComparison.OrdinalIgnoreCase))
+					path.StartsWith("Settings", StringComparison.OrdinalIgnoreCase) ||
+					Files.App.Books.Library.ConsystoPages.IsPagePath(path) ||
+					Files.App.Cad.InventorAssemblyPaths.IsAssemblyPath(path))
 				{
 					rawEvent.AcceptedOperation = DataPackageOperation.None;
 				}

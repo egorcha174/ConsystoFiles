@@ -1,0 +1,50 @@
+<!--  Consysto fork: settings of the libraries — their kinds and folders, and sharing a books library with a phone.  -->
+<Page
+	x:Class="Files.App.Views.Settings.CollectionsPage"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:helpers="using:Files.App.Helpers"
+	xmlns:wctcontrols="using:CommunityToolkit.WinUI.Controls">
+
+	<Grid>
+		<StackPanel
+			HorizontalAlignment="Stretch"
+			VerticalAlignment="Stretch"
+			Spacing="4">
+
+			<!--  Title  -->
+			<TextBlock
+				Padding="0,0,0,12"
+				Style="{StaticResource App.Theme.SubtitleTextBlockStyle}"
+				Text="{helpers:ResourceString Name=ConsystoCollections}" />
+
+			<!--  Create a library  -->
+			<wctcontrols:SettingsCard Description="{helpers:ResourceString Name=ConsystoLibrariesDescription}" Header="{helpers:ResourceString Name=ConsystoLibraryCreateTitle}">
+				<wctcontrols:SettingsCard.HeaderIcon>
+					<FontIcon Glyph="&#xE710;" />
+				</wctcontrols:SettingsCard.HeaderIcon>
+				<Button
+					Click="CreateLibraryButton_Click"
+					Content="{helpers:ResourceString Name=ConsystoLibraryCreate}"
+					Style="{StaticResource AccentButtonStyle}" />
+			</wctcontrols:SettingsCard>
+
+			<TextBlock
+				x:Name="NoCollectionsText"
+				Margin="4,8,4,0"
+				Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+				Text="{helpers:ResourceString Name=ConsystoCollectionNone}"
+				Visibility="Collapsed" />
+
+			<!--  One expander per library, built in code  -->
+			<StackPanel x:Name="CollectionList" Spacing="4" />
+
+			<TextBlock
+				Margin="4,8,4,0"
+				Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+				Style="{StaticResource CaptionTextBlockStyle}"
+				Text="{helpers:ResourceString Name=ConsystoBookServerFirewall}"
+				TextWrapping="Wrap" />
+		</StackPanel>
+	</Grid>
+</Page>

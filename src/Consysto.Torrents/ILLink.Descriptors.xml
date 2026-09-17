@@ -1,0 +1,19 @@
+<!--
+  MonoTorrent builds its messages, trackers and settings through reflection, and Mono.Nat finds its port mappers
+  the same way. Native AOT (Files publishes with PublishAot) would trim what nothing references directly and break
+  downloads only in the installed package. Embedded in this assembly, so every app that references the engine keeps them.
+-->
+<linker>
+  <assembly fullname="MonoTorrent" preserve="all" />
+  <assembly fullname="MonoTorrent.BEncoding" preserve="all" />
+  <assembly fullname="MonoTorrent.Client" preserve="all" />
+  <assembly fullname="MonoTorrent.Connections" preserve="all" />
+  <assembly fullname="MonoTorrent.Dht" preserve="all" />
+  <assembly fullname="MonoTorrent.Factories" preserve="all" />
+  <assembly fullname="MonoTorrent.Messages" preserve="all" />
+  <assembly fullname="MonoTorrent.PiecePicking" preserve="all" />
+  <assembly fullname="MonoTorrent.PieceWriter" preserve="all" />
+  <assembly fullname="MonoTorrent.PortForwarding" preserve="all" />
+  <assembly fullname="MonoTorrent.Trackers" preserve="all" />
+  <assembly fullname="Mono.Nat" preserve="all" />
+</linker>

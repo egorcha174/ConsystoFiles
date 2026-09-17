@@ -1,4 +1,4 @@
-// Copyright (c) Files Community
+﻿// Copyright (c) Files Community
 // Licensed under the MIT License.
 
 using Files.App.Controls;
@@ -11,6 +11,7 @@ using Microsoft.UI.Xaml.Hosting;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using System.IO;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Windows.ApplicationModel.DataTransfer;
@@ -319,6 +320,120 @@ namespace Files.App.Views
 			otherPane.Focus(FocusState.Programmatic);
 		}
 
+		private bool _IsSyncNavigationEnabled;
+		/// <inheritdoc/>
+		public bool IsSyncNavigationEnabled
+		{
+			get => _IsSyncNavigationEnabled;
+			set
+			{
+				value &= IsMultiPaneActive;
+				if (_IsSyncNavigationEnabled == value)
+					return;
+
+				_IsSyncNavigationEnabled = value;
+				NotifyPropertyChanged(nameof(IsSyncNavigationEnabled));
+			}
+		}
+
+		/// <inheritdoc/>
+		public IShellPage? GetOtherPane()
+		{
+			if (!IsMultiPaneActive)
+				return null;
+
+			return ActivePane == (IShellPage?)GetPane(0) ? GetPane(1) : GetPane(0);
+		}
+
+		// Consysto fork: navigations started by SwapPanes, which synchronized navigation must not mirror
+		private readonly Dictionary<ShellViewModel, string> _swapTargetPaths = [];
+
+		/// <inheritdoc/>
+		public void SwapPanes()
+		{
+			if (!IsMultiPaneActive || GetPane(0) is not { } firstPane || GetPane(1) is not { } secondPane)
+				return;
+
+			var firstPath = firstPane.ShellViewModel?.WorkingDirectory;
+			var secondPath = secondPane.ShellViewModel?.WorkingDirectory;
+
+			NavigateForSwap(firstPane, secondPath);
+			NavigateForSwap(secondPane, firstPath);
+		}
+
+		private void NavigateForSwap(ModernShellPage pane, string? path)
+		{
+			if (Files.App.Books.Library.ConsystoPages.IsPagePath(path))
+			{
+				// A terminal, library or catalog page moves by its path; a terminal starts a new shell there.
+				pane.NavigateToConsystoPage(path!);
+				return;
+			}
+
+			if (string.IsNullOrEmpty(path) || !Path.IsPathRooted(path))
+			{
+				pane.NavigateHome();
+				return;
+			}
+
+			if (pane.ShellViewModel is { } shellViewModel)
+				_swapTargetPaths[shellViewModel] = path;
+
+			pane.NavigateToPath(path);
+		}
+
+		// Consysto fork: synchronized navigation. The event fires before the view model takes the new path, so its
+		// WorkingDirectory still holds the folder the active pane is leaving.
+		private void Pane_WorkingDirectoryModified(object? sender, WorkingDirectoryModifiedEventArgs e)
+		{
+			if (sender is ShellViewModel swappedShellViewModel &&
+				_swapTargetPaths.Remove(swappedShellViewModel, out var swapTargetPath) &&
+				string.Equals(swapTargetPath, e.Path, StringComparison.OrdinalIgnoreCase))
+				return;
+
+			if (!IsSyncNavigationEnabled ||
+				e.IsLibrary ||
+				sender is not ShellViewModel shellViewModel ||
+				ActivePane?.ShellViewModel != shellViewModel ||
+				GetOtherPane() is not { } otherPane ||
+				otherPane.ShellViewModel?.WorkingDirectory is not { } otherPath)
+				return;
+
+			if (GetSyncNavigationTarget(shellViewModel.WorkingDirectory, e.Path, otherPath) is { } target)
+				otherPane.NavigateToPath(target);
+		}
+
+		// Repeats the step: into a subfolder by the same relative path when it exists there, or up by the same number of levels.
+		private static string? GetSyncNavigationTarget(string? fromPath, string? toPath, string otherPath)
+		{
+			if (string.IsNullOrEmpty(fromPath) || string.IsNullOrEmpty(toPath) ||
+				!Path.IsPathRooted(fromPath) || !Path.IsPathRooted(toPath) || !Path.IsPathRooted(otherPath))
+				return null;
+
+			var from = fromPath.TrimEnd('\\');
+			var to = toPath.TrimEnd('\\');
+
+			if (to.StartsWith(from + '\\', StringComparison.OrdinalIgnoreCase))
+			{
+				var target = otherPath.TrimEnd('\\') + to[from.Length..];
+				return Directory.Exists(target) ? target : null;
+			}
+
+			if (from.StartsWith(to + '\\', StringComparison.OrdinalIgnoreCase))
+			{
+				var levels = from[to.Length..].Count(c => c == '\\');
+				var directory = new DirectoryInfo(otherPath);
+				for (var i = 0; i < levels && directory.Parent is not null; i++)
+					directory = directory.Parent;
+
+				return string.Equals(directory.FullName.TrimEnd('\\'), otherPath.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase)
+					? null
+					: directory.FullName;
+			}
+
+			return null;
+		}
+
 		/// <inheritdoc/>
 		public void ArrangePanes(ShellPaneArrangement arrangement = ShellPaneArrangement.None)
 		{
@@ -530,6 +645,8 @@ namespace Files.App.Views
 			// Hook event
 			page.ContentChanged += Pane_ContentChanged;
 			page.Loaded += Pane_Loaded;
+			if (page.ShellViewModel is { } shellViewModel)
+				shellViewModel.WorkingDirectoryModified += Pane_WorkingDirectoryModified;
 
 			// Focus
 			ActivePane = GetPane(GetPaneCount() - 1);
@@ -541,6 +658,11 @@ namespace Files.App.Views
 		{
 			if (index is -1)
 				return;
+
+			// Consysto fork: nothing to mirror into once a pane goes away
+			if (GetPane(index)?.ShellViewModel is { } removedShellViewModel)
+				removedShellViewModel.WorkingDirectoryModified -= Pane_WorkingDirectoryModified;
+			IsSyncNavigationEnabled = false;
 
 			// Get proper position of sizer that resides with the pane that is wanted to be removed
 			var childIndex = index * 2 - 1;
@@ -1068,6 +1190,8 @@ namespace Files.App.Views
 				pane.GotFocus -= Pane_GotFocus;
 				pane.RightTapped -= Pane_RightTapped;
 				pane.RemoveHandler(UIElement.PointerPressedEvent, _panePointerPressedHandler);
+				if (pane.ShellViewModel is { } shellViewModel)
+					shellViewModel.WorkingDirectoryModified -= Pane_WorkingDirectoryModified;
 				pane.Dispose();
 			}
 

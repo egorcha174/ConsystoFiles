@@ -141,6 +141,74 @@ namespace Files.App.Services.Settings
 			}
 		}
 
+		// Consysto fork: file extension column
+		public double ExtensionColumnWidth
+		{
+			get => Get(90d);
+			set
+			{
+				if (ShowExtensionColumn)
+					Set(value);
+			}
+		}
+
+		// Consysto fork: book columns
+		public double BookAuthorColumnWidth
+		{
+			get => Get(180d);
+			set
+			{
+				if (ShowBookAuthorColumn)
+					Set(value);
+			}
+		}
+
+		public double BookSeriesColumnWidth
+		{
+			get => Get(180d);
+			set
+			{
+				if (ShowBookSeriesColumn)
+					Set(value);
+			}
+		}
+		public double CadPartNumberColumnWidth
+		{
+			get => Get(140d);
+			set
+			{
+				if (ShowCadPartNumberColumn)
+					Set(value);
+			}
+		}
+		public double CadMaterialColumnWidth
+		{
+			get => Get(140d);
+			set
+			{
+				if (ShowCadMaterialColumn)
+					Set(value);
+			}
+		}
+		public double CadMassColumnWidth
+		{
+			get => Get(100d);
+			set
+			{
+				if (ShowCadMassColumn)
+					Set(value);
+			}
+		}
+		public double CadVersionColumnWidth
+		{
+			get => Get(130d);
+			set
+			{
+				if (ShowCadVersionColumn)
+					Set(value);
+			}
+		}
+
 		public double TypeColumnWidth
 		{
 			get => Get(140d);
@@ -226,6 +294,53 @@ namespace Files.App.Services.Settings
 		public bool ShowTypeColumn
 		{
 			get => Get(true);
+			set => Set(value);
+		}
+
+		// Consysto fork: file extension column
+		public bool ShowExtensionColumn
+		{
+			get => Get(true);
+			set => Set(value);
+		}
+
+		// Consysto fork: book columns
+		public bool ShowBookAuthorColumn
+		{
+			get => Get(true);
+			set => Set(value);
+		}
+
+		public bool ShowBookSeriesColumn
+		{
+			get => Get(true);
+			set => Set(value);
+		}
+		public bool ShowCadPartNumberColumn
+		{
+			get => Get(true);
+			set => Set(value);
+		}
+		public bool ShowCadMaterialColumn
+		{
+			get => Get(true);
+			set => Set(value);
+		}
+		public bool ShowCadMassColumn
+		{
+			get => Get(true);
+			set => Set(value);
+		}
+		public bool ShowCadVersionColumn
+		{
+			get => Get(true);
+			set => Set(value);
+		}
+
+		// Consysto fork: reordered details view columns
+		public string DetailsColumnOrder
+		{
+			get => Get(string.Empty);
 			set => Set(value);
 		}
 

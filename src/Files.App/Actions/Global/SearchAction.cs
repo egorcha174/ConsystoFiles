@@ -20,8 +20,7 @@ namespace Files.App.Actions
 		public HotKey HotKey
 			=> new(Keys.F, KeyModifiers.Ctrl);
 
-		public HotKey SecondHotKey
-			=> new(Keys.F3);
+		// Consysto fork: F3 opens the quick preview (Commander One), search stays on Ctrl+F
 
 		public RichGlyph Glyph
 			=> new(themedIconStyle: "App.ThemedIcons.Omnibar.Search");

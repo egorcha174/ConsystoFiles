@@ -147,6 +147,9 @@ namespace Files.App.Utils.Storage
 					item.Title = Strings.ReleaseNotes.GetLocalizedResource();
 				else if (item.Path == "Settings")
 					item.Title = Strings.Settings.GetLocalizedResource();
+				else if (Files.App.Books.Library.ConsystoPages.IsPagePath(item.Path))
+					// Consysto fork: the library and OPDS catalog pages are titled by name, not by their tab path
+					item.Title = Files.App.Books.Library.ConsystoPages.TitleOf(item.Path);
 				else
 				{
 					var path = item.Path!;
@@ -231,7 +234,8 @@ namespace Files.App.Utils.Storage
 		{
 			// Archive paths can't be resolved by chaining WinRT GetFolderAsync from a network root/parent
 			// (an archive is not a real subfolder of the share); resolve them directly like local archives.
-			if (rootFolder is not null && !ZipStorageFolder.IsZipPath(value))
+			// Consysto fork: an Inventor assembly browsed as a folder is a file, so it needs the same direct route.
+			if (rootFolder is not null && !ZipStorageFolder.IsZipPath(value) && !Files.App.Cad.InventorAssemblyPaths.IsAssemblyPath(value))
 			{
 				var rootItem = rootFolder.Item!;
 				var currComponents = GetDirectoryPathComponents(value);

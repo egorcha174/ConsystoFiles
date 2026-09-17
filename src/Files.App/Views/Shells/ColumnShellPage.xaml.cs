@@ -234,6 +234,11 @@ namespace Files.App.Views.Shells
 			this.FindAscendant<ColumnsLayoutPage>()?.ParentShellPageInstance?.NavigateToSettings(selectItem);
 		}
 
+		public override void NavigateToConsystoPage(string path, string? pageAddress = null)
+		{
+			this.FindAscendant<ColumnsLayoutPage>()?.ParentShellPageInstance?.NavigateToConsystoPage(path, pageAddress);
+		}
+
 		public override Task WhenIsCurrent()
 		{
 			var parentTask = this.FindAscendant<ColumnsLayoutPage>()?.ParentShellPageInstance?.WhenIsCurrent();

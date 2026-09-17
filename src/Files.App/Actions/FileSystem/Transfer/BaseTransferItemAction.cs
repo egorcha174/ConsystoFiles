@@ -10,7 +10,7 @@ namespace Files.App.Actions
 		protected readonly IContentPageContext ContentPageContext = Ioc.Default.GetRequiredService<IContentPageContext>();
 		protected readonly StatusCenterViewModel StatusCenterViewModel = Ioc.Default.GetRequiredService<StatusCenterViewModel>();
 
-		public bool IsExecutable
+		public virtual bool IsExecutable
 			=> ContentPageContext.HasSelection;
 
 		public BaseTransferItemAction()

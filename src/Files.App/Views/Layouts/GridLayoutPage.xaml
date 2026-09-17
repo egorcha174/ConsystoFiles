@@ -58,6 +58,23 @@
 			</Style.Setters>
 		</Style>
 
+		<!--  Consysto fork: the gallery's thumbnail strip, a single row scrolling sideways  -->
+		<Style x:Key="GalleryLayoutGridView" TargetType="GridView">
+			<Style.Setters>
+				<Setter Property="ItemsPanel">
+					<Setter.Value>
+						<ItemsPanelTemplate>
+							<ItemsStackPanel Orientation="Horizontal" />
+						</ItemsPanelTemplate>
+					</Setter.Value>
+				</Setter>
+				<Setter Property="ScrollViewer.VerticalScrollMode" Value="Disabled" />
+				<Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden" />
+				<Setter Property="ScrollViewer.HorizontalScrollMode" Value="Enabled" />
+				<Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
+			</Style.Setters>
+		</Style>
+
 		<converters:StringToBrushConverter x:Key="StringToBrushConverter" />
 		<wctconverters:BoolNegationConverter x:Key="BoolNegationConverter" />
 		<wctconverters:BoolToVisibilityConverter
@@ -975,6 +992,45 @@
 			PreferredPlacement="Auto"
 			Subtitle="{helpers:ResourceString Name=FileNameTeachingTip/Subtitle}"
 			Visibility="Collapsed" />
+
+		<!--  Consysto fork: gallery preview above the thumbnail strip; the strip's height is set in code-behind  -->
+		<Grid
+			x:Name="GalleryPreview"
+			Padding="16,12,16,8"
+			BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+			BorderThickness="0,0,0,1"
+			RowSpacing="8"
+			Visibility="Collapsed">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="*" />
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+
+			<ContentPresenter
+				x:Name="GalleryPreviewHost"
+				HorizontalContentAlignment="Stretch"
+				VerticalContentAlignment="Stretch" />
+
+			<ProgressRing
+				x:Name="GalleryPreviewLoading"
+				Width="32"
+				Height="32"
+				IsActive="False" />
+
+			<TextBlock
+				x:Name="GalleryPreviewPlaceholder"
+				HorizontalAlignment="Center"
+				VerticalAlignment="Center"
+				Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+				Text="{helpers:ResourceString Name=ConsystoGalleryNoSelection}" />
+
+			<TextBlock
+				x:Name="GalleryPreviewName"
+				Grid.Row="1"
+				HorizontalAlignment="Center"
+				FontWeight="SemiBold"
+				TextTrimming="CharacterEllipsis" />
+		</Grid>
 
 		<!--  Grouping/Ungrouping  -->
 		<SemanticZoom

@@ -251,6 +251,19 @@ namespace Files.App.Services.Settings
 			set => Set(value);
 		}
 
+		// Consysto fork: collections and OPDS catalogs sections
+		public bool IsCollectionsSectionExpanded
+		{
+			get => Get(true);
+			set => Set(value);
+		}
+
+		public bool IsOpdsCatalogsSectionExpanded
+		{
+			get => Get(true);
+			set => Set(value);
+		}
+
 		public bool MoveShellExtensionsToSubMenu
 		{
 			get => Get(true);

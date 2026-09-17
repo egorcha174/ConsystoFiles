@@ -24,6 +24,10 @@ namespace Files.App.Actions
 		public HotKey SecondHotKey
 			=> new(Keys.D, KeyModifiers.Alt);
 
+		// Consysto fork: Ctrl+Shift+G as "Go to Folder" in Finder
+		public HotKey ThirdHotKey
+			=> new(Keys.G, KeyModifiers.CtrlShift);
+
 		public RichGlyph Glyph
 			=> new(themedIconStyle: "App.ThemedIcons.Omnibar.Path");
 

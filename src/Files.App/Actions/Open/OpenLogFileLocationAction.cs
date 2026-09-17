@@ -19,7 +19,7 @@ namespace Files.App.Actions
 			=> ActionCategory.Open;
 
 		public HotKey HotKey
-			=> new(Keys.OemPeriod, KeyModifiers.CtrlShift);
+			=> HotKey.None; // Consysto fork: Ctrl+Shift+. toggles hidden items, as in Finder
 
 		public async Task ExecuteAsync(object? parameter = null)
 		{

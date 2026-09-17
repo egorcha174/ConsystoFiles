@@ -123,6 +123,8 @@ namespace Files.App.Views.Shells
 			CurrentPageType != typeof(HomePage) &&
 			CurrentPageType != typeof(ReleaseNotesPage) &&
 			CurrentPageType != typeof(SettingsPage) &&
+			CurrentPageType != typeof(Files.App.Books.Opds.OpdsPage) &&
+			CurrentPageType != typeof(Files.App.Books.Library.CollectionPage) &&
 			(PaneHolder is null || !PaneHolder.IsMultiPaneActive || Equals(PaneHolder.ActivePane, this));
 
 		protected TabBarItemParameter? _TabItemArguments;
@@ -582,6 +584,19 @@ namespace Files.App.Views.Shells
 
 		public async Task Refresh_Click()
 		{
+			// Consysto fork: an OPDS catalog page reloads itself, a collection reads its folders again
+			if (ItemDisplay.Content is Files.App.Books.Opds.OpdsPage opdsPage)
+			{
+				await opdsPage.ReloadAsync();
+				return;
+			}
+
+			if (ItemDisplay.Content is Files.App.Books.Library.CollectionPage libraryPage)
+			{
+				await libraryPage.ReloadAsync();
+				return;
+			}
+
 			if (InstanceViewModel.IsPageTypeSearchResults)
 			{
 				var shellViewModel = this.GetRequiredShellViewModel();
@@ -641,7 +656,8 @@ namespace Files.App.Views.Shells
 				if (entry.Parameter is NavigationArguments args &&
 					args.NavPathParam is not null and not "Home" &&
 					args.NavPathParam is not null and not "ReleaseNotes" &&
-					args.NavPathParam is not null and not "Settings")
+					args.NavPathParam is not null and not "Settings" &&
+					!Files.App.Books.Library.ConsystoPages.IsPagePath(args.NavPathParam))
 				{
 					var correctPageType = FolderSettings.GetLayoutType(args.NavPathParam, false);
 					if (!entry.SourcePageType.Equals(correctPageType))
@@ -659,7 +675,8 @@ namespace Files.App.Views.Shells
 				if (entry.Parameter is NavigationArguments args &&
 					args.NavPathParam is not null and not "Home" &&
 					args.NavPathParam is not null and not "ReleaseNotes" &&
-					args.NavPathParam is not null and not "Settings")
+					args.NavPathParam is not null and not "Settings" &&
+					!Files.App.Books.Library.ConsystoPages.IsPagePath(args.NavPathParam))
 				{
 					var correctPageType = FolderSettings.GetLayoutType(args.NavPathParam, false);
 					if (!entry.SourcePageType.Equals(correctPageType))
@@ -876,6 +893,8 @@ namespace Files.App.Views.Shells
 		public abstract void NavigateHome();
 
 		public abstract void NavigateToReleaseNotes();
+
+		public abstract void NavigateToConsystoPage(string path, string? pageAddress = null);
 
 		public abstract void NavigateToSettings(string? selectItem = null);
 

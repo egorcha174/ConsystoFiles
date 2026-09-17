@@ -110,6 +110,10 @@ namespace Files.App.UserControls.TabBar
 			if (sender is not TabViewItem { DataContext: TabBarItem { TabItemContent: { } tabContent } })
 				return;
 
+			// Consysto fork: a dragged tab is not a file drop; the tab strip reorders it on its own.
+			if (e.DataView.Properties.ContainsKey(TabPathIdentifier))
+				return;
+
 			await tabContent.TabItemDrop(sender, e);
 			HorizontalTabView.CanReorderTabs = true;
 			tabHoverTimer.Stop();
@@ -118,6 +122,12 @@ namespace Files.App.UserControls.TabBar
 		private async void TabViewItem_DragEnter(object sender, DragEventArgs e)
 		{
 			if (sender is not TabViewItem { DataContext: TabBarItem { TabItemContent: { } tabContent } } tabViewItem)
+				return;
+
+			// Consysto fork: dragging a tab across other tabs ran the file drop check below. Its async continuation touched
+			// DragEventArgs after the event had returned (E_POINTER, logged as NullReferenceException), which aborted the
+			// drag and left the tab faded in the strip. Tab drags only reorder, so skip the file logic for them.
+			if (e.DataView.Properties.ContainsKey(TabPathIdentifier))
 				return;
 
 			await tabContent.TabItemDragOver(sender, e);
@@ -397,11 +407,11 @@ namespace Files.App.UserControls.TabBar
 			if (HorizontalTabView.ActualWidth <= 0 && TabBarAddNewTabButton.Width <= 0)
 				await Task.Delay(100);
 
-			var titleBarInset = ((AppLanguageHelper.IsPreferredLanguageRtl
-				? MainWindow.Instance.AppWindow.TitleBar.LeftInset
-				: MainWindow.Instance.AppWindow.TitleBar.RightInset) / DragAreaRectangle.XamlRoot.RasterizationScale) + 40;
-
-			RightPaddingColumn.Width = new(titleBarInset > 40 ? titleBarInset : 138);
+			// Consysto fork: the caption buttons are hidden (traffic lights) and the tab row is no longer a window drag area
+			// (see MainPage), so the strip reserves no right padding. Upstream adds it after the first layout, which left
+			// the Safari-style full-width tabs overflowing into scroll buttons.
+			var titleBarInset = 0d;
+			RightPaddingColumn.Width = new(titleBarInset);
 			HorizontalTabView.Measure(new(
 				Math.Max(0, HorizontalTabView.ActualWidth - TabBarAddNewTabButton.Width - titleBarInset),
 				Math.Max(0, HorizontalTabView.ActualHeight)));

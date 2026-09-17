@@ -1,4 +1,4 @@
-// Copyright (c) Files Community
+﻿// Copyright (c) Files Community
 // SPDX-License-Identifier: MPL-2.0
 
 namespace Files.App.Data.Items
@@ -34,6 +34,12 @@ namespace Files.App.Data.Items
 					new(commandCode: nameof(CommandCodes.ShareItem)),
 					new(commandCode: nameof(CommandCodes.DeleteItem)),
 					new(commandCode: nameof(CommandCodes.OpenProperties)),
+					new(commandCode: ToolbarItemDescriptor.SeparatorCommandCode, showIcon: false),
+					// Consysto fork: window commands, so the toolbar is not empty on Home.
+					new(commandCode: nameof(CommandCodes.NewTab)),
+					new(commandCode: nameof(CommandCodes.ToggleDualPane)),
+					new(commandCode: nameof(CommandCodes.SwapPanes)),
+					new(commandCode: nameof(CommandCodes.ToggleInfoPane)),
 				],
 				[ArchiveFilesContextId] = [new(commandGroup: nameof(CommandGroups.Extract), showLabel: true)],
 				[BatchFilesContextId] = [new(commandCode: nameof(CommandCodes.EditInNotepad), showLabel: true)],

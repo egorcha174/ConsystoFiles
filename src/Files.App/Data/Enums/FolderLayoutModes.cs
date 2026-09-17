@@ -31,8 +31,13 @@ namespace Files.App.Data.Enums
 		GridView = 4,
 
 		/// <summary>
-		/// Adaptive view 
+		/// Adaptive view
 		/// </summary>
-		Adaptive = 5
+		Adaptive = 5,
+
+		/// <summary>
+		/// Consysto fork: gallery view, a large preview of the selected item above a row of thumbnails
+		/// </summary>
+		GalleryView = 6
 	}
 }

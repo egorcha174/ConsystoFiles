@@ -26,6 +26,13 @@ namespace Files.App.Actions
 		public HotKey HotKey
 			=> new(Keys.Enter);
 
+		// Consysto fork: F4 as in Commander One, Ctrl+Down as Cmd+Down in Finder
+		public HotKey SecondHotKey
+			=> new(Keys.F4);
+
+		public HotKey ThirdHotKey
+			=> new(Keys.Down, KeyModifiers.Ctrl);
+
 
 		public bool IsExecutable =>
 			context.HasSelection &&

@@ -1,0 +1,184 @@
+﻿<!--  Consysto fork: one backup pair — check what would be copied, then copy it.  -->
+<Page
+	x:Class="Files.App.Sync.SyncPage"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:helpers="using:Files.App.Helpers"
+	xmlns:sync="using:Files.App.Sync">
+
+	<Grid Padding="24,16" RowSpacing="12">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+
+		<!--  Title, the two folders, and the pair's own commands  -->
+		<Grid ColumnSpacing="12">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="Auto" />
+			</Grid.ColumnDefinitions>
+			<StackPanel Spacing="4">
+				<TextBlock x:Name="PageTitle" Style="{StaticResource SubtitleTextBlockStyle}" />
+				<StackPanel Orientation="Horizontal" Spacing="8">
+					<HyperlinkButton
+						x:Name="SourceLink"
+						Padding="0"
+						Click="SourceLink_Click" />
+					<FontIcon
+						FontSize="12"
+						Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+						Glyph="&#xE72A;" />
+					<HyperlinkButton
+						x:Name="TargetLink"
+						Padding="0"
+						Click="TargetLink_Click" />
+				</StackPanel>
+				<TextBlock
+					x:Name="LastRunText"
+					Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+					Style="{StaticResource CaptionTextBlockStyle}" />
+			</StackPanel>
+			<StackPanel
+				Grid.Column="1"
+				VerticalAlignment="Top"
+				Orientation="Horizontal"
+				Spacing="8">
+				<Button Click="Edit_Click" Content="{helpers:ResourceString Name=ConsystoSyncEdit}" />
+				<Button Click="RemovePair_Click" Content="{helpers:ResourceString Name=ConsystoSyncRemovePair}" />
+			</StackPanel>
+		</Grid>
+
+		<!--  Check, run, cancel  -->
+		<StackPanel
+			Grid.Row="1"
+			Orientation="Horizontal"
+			Spacing="8">
+			<Button
+				x:Name="ScanButton"
+				Click="Scan_Click"
+				Content="{helpers:ResourceString Name=ConsystoSyncScan}" />
+			<Button
+				x:Name="RunButton"
+				Click="Run_Click"
+				Content="{helpers:ResourceString Name=ConsystoSyncRun}"
+				IsEnabled="False"
+				Style="{StaticResource AccentButtonStyle}" />
+			<Button
+				x:Name="CancelButton"
+				Click="Cancel_Click"
+				Content="{helpers:ResourceString Name=Cancel}"
+				Visibility="Collapsed" />
+			<CheckBox
+				x:Name="IncludeTargetNewerBox"
+				Margin="12,0,0,0"
+				Click="IncludeTargetNewer_Click"
+				Content="{helpers:ResourceString Name=ConsystoSyncIncludeTargetNewer}" />
+		</StackPanel>
+
+		<!--  Progress of a check or a copy  -->
+		<StackPanel
+			x:Name="ProgressPanel"
+			Grid.Row="2"
+			MaxWidth="720"
+			HorizontalAlignment="Left"
+			Spacing="2"
+			Visibility="Collapsed">
+			<ProgressBar x:Name="ProgressBar" MinWidth="420" />
+			<TextBlock
+				x:Name="ProgressText"
+				Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+				Style="{StaticResource CaptionTextBlockStyle}" />
+			<TextBlock
+				x:Name="ProgressPath"
+				MaxLines="1"
+				Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+				Style="{StaticResource CaptionTextBlockStyle}"
+				TextTrimming="CharacterEllipsis" />
+		</StackPanel>
+
+		<!--  What the check found  -->
+		<StackPanel Grid.Row="3" Spacing="8">
+			<InfoBar
+				x:Name="ResultBar"
+				IsClosable="True"
+				IsOpen="False" />
+			<SelectorBar x:Name="KindTabs" SelectionChanged="KindTabs_SelectionChanged">
+				<SelectorBarItem
+					x:Name="AllTab"
+					IsSelected="True"
+					Tag="All" />
+				<SelectorBarItem x:Name="NewTab" Tag="New" />
+				<SelectorBarItem x:Name="ChangedTab" Tag="Changed" />
+				<SelectorBarItem x:Name="TargetNewerTab" Tag="TargetNewer" />
+			</SelectorBar>
+		</StackPanel>
+
+		<ListView
+			x:Name="ItemList"
+			Grid.Row="4"
+			SelectionMode="None">
+			<ListView.ItemContainerStyle>
+				<Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
+					<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+					<Setter Property="MinHeight" Value="28" />
+				</Style>
+			</ListView.ItemContainerStyle>
+			<ListView.ItemTemplate>
+				<DataTemplate x:DataType="sync:BackupRow">
+					<Grid Height="28" ColumnSpacing="12">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="120" />
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="100" />
+							<ColumnDefinition Width="150" />
+							<ColumnDefinition Width="150" />
+						</Grid.ColumnDefinitions>
+						<TextBlock
+							VerticalAlignment="Center"
+							FontSize="12"
+							Foreground="{x:Bind KindBrush}"
+							Text="{x:Bind KindText}" />
+						<TextBlock
+							Grid.Column="1"
+							VerticalAlignment="Center"
+							FontSize="12"
+							Text="{x:Bind Path}"
+							TextTrimming="CharacterEllipsis"
+							ToolTipService.ToolTip="{x:Bind Path}" />
+						<TextBlock
+							Grid.Column="2"
+							VerticalAlignment="Center"
+							FontSize="12"
+							Text="{x:Bind SizeText}"
+							TextAlignment="Right" />
+						<TextBlock
+							Grid.Column="3"
+							VerticalAlignment="Center"
+							FontSize="12"
+							Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+							Text="{x:Bind SourceTimeText}" />
+						<TextBlock
+							Grid.Column="4"
+							VerticalAlignment="Center"
+							FontSize="12"
+							Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+							Text="{x:Bind TargetTimeText}" />
+					</Grid>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+
+		<TextBlock
+			x:Name="HintText"
+			Grid.Row="4"
+			Margin="0,24"
+			HorizontalAlignment="Center"
+			Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+			Text="{helpers:ResourceString Name=ConsystoSyncHint}"
+			TextWrapping="Wrap" />
+	</Grid>
+</Page>

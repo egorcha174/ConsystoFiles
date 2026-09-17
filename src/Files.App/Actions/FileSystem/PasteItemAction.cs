@@ -54,6 +54,7 @@ namespace Files.App.Actions
 		{
 			return
 				App.AppModel.IsPasteEnabled &&
+				!Files.App.Cad.InventorAssemblyPaths.IsShowingAssembly(context.ShellPage) &&
 				context.PageType != ContentPageTypes.Home &&
 				context.PageType != ContentPageTypes.RecycleBin &&
 				context.PageType != ContentPageTypes.SearchResults &&

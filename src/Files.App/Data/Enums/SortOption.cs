@@ -65,6 +65,41 @@ namespace Files.App.Data.Enums
 		/// <remarks>
 		/// Preserved for search results.
 		/// </remarks>
-		Path = 9
+		Path = 9,
+
+		/// <summary>
+		/// Sort by file extension (Consysto fork, details view extension column).
+		/// </summary>
+		FileExtension = 10,
+
+		/// <summary>
+		/// Sort by book author (Consysto fork, details view book columns).
+		/// </summary>
+		BookAuthor = 11,
+
+		/// <summary>
+		/// Sort by book series, then by the position in it (Consysto fork, details view book columns).
+		/// </summary>
+		BookSeries = 12,
+
+		/// <summary>
+		/// Sort by the part number of Inventor documents (Consysto fork, details view Inventor columns).
+		/// </summary>
+		CadPartNumber = 13,
+
+		/// <summary>
+		/// Sort by the material of Inventor documents (Consysto fork, details view Inventor columns).
+		/// </summary>
+		CadMaterial = 14,
+
+		/// <summary>
+		/// Sort by the mass of Inventor documents (Consysto fork, details view Inventor columns).
+		/// </summary>
+		CadMass = 15,
+
+		/// <summary>
+		/// Sort by the program version that wrote a drawing or model (Consysto fork, details view CAD columns).
+		/// </summary>
+		CadVersion = 16
 	}
 }

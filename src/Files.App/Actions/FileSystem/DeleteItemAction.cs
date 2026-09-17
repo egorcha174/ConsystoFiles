@@ -30,6 +30,13 @@ namespace Files.App.Actions
 		public HotKey SecondHotKey
 			=> new(Keys.D, KeyModifiers.Ctrl);
 
+		// Consysto fork: F8 as in Commander One, Ctrl+Backspace as Cmd+Backspace in Finder
+		public HotKey ThirdHotKey
+			=> new(Keys.F8);
+
+		public HotKey MediaHotKey
+			=> new(Keys.Back, KeyModifiers.Ctrl);
+
 		public Task ExecuteAsync(object? parameter = null)
 		{
 			return DeleteItemsAsync(false);

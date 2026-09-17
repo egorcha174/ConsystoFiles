@@ -140,6 +140,21 @@
 
                 <Extension Category="windows.updateTask" EntryPoint="Files.App.BackgroundTasks.UpdateTask" />
 
+                <!--  Consysto fork: torrent downloads  -->
+                <uap:Extension Category="windows.protocol">
+                    <uap:Protocol ReturnResults="none" Name="magnet">
+                        <uap:DisplayName>Consysto Files</uap:DisplayName>
+                    </uap:Protocol>
+                </uap:Extension>
+                <uap:Extension Category="windows.fileTypeAssociation">
+                    <uap:FileTypeAssociation Name="torrents">
+                        <uap:SupportedFileTypes>
+                            <uap:FileType>.torrent</uap:FileType>
+                        </uap:SupportedFileTypes>
+                        <uap:DisplayName>Torrent</uap:DisplayName>
+                    </uap:FileTypeAssociation>
+                </uap:Extension>
+
                 <uap:Extension Category="windows.fileTypeAssociation">
                     <uap:FileTypeAssociation Name="archives">
                         <uap:SupportedFileTypes>

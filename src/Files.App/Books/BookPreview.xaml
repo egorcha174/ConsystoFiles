@@ -1,0 +1,61 @@
+﻿<!--  Consysto fork: book preview (cover, title, authors, series, annotation).  -->
+<UserControl
+	x:Class="Files.App.Books.BookPreview"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+		<Grid x:Name="LayoutRoot" Padding="12" RowSpacing="12">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition x:Name="CoverColumn" Width="*" />
+				<ColumnDefinition x:Name="TextColumn" Width="0" />
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+
+			<Border
+				x:Name="CoverBorder"
+				HorizontalAlignment="Center"
+				VerticalAlignment="Top"
+				CornerRadius="{StaticResource ControlCornerRadius}">
+				<Image
+					x:Name="CoverPicture"
+					MaxHeight="360"
+					Source="{x:Bind ViewModel.CoverImage, Mode=OneWay}"
+					Stretch="Uniform" />
+			</Border>
+
+			<StackPanel
+				x:Name="TextPanel"
+				Grid.Row="1"
+				Spacing="4">
+				<TextBlock
+					IsTextSelectionEnabled="True"
+					Style="{StaticResource SubtitleTextBlockStyle}"
+					Text="{x:Bind ViewModel.TitleText}"
+					TextWrapping="WrapWholeWords" />
+				<TextBlock
+					x:Name="AuthorsBlock"
+					Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+					IsTextSelectionEnabled="True"
+					Style="{StaticResource BodyStrongTextBlockStyle}"
+					Text="{x:Bind ViewModel.AuthorsText}"
+					TextWrapping="WrapWholeWords" />
+				<TextBlock
+					x:Name="SeriesBlock"
+					Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+					Style="{StaticResource CaptionTextBlockStyle}"
+					Text="{x:Bind ViewModel.SeriesText}"
+					TextWrapping="WrapWholeWords" />
+				<TextBlock
+					x:Name="AnnotationBlock"
+					Margin="0,8,0,0"
+					IsTextSelectionEnabled="True"
+					Style="{StaticResource BodyTextBlockStyle}"
+					Text="{x:Bind ViewModel.Annotation}"
+					TextWrapping="Wrap" />
+			</StackPanel>
+		</Grid>
+	</ScrollViewer>
+</UserControl>

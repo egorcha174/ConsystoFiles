@@ -12,5 +12,8 @@ namespace Files.App.Data.Contexts
 		Grid,
 		Columns,
 		Adaptive,
+
+		// Consysto fork
+		Gallery,
 	}
 }
