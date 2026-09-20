@@ -22,6 +22,23 @@ namespace Files.App.Terminal
 		{
 			InitializeComponent();
 			Unloaded += Page_Unloaded;
+
+			// Copying and pasting are caught by the window: the keys do not reach the web view, and a Russian layout turns
+			// Ctrl+C and Ctrl+V into other letters anyway. Here they are the keys themselves, whatever the layout.
+			KeyboardAccelerators.Add(NewAccelerator(Windows.System.VirtualKey.V, async () => await PasteFromClipboardAsync()));
+			KeyboardAccelerators.Add(NewAccelerator(Windows.System.VirtualKey.C, () => Post("copy", string.Empty)));
+		}
+
+		private static Microsoft.UI.Xaml.Input.KeyboardAccelerator NewAccelerator(Windows.System.VirtualKey key, Action invoke)
+		{
+			var accelerator = new Microsoft.UI.Xaml.Input.KeyboardAccelerator { Key = key, Modifiers = Windows.System.VirtualKeyModifiers.Control };
+			accelerator.Invoked += (_, args) =>
+			{
+				args.Handled = true;
+				invoke();
+			};
+
+			return accelerator;
 		}
 
 		protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -34,6 +51,14 @@ namespace Files.App.Terminal
 			terminalPath = arguments.NavPathParam ?? string.Empty;
 			await UpdateShellAsync();
 
+			// The terminal draws in a web view, which Windows 11 always has and Windows 10 may not: say so plainly instead of
+			// showing an empty tab with a puzzling error from deep inside the component.
+			if (!IsWebViewInstalled())
+			{
+				ShowError(Strings.ConsystoTerminalNeedsWebView.GetLocalizedResource());
+				return;
+			}
+
 			try
 			{
 				await View.EnsureCoreWebView2Async();
@@ -41,11 +66,18 @@ namespace Files.App.Terminal
 				core.Settings.AreDevToolsEnabled = false;
 				core.Settings.AreDefaultContextMenusEnabled = false;
 				core.Settings.IsStatusBarEnabled = false;
+
+				// Ctrl+C, Ctrl+V, Ctrl+F and the rest belong to the terminal, not to the browser engine that draws it:
+				// otherwise the engine takes them first and the terminal never sees them
+				core.Settings.AreBrowserAcceleratorKeysEnabled = false;
 				core.SetVirtualHostNameToFolderMapping(
 					HostName,
 					Path.Combine(AppContext.BaseDirectory, "Assets", "Consysto", "Terminal"),
 					CoreWebView2HostResourceAccessKind.DenyCors);
 				core.WebMessageReceived += Core_WebMessageReceived;
+
+				// Opening a terminal means wanting to type in it: the keyboard goes there at once, without a click first
+				core.NavigationCompleted += (_, _) => FocusTerminal();
 
 				var theme = ActualTheme == ElementTheme.Light ? "light" : "dark";
 				core.Navigate($"https://{HostName}/terminal.html?theme={theme}");
@@ -88,7 +120,42 @@ namespace Files.App.Terminal
 				case "resize":
 					session?.Resize(ReadSize(root, "columns"), ReadSize(root, "rows"));
 					break;
+				// The clipboard is handled here: the browser engine of the view is not allowed to read it on its own
+				case "selection":
+					var selected = root.GetProperty("data").GetString() ?? string.Empty;
+					if (selected.Length > 0)
+						DispatcherQueue.TryEnqueue(() => CopyToClipboard(selected));
+					break;
+				case "pasteRequest":
+					DispatcherQueue.TryEnqueue(async () => await PasteFromClipboardAsync());
+					break;
+				case "menu":
+					// The web view has no menu of its own here, so the tab shows one with the few things a terminal needs
+					var hasSelection = root.TryGetProperty("hasSelection", out var selection) && selection.GetBoolean();
+					DispatcherQueue.TryEnqueue(() => ShowMenu(hasSelection));
+					break;
 			}
+		}
+
+		private void ShowMenu(bool hasSelection)
+		{
+			var menu = new MenuFlyout();
+			menu.Items.Add(NewItem(Strings.Copy.GetLocalizedResource(), "copy", hasSelection));
+			menu.Items.Add(NewItem(Strings.Paste.GetLocalizedResource(), "paste", true));
+			menu.Items.Add(NewItem(Strings.SelectAll.GetLocalizedResource(), "selectAll", true));
+			menu.Items.Add(new MenuFlyoutSeparator());
+			menu.Items.Add(NewItem(Strings.ConsystoTerminalClear.GetLocalizedResource(), "clear", true));
+			menu.ShowAt(View, new Microsoft.UI.Xaml.Controls.Primitives.FlyoutShowOptions
+			{
+				Placement = Microsoft.UI.Xaml.Controls.Primitives.FlyoutPlacementMode.Auto,
+			});
+		}
+
+		private MenuFlyoutItem NewItem(string text, string command, bool enabled)
+		{
+			var item = new MenuFlyoutItem { Text = text, IsEnabled = enabled };
+			item.Click += (_, _) => Post(command, string.Empty);
+			return item;
 		}
 
 		private static short ReadSize(JsonElement root, string name)
@@ -143,6 +210,52 @@ namespace Files.App.Terminal
 				{
 				}
 			});
+		}
+
+		private static void CopyToClipboard(string text)
+		{
+			var package = new Windows.ApplicationModel.DataTransfer.DataPackage();
+			package.SetText(text);
+			Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(package);
+		}
+
+		/// <summary>What is on the clipboard goes straight into the shell, as if it had been typed.</summary>
+		private async Task PasteFromClipboardAsync()
+		{
+			try
+			{
+				var content = Windows.ApplicationModel.DataTransfer.Clipboard.GetContent();
+				if (!content.Contains(Windows.ApplicationModel.DataTransfer.StandardDataFormats.Text))
+					return;
+
+				var text = await content.GetTextAsync();
+				if (!string.IsNullOrEmpty(text))
+					session?.Write(text.ReplaceLineEndings("\r"));
+			}
+			catch (Exception ex)
+			{
+				App.Logger.LogWarning(ex, "The clipboard could not be read for the terminal");
+			}
+		}
+
+		/// <summary>Gives the keyboard to the terminal: the view takes the focus, the page puts the cursor into the shell.</summary>
+		private void FocusTerminal()
+			=> DispatcherQueue.TryEnqueue(() =>
+			{
+				View.Focus(FocusState.Programmatic);
+				Post("focus", string.Empty);
+			});
+
+		private static bool IsWebViewInstalled()
+		{
+			try
+			{
+				return !string.IsNullOrEmpty(CoreWebView2Environment.GetAvailableBrowserVersionString());
+			}
+			catch (Exception)
+			{
+				return false;
+			}
 		}
 
 		private void ShowError(string text)

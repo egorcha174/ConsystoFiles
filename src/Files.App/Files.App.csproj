@@ -45,6 +45,32 @@
         <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
     </PropertyGroup>
 
+    <!-- Consysto fork: portable build (-p:ConsystoPortable=true) — no package, Windows App SDK carried in the folder -->
+    <PropertyGroup Condition="'$(ConsystoPortable)' == 'true'">
+        <WindowsPackageType>None</WindowsPackageType>
+        <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+        <DefineConstants>$(DefineConstants);CONSYSTO_PORTABLE</DefineConstants>
+    </PropertyGroup>
+
+    <!-- Consysto fork: build for screenshots (-p:ConsystoDemo=true) — invented names of disks and of the computer.
+         Never used for anything given to other people: the release scripts do not set it. -->
+    <PropertyGroup Condition="'$(ConsystoDemo)' == 'true'">
+        <DefineConstants>$(DefineConstants);CONSYSTO_DEMO</DefineConstants>
+    </PropertyGroup>
+
+    <!-- Without a package, XAML of class libraries is looked up next to Files.exe rather than in the library's folder -->
+    <Target Name="ConsystoPortableLibraryXaml" AfterTargets="Build" Condition="'$(ConsystoPortable)' == 'true'">
+        <ItemGroup>
+            <_ConsystoControlsXaml Include="$(OutDir)Files.App.Controls\**\*.xbf" />
+        </ItemGroup>
+        <Copy SourceFiles="@(_ConsystoControlsXaml)" DestinationFiles="@(_ConsystoControlsXaml->'$(OutDir)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+
+        <!-- Without a package the resource loader looks for resources.pri beside the program and for nothing else. The build
+             names that file after the assembly, so it is copied under the name Windows expects; otherwise every caption of the
+             program comes back empty on a computer where no build of Files is installed. -->
+        <Copy SourceFiles="$(OutDir)Files.pri" DestinationFiles="$(OutDir)resources.pri" SkipUnchangedFiles="true" Condition="Exists('$(OutDir)Files.pri')" />
+    </Target>
+
     <PropertyGroup Condition="'$(SENTRY_AUTH_TOKEN)' != ''">
         <SentryOrg>files-org</SentryOrg>
         <SentryProject>files-app</SentryProject>
@@ -189,3 +215,4 @@
                  Properties="Configuration=$(Configuration);Platform=$(Platform)" />
     </Target>
 </Project>
+

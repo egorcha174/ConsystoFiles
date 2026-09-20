@@ -1,4 +1,4 @@
-﻿// Copyright (c) Files Community
+// Copyright (c) Files Community
 // Licensed under the MIT License.
 
 using Jeffijoe.MessageFormat;
@@ -17,7 +17,7 @@ namespace Files.App.Extensions
 		/// Resource map for accessing localized strings.
 		/// It is initialized with the main resource map of the application's resources and the subtree "Resources".
 		/// </summary>
-		private static readonly ResourceMap _resourcesTree = new ResourceManager().MainResourceMap.TryGetSubtree("Resources");
+		private static readonly ResourceMap _resourcesTree = AppStorage.CreateResourceManager().MainResourceMap.TryGetSubtree("Resources");
 
 		/// <summary>
 		/// CultureInfo based on the application's primary language override.

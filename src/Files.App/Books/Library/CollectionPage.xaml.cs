@@ -387,7 +387,7 @@ namespace Files.App.Books.Library
 		{
 			try
 			{
-				return ApplicationData.Current.LocalSettings.Values[ViewSettingKey] as string != "list";
+				return AppStorage.LocalSettings[ViewSettingKey] as string != "list";
 			}
 			catch (Exception ex)
 			{
@@ -400,7 +400,7 @@ namespace Files.App.Books.Library
 		{
 			try
 			{
-				ApplicationData.Current.LocalSettings.Values[ViewSettingKey] = PrefersTiles() ? "list" : "tiles";
+				AppStorage.LocalSettings[ViewSettingKey] = PrefersTiles() ? "list" : "tiles";
 			}
 			catch (Exception ex)
 			{

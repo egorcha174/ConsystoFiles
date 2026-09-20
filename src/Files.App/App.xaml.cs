@@ -269,7 +269,7 @@ namespace Files.App
 				args.WindowActivationState != WindowActivationState.PointerActivated)
 				return;
 
-			ApplicationData.Current.LocalSettings.Values["INSTANCE_ACTIVE"] = -Environment.ProcessId;
+			AppStorage.LocalSettings["INSTANCE_ACTIVE"] = -Environment.ProcessId;
 
 			// Reclaim the tray icon if a sibling instance's exit removed the shared-GUID icon
 			SystemTrayIcon?.EnsureCreated();
@@ -338,7 +338,7 @@ namespace Files.App
 
 				try
 				{
-					return p.MainModule?.FileName.StartsWith(Package.Current.EffectivePath, StringComparison.OrdinalIgnoreCase) ?? false;
+					return p.MainModule?.FileName.StartsWith(AppStorage.EffectivePath, StringComparison.OrdinalIgnoreCase) ?? false;
 				}
 				catch
 				{
@@ -372,7 +372,7 @@ namespace Files.App
 				await FilePropertiesHelpers.WaitClosingAll();
 
 				// Claim INSTANCE_ACTIVE before parking; it may still name an already-exited sibling
-				ApplicationData.Current.LocalSettings.Values["INSTANCE_ACTIVE"] = -Environment.ProcessId;
+				AppStorage.LocalSettings["INSTANCE_ACTIVE"] = -Environment.ProcessId;
 
 				// Sleep current instance
 				Program.Pool = new(0, 1, $"Files-{AppLifecycleHelper.AppEnvironment}-Instance");
@@ -421,7 +421,7 @@ namespace Files.App
 			SafetyExtensions.IgnoreExceptions(() =>
 			{
 				var dataPackage = Clipboard.GetContent();
-				if (dataPackage.Properties.PackageFamilyName == Package.Current.Id.FamilyName)
+				if (dataPackage.Properties.PackageFamilyName == AppStorage.PackageFamilyName)
 				{
 					if (dataPackage.Contains(StandardDataFormats.StorageItems))
 						Clipboard.Flush();

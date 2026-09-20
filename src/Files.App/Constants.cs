@@ -167,15 +167,17 @@ namespace Files.App
 
 		public static class ExternalUrl
 		{
-			public const string GitHubRepoUrl = @"https://github.com/files-community/Files";
-			public const string DocumentationUrl = @"https://files.community/docs";
-			public const string DiscordUrl = @"https://discord.gg/files";
-			public const string FeatureRequestUrl = @"https://discord.gg/files";
-			public const string BugReportUrl = @"https://github.com/files-community/Files/issues/new?labels=bug&template=bug_report.yml";
+			public const string GitHubRepoUrl = @"https://github.com/egorcha174/ConsystoFiles";
+			// Consysto fork: the documentation of this build is its README; the upstream docs describe a different program
+			public const string DocumentationUrl = @"https://github.com/egorcha174/ConsystoFiles#readme";
+			// Discussions of this fork live with its code; the upstream chat is not ours to send people to
+			public const string DiscordUrl = @"https://github.com/egorcha174/ConsystoFiles/discussions";
+			public const string FeatureRequestUrl = @"https://github.com/egorcha174/ConsystoFiles/issues/new";
+			public const string BugReportUrl = @"https://github.com/egorcha174/ConsystoFiles/issues/new";
 			public const string PrivacyPolicyUrl = @"https://files.community/privacy";
 			public const string SupportUsUrl = @"https://files.community/sponsor";
 			public const string CrowdinUrl = @"https://crowdin.com/project/files-app";
-			public static readonly string ReleaseNotesUrl = $"https://files.community/blog/posts/v{Package.Current.Id.Version.Major}-{Package.Current.Id.Version.Minor}-{Package.Current.Id.Version.Build}?minimal";
+			public static readonly string ReleaseNotesUrl = @"https://github.com/egorcha174/ConsystoFiles/releases";
 		}
 
 		public static class DocsPath

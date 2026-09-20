@@ -1,6 +1,7 @@
 // Copyright (c) Files Community
 // Licensed under the MIT License.
 
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using System.Windows.Input;
 using Windows.ApplicationModel;
@@ -26,10 +27,10 @@ namespace Files.App.ViewModels.Settings
 			=> string.Format($"{Strings.SettingsAboutVersionTitle.GetLocalizedResource()} {AppVersion.Major}.{AppVersion.Minor}.{AppVersion.Build}.{AppVersion.Revision}");
 
 		public string AppName
-			=> Package.Current.DisplayName;
+			=> AppStorage.DisplayName;
 
 		public PackageVersion AppVersion
-			=> Package.Current.Id.Version;
+			=> AppStorage.PackageVersion;
 
 		public ObservableCollection<OpenSourceLibraryItem> OpenSourceLibraries { get; }
 
@@ -47,6 +48,9 @@ namespace Files.App.ViewModels.Settings
 		public ICommand OpenGitHubRepoCommand { get; }
 		public ICommand OpenPrivacyPolicyCommand { get; }
 		public ICommand OpenCrowdinCommand { get; }
+
+		/// <summary>Consysto fork: saves the log and a note about the computer to the desktop, and shows the file.</summary>
+		public ICommand SaveErrorReportCommand { get; }
 
 		// Constructor
 
@@ -92,13 +96,31 @@ namespace Files.App.ViewModels.Settings
 			OpenPrivacyPolicyCommand = new AsyncRelayCommand(DoOpenPrivacyPolicy);
 			OpenLogLocationCommand = new AsyncRelayCommand(OpenLogLocation);
 			OpenCrowdinCommand = new AsyncRelayCommand(DoOpenCrowdin);
+			SaveErrorReportCommand = new AsyncRelayCommand(SaveErrorReport);
 		}
 
 		// Methods
 
+		/// <summary>
+		/// Consysto fork: nothing leaves the computer here. The report lands on the desktop and Explorer opens with it
+		/// selected, so the user can look inside before attaching it to anything.
+		/// </summary>
+		private async Task SaveErrorReport()
+		{
+			try
+			{
+				var report = await Task.Run(ErrorReportHelper.Save);
+				using var explorer = System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{report}\"");
+			}
+			catch (Exception ex)
+			{
+				App.Logger?.LogWarning(ex, "Could not save the error report");
+			}
+		}
+
 		private async Task<bool> OpenLogLocation()
 		{
-			await Launcher.LaunchFolderAsync(ApplicationData.Current.LocalFolder).AsTask();
+			await Launcher.LaunchFolderAsync(await AppStorage.GetLocalFolderAsync()).AsTask();
 
 			// TODO: Move this to an application service
 			// Detect if Files is set as the default file manager

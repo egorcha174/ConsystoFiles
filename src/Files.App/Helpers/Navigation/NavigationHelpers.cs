@@ -376,7 +376,8 @@ namespace Files.App.Helpers
 					(windowTitle, _, _) = await GetSelectedTabInfoAsync(pathArgs);
 
 				if (navigationArg == MainPageViewModel.SelectedTabItem?.NavigationParameter?.NavigationParameter)
-					MainWindow.Instance.AppWindow.Title = $"{windowTitle} - Files";
+					// Consysto fork: the name of this build, not of the project it grew from
+					MainWindow.Instance.AppWindow.Title = $"{windowTitle} - {AppStorage.DisplayName}";
 			});
 		}
 
@@ -397,6 +398,10 @@ namespace Files.App.Helpers
 			if (string.IsNullOrWhiteSpace(path))
 				return Task.FromResult(false);
 
+			// Consysto fork: the portable build has no address of its own registered in Windows, so it starts a second copy
+			if (AppStorage.IsPortable)
+				return Task.FromResult(PortableLauncher.OpenWindow(path));
+
 			var folderUri = new Uri($"files-dev:?folder={Uri.EscapeDataString(path)}");
 
 			return Launcher.LaunchUriAsync(folderUri).AsTask();
@@ -404,6 +409,10 @@ namespace Files.App.Helpers
 
 		public static Task<bool> OpenTabInNewWindowAsync(string tabArgs, int? dropX = null, int? dropY = null)
 		{
+			// Consysto fork: a torn-off tab of the portable build becomes a window on the same folder
+			if (AppStorage.IsPortable)
+				return Task.FromResult(PortableLauncher.OpenWindow(TabBarItemParameter.Deserialize(tabArgs)?.NavigationParameter as string));
+
 			var drop = dropX is int x && dropY is int y ? $"&x={x}&y={y}" : "";
 			return Launcher.LaunchUriAsync(new Uri($"files-dev:?tab={Uri.EscapeDataString(tabArgs)}{drop}")).AsTask();
 		}
@@ -420,6 +429,9 @@ namespace Files.App.Helpers
 
 		public static Task LaunchNewWindowAsync()
 		{
+			if (AppStorage.IsPortable)
+				return Task.FromResult(PortableLauncher.OpenWindow());
+
 			return Launcher.LaunchUriAsync(new Uri("files-dev:?window=")).AsTask();
 		}
 

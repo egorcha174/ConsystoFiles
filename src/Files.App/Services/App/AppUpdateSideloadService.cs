@@ -29,13 +29,13 @@ namespace Files.App.Services
 
 		private ILogger? Logger { get; } = Ioc.Default.GetRequiredService<ILogger<App>>();
 
-		private string PackageName { get; } = Package.Current.Id.Name;
+		private string PackageName { get; } = AppStorage.PackageName;
 
 		private Version PackageVersion { get; } = new(
-			Package.Current.Id.Version.Major,
-			Package.Current.Id.Version.Minor,
-			Package.Current.Id.Version.Build,
-			Package.Current.Id.Version.Revision);
+			AppStorage.PackageVersion.Major,
+			AppStorage.PackageVersion.Minor,
+			AppStorage.PackageVersion.Build,
+			AppStorage.PackageVersion.Revision);
 
 		private bool _isUpdateAvailable;
 		public bool IsUpdateAvailable
@@ -163,7 +163,7 @@ namespace Files.App.Services
 					catch { }
 				}
 
-				var srcExeFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/FilesOpenDialog/Files.App.Launcher.exe"));
+				var srcExeFile = await AppStorage.GetAppFileAsync(new Uri("ms-appx:///Assets/FilesOpenDialog/Files.App.Launcher.exe"));
 				var destFolder = await StorageFolder.GetFolderFromPathAsync(destFolderPath);
 
 				await srcExeFile.CopyAsync(destFolder, "Files.App.Launcher.exe", NameCollisionOption.ReplaceExisting);

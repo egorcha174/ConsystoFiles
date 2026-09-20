@@ -23,7 +23,7 @@ namespace Files.App.Actions
 
 		public async Task ExecuteAsync(object? parameter = null)
 		{
-			await Launcher.LaunchFolderAsync(ApplicationData.Current.LocalFolder).AsTask();
+			await Launcher.LaunchFolderAsync(await AppStorage.GetLocalFolderAsync()).AsTask();
 		}
 	}
 }

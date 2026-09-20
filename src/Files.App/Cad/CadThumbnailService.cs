@@ -24,7 +24,7 @@ namespace Files.App.Cad
 
 		private static readonly Lazy<string> cacheDirectory = new(() =>
 		{
-			var directory = SystemIO.Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "cad-thumbnails");
+			var directory = SystemIO.Path.Combine(AppStorage.LocalCacheFolderPath, "cad-thumbnails");
 			SystemIO.Directory.CreateDirectory(directory);
 			return directory;
 		});

@@ -48,7 +48,7 @@ namespace Files.App.Sync
 		public static readonly string[] DefaultExclusions = ["OldVersions", "~$*", "*.lck", "Thumbs.db", "desktop.ini"];
 
 		private static string StoragePath
-			=> SystemIO.Path.Combine(ApplicationData.Current.LocalFolder.Path, "sync-pairs.json");
+			=> SystemIO.Path.Combine(AppStorage.LocalFolderPath, "sync-pairs.json");
 
 		private readonly List<SyncPair> pairs = [];
 		private bool isLoaded;

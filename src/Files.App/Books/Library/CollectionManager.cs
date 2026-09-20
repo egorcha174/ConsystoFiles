@@ -105,10 +105,10 @@ namespace Files.App.Books.Library
 		}
 
 		private static string SettingsPath
-			=> SystemIO.Path.Combine(ApplicationData.Current.LocalFolder.Path, "collections.json");
+			=> SystemIO.Path.Combine(AppStorage.LocalFolderPath, "collections.json");
 
 		private static string IndexPathOf(string id)
-			=> SystemIO.Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "collections", id + ".json");
+			=> SystemIO.Path.Combine(AppStorage.LocalCacheFolderPath, "collections", id + ".json");
 
 		public CollectionSettings? Find(string? path)
 			=> CollectionPaths.CollectionId(path) is { } id ? FindById(id) : null;

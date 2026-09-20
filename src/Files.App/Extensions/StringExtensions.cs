@@ -55,7 +55,7 @@ namespace Files.App.Extensions
 			return result;
 		}
 
-		private static readonly ResourceMap resourcesTree = new ResourceManager().MainResourceMap.TryGetSubtree("Resources");
+		private static readonly ResourceMap resourcesTree = AppStorage.CreateResourceManager().MainResourceMap.TryGetSubtree("Resources");
 
 		private static readonly ConcurrentDictionary<string, string> cachedResources = new();
 

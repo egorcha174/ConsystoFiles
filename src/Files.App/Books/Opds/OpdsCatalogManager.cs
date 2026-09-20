@@ -46,7 +46,7 @@ namespace Files.App.Books.Opds
 		private bool isLoaded;
 
 		private static string StoragePath
-			=> SystemIO.Path.Combine(ApplicationData.Current.LocalFolder.Path, "opds-catalogs.json");
+			=> SystemIO.Path.Combine(AppStorage.LocalFolderPath, "opds-catalogs.json");
 
 		/// <summary>Raised with the sidebar section as the sender, the way the other sidebar managers do.</summary>
 		public event EventHandler<NotifyCollectionChangedEventArgs>? DataChanged;

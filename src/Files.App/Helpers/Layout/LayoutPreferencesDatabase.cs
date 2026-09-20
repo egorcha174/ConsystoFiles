@@ -12,7 +12,7 @@ namespace Files.App.Helpers
 {
 	public sealed class LayoutPreferencesDatabase
 	{
-		private readonly static string LayoutSettingsKey = @$"Software\Files Community\{Package.Current.Id.Name}\v1\LayoutPreferences";
+		private readonly static string LayoutSettingsKey = @$"Software\Files Community\{AppStorage.PackageName}\v1\LayoutPreferences";
 
 		public LayoutPreferencesItem? GetPreferences(string filePath, ulong? frn)
 		{
@@ -58,13 +58,13 @@ namespace Files.App.Helpers
 			{
 				if (filePath is not null)
 				{
-					using var filePathKey = Registry.CurrentUser.CreateSubKey(CombineKeys(LayoutSettingsKey, filePath));
+					using var filePathKey = AppStorage.UserRegistry.CreateSubKey(CombineKeys(LayoutSettingsKey, filePath));
 					SaveValues(filePathKey, preferences);
 				}
 
 				if (frn is not null)
 				{
-					using var frnKey = Registry.CurrentUser.CreateSubKey(CombineKeys(LayoutSettingsKey, "FRN", frn.Value.ToString()));
+					using var frnKey = AppStorage.UserRegistry.CreateSubKey(CombineKeys(LayoutSettingsKey, "FRN", frn.Value.ToString()));
 					SaveValues(frnKey, preferences);
 				}
 			}
@@ -72,7 +72,7 @@ namespace Files.App.Helpers
 
 		public void ResetAll()
 		{
-			Registry.CurrentUser.DeleteSubKeyTree(LayoutSettingsKey, false);
+			AppStorage.UserRegistry.DeleteSubKeyTree(LayoutSettingsKey, false);
 		}
 
 		public void Import(string json)
@@ -84,18 +84,18 @@ namespace Files.App.Helpers
 
 		private static void ImportCore(LayoutPreferencesDatabaseItem[]? preferences)
 		{
-			Registry.CurrentUser.DeleteSubKeyTree(LayoutSettingsKey, false);
+			AppStorage.UserRegistry.DeleteSubKeyTree(LayoutSettingsKey, false);
 			if (preferences is null)
 			{
 				return;
 			}
 			foreach (var preference in preferences)
 			{
-				using var filePathKey = Registry.CurrentUser.CreateSubKey(CombineKeys(LayoutSettingsKey, preference.FilePath));
+				using var filePathKey = AppStorage.UserRegistry.CreateSubKey(CombineKeys(LayoutSettingsKey, preference.FilePath));
 				SaveValues(filePathKey, preference);
 				if (preference.Frn is not null)
 				{
-					using var frnKey = Registry.CurrentUser.CreateSubKey(CombineKeys(LayoutSettingsKey, "FRN", preference.Frn.Value.ToString()));
+					using var frnKey = AppStorage.UserRegistry.CreateSubKey(CombineKeys(LayoutSettingsKey, "FRN", preference.Frn.Value.ToString()));
 					SaveValues(frnKey, preference);
 				}
 			}
@@ -110,7 +110,7 @@ namespace Files.App.Helpers
 
 		private void IterateKeys(List<LayoutPreferencesDatabaseItem> list, string path, int depth)
 		{
-			using var key = Registry.CurrentUser.OpenSubKey(path);
+			using var key = AppStorage.UserRegistry.OpenSubKey(path);
 			if (key is null)
 			{
 				return;
@@ -139,7 +139,7 @@ namespace Files.App.Helpers
 		{
 			if (filePath is not null)
 			{
-				using var filePathKey = Registry.CurrentUser.OpenSubKey(CombineKeys(LayoutSettingsKey, filePath), writable: true);
+				using var filePathKey = AppStorage.UserRegistry.OpenSubKey(CombineKeys(LayoutSettingsKey, filePath), writable: true);
 				if (filePathKey is not null && filePathKey.ValueCount > 0)
 				{
 					var preference = new LayoutPreferencesDatabaseItem();
@@ -157,7 +157,7 @@ namespace Files.App.Helpers
 
 			if (frn is not null)
 			{
-				using var frnKey = Registry.CurrentUser.OpenSubKey(CombineKeys(LayoutSettingsKey, "FRN", frn.Value.ToString()), writable: true);
+				using var frnKey = AppStorage.UserRegistry.OpenSubKey(CombineKeys(LayoutSettingsKey, "FRN", frn.Value.ToString()), writable: true);
 				if (frnKey is not null && frnKey.ValueCount > 0)
 				{
 					var preference = new LayoutPreferencesDatabaseItem();

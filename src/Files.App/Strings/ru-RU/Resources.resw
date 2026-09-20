@@ -5454,6 +5454,27 @@
   <data name="ConsystoTorrentDefaultButton" xml:space="preserve">
     <value>Назначить по умолчанию…</value>
   </data>
+  <data name="ConsystoTorrentFileType" xml:space="preserve">
+    <value>Торрент-файл</value>
+  </data>
+  <data name="ConsystoTorrentMagnetType" xml:space="preserve">
+    <value>Магнет-ссылка</value>
+  </data>
+  <data name="ConsystoSaveErrorReport" xml:space="preserve">
+    <value>Сохранить отчёт об ошибке</value>
+  </data>
+  <data name="ConsystoSaveErrorReportDescription" xml:space="preserve">
+    <value>Журнал и сведения о компьютере сохраняются на рабочий стол. Никуда ничего не отправляется.</value>
+  </data>
+  <data name="ConsystoTorrentDefaultForget" xml:space="preserve">
+    <value>Убрать регистрацию</value>
+  </data>
+  <data name="ConsystoTerminalNeedsWebView" xml:space="preserve">
+    <value>Терминалу нужен компонент Windows WebView2. Установите «Microsoft Edge WebView2 Runtime» с сайта Microsoft и откройте вкладку снова.</value>
+  </data>
+  <data name="ConsystoTerminalClear" xml:space="preserve">
+    <value>Очистить</value>
+  </data>
   <data name="ConsystoTorrentDownloads" xml:space="preserve">
     <value>Загрузки</value>
   </data>

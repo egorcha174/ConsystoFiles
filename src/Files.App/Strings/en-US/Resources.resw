@@ -5461,6 +5461,27 @@
   <data name="ConsystoTorrentDefaultButton" xml:space="preserve">
     <value>Set as default…</value>
   </data>
+  <data name="ConsystoTorrentFileType" xml:space="preserve">
+    <value>Torrent file</value>
+  </data>
+  <data name="ConsystoTorrentMagnetType" xml:space="preserve">
+    <value>Magnet link</value>
+  </data>
+  <data name="ConsystoSaveErrorReport" xml:space="preserve">
+    <value>Save an error report</value>
+  </data>
+  <data name="ConsystoSaveErrorReportDescription" xml:space="preserve">
+    <value>Saves the log and a note about your computer to the desktop. Nothing is sent anywhere.</value>
+  </data>
+  <data name="ConsystoTorrentDefaultForget" xml:space="preserve">
+    <value>Remove registration</value>
+  </data>
+  <data name="ConsystoTerminalNeedsWebView" xml:space="preserve">
+    <value>The terminal needs the WebView2 component of Windows. Install "Microsoft Edge WebView2 Runtime" from the Microsoft site and open the tab again.</value>
+  </data>
+  <data name="ConsystoTerminalClear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
   <data name="ConsystoTorrentDownloads" xml:space="preserve">
     <value>Downloads</value>
   </data>

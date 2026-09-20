@@ -26,7 +26,7 @@ namespace Files.App.Helpers
 	/// </summary>
 	public static class AppLifecycleHelper
 	{
-		private readonly static string AppInformationKey = @$"Software\Files Community\{Package.Current.Id.Name}\v1\AppInformation";
+		private readonly static string AppInformationKey = @$"Software\Files Community\{AppStorage.PackageName}\v1\AppInformation";
 
 		/// <summary>
 		/// Gets the value that indicates whether the app is updated.
@@ -50,7 +50,7 @@ namespace Files.App.Helpers
 
 		static AppLifecycleHelper()
 		{
-			using var infoKey = Registry.CurrentUser.CreateSubKey(AppInformationKey);
+			using var infoKey = AppStorage.UserRegistry.CreateSubKey(AppInformationKey);
 			var version = infoKey.GetValue("LastLaunchVersion");
 			var launchCount = infoKey.GetValue("TotalLaunchCount");
 			if (version is null)
@@ -81,13 +81,13 @@ namespace Files.App.Helpers
 		/// Gets application package version.
 		/// </summary>
 		public static Version AppVersion { get; } =
-			new(Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
+			new(AppStorage.PackageVersion.Major, AppStorage.PackageVersion.Minor, AppStorage.PackageVersion.Build, AppStorage.PackageVersion.Revision);
 
 		/// <summary>
 		/// Gets application icon path.
 		/// </summary>
 		public static string AppIconPath { get; } =
-			SystemIO.Path.Combine(Package.Current.InstalledLocation.Path, AppEnvironment switch
+			SystemIO.Path.Combine(AppStorage.InstalledPath, AppEnvironment switch
 			{
 				AppEnvironment.Dev => Constants.AssetPaths.DevLogo,
 				AppEnvironment.SideloadPreview or AppEnvironment.StorePreview => Constants.AssetPaths.PreviewLogo,
@@ -132,6 +132,10 @@ namespace Files.App.Helpers
 
 			// Consysto fork: torrent downloads of the previous run go on
 			_ = Task.Run(Files.App.Torrents.TorrentHost.ResumeIfAnyAsync);
+
+			// Consysto fork: a portable copy that was simply deleted leaves its file types and autorun entry behind
+			if (AppStorage.IsPortable)
+				_ = Task.Run(() => SafetyExtensions.IgnoreExceptions(Files.App.Torrents.PortableTorrentAssociation.RemoveTracesOfDeletedCopies));
 
 			_ = Task.Run(async () =>
 			{
@@ -215,7 +219,7 @@ namespace Files.App.Helpers
 			{
 				options.Dsn = Constants.AutomatedWorkflowInjectionKeys.SentrySecret;
 				options.AutoSessionTracking = true;
-				var packageVersion = Package.Current.Id.Version;
+				var packageVersion = AppStorage.PackageVersion;
 				options.Release = $"{packageVersion.Major}.{packageVersion.Minor}.{packageVersion.Build}";
 				options.TracesSampleRate = 0.10;
 				// Active-session reports must not be sampled away or their sums undercount;
@@ -224,7 +228,7 @@ namespace Files.App.Helpers
 					context.TransactionContext.Operation == ActiveSessionTracker.TransactionOperation ? 1.0 : null;
 				options.ProfilesSampleRate = 0.05;
 				options.Environment = AppEnvironment == AppEnvironment.StorePreview || AppEnvironment == AppEnvironment.SideloadPreview ? "preview" : "production";
-				options.CacheDirectoryPath = ApplicationData.Current.LocalFolder.Path;
+				options.CacheDirectoryPath = AppStorage.LocalFolderPath;
 
 				options.DisableWinUiUnhandledExceptionIntegration();
 
@@ -303,7 +307,7 @@ namespace Files.App.Helpers
 		public static IServiceProvider ConfigureHost(AppModel appModel)
 		{
 			var services = new ServiceCollection();
-			var fileLoggerProvider = new FileLoggerProvider(Path.Combine(ApplicationData.Current.LocalFolder.Path, "debug.log"));
+			var fileLoggerProvider = new FileLoggerProvider(Path.Combine(AppStorage.LocalFolderPath, "debug.log"));
 
 			services.AddSingleton(fileLoggerProvider);
 
@@ -395,7 +399,11 @@ namespace Files.App.Helpers
 					.AddSingleton(appModel);
 
 			// Conditional DI
-			if (AppEnvironment is AppEnvironment.SideloadPreview or AppEnvironment.SideloadStable)
+			// Consysto fork: both update services replace an installed package; a portable folder only learns that a newer
+			// release exists and opens its page
+			if (AppStorage.IsPortable)
+				services.AddSingleton<IUpdateService, PortableUpdateService>();
+			else if (AppEnvironment is AppEnvironment.SideloadPreview or AppEnvironment.SideloadStable)
 				services.AddSingleton<IUpdateService, SideloadUpdateService>();
 			else if (AppEnvironment is AppEnvironment.StorePreview or AppEnvironment.StoreStable)
 				services.AddSingleton<IUpdateService, StoreUpdateService>();
@@ -607,7 +615,11 @@ namespace Files.App.Helpers
 						// Try to re-launch and start over
 						MainWindow.Instance.DispatcherQueue.EnqueueOrInvokeAsync(async () =>
 						{
-							await Launcher.LaunchUriAsync(new Uri("files-dev:"));
+							// Consysto fork: the portable build restarts itself, it has no address registered in Windows
+							if (AppStorage.IsPortable)
+								PortableLauncher.OpenWindow();
+							else
+								await Launcher.LaunchUriAsync(new Uri("files-dev:"));
 						})
 						.Wait(100);
 					}

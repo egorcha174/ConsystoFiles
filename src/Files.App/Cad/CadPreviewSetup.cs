@@ -15,7 +15,7 @@ namespace Files.App.Cad
 		{
 			// Tessellated STEP/IGES meshes live with the other caches of the package. The mesher itself ships with
 			// Consysto.CadPreview.WinUI (Consysto.CadPreview.WinUI\occt in the package), which the core finds on its own.
-			StepMeshSource.CacheDirectory = SystemIO.Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "cad-meshes");
+			StepMeshSource.CacheDirectory = SystemIO.Path.Combine(AppStorage.LocalCacheFolderPath, "cad-meshes");
 			return true;
 		});
 

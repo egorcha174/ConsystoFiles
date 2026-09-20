@@ -2,17 +2,15 @@
 // Licensed under the MIT License.
 
 using Microsoft.UI.Xaml.Markup;
-using Windows.ApplicationModel.Resources;
 
 namespace Files.App.Helpers
 {
 	[MarkupExtensionReturnType(ReturnType = typeof(string))]
 	public sealed partial class ResourceString : MarkupExtension
 	{
-		private static readonly ResourceLoader resourceLoader = new();
-
 		public string Name { get; set; } = string.Empty;
 
-		protected override object ProvideValue() => resourceLoader.GetString(Name);
+		// Consysto fork: the Windows App SDK resource manager (same strings, same cache as code) also works without a package
+		protected override object ProvideValue() => Name.GetLocalizedResource();
 	}
 }

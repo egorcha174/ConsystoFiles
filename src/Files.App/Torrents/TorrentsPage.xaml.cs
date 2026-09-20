@@ -87,7 +87,7 @@ namespace Files.App.Torrents
 		{
 			for (var index = 0; index < Columns.Length; index++)
 			{
-				HeaderRow.ColumnDefinitions.Add(new ColumnDefinition { Width = Columns[index].Width });
+				HeaderRow.ColumnDefinitions.Add(NewColumn(index));
 				var button = new Button
 				{
 					Content = Columns[index].Title.GetLocalizedResource(),
@@ -111,9 +111,20 @@ namespace Files.App.Torrents
 			if (sender is not Grid grid || grid.ColumnDefinitions.Count > 0)
 				return;
 
-			foreach (var column in Columns)
-				grid.ColumnDefinitions.Add(new ColumnDefinition { Width = column.Width });
+			for (var index = 0; index < Columns.Length; index++)
+				grid.ColumnDefinitions.Add(NewColumn(index));
 		}
+
+		/// <summary>
+		/// The name takes what the fixed columns leave. In a narrow pane that was nothing at all and the name disappeared,
+		/// so it keeps a floor: the rest of the table is cut off instead.
+		/// </summary>
+		private static ColumnDefinition NewColumn(int index)
+			=> new()
+			{
+				Width = Columns[index].Width,
+				MinWidth = index is 0 ? 180 : 0,
+			};
 
 		private void Header_Click(object sender, RoutedEventArgs e)
 		{

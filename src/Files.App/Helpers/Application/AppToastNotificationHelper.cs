@@ -5,8 +5,16 @@ namespace Files.App.Helpers.Application
 {
 	internal static class AppToastNotificationHelper
 	{
+		// Consysto fork: the notification centre only accepts messages from an installed app, so the portable build
+		// says nothing. Errors still go to data\Local\debug.log.
+		private static bool Silent
+			=> AppStorage.IsPortable;
+
 		public static void ShowUnhandledExceptionToast()
 		{
+			if (Silent)
+				return;
+
 			var toastContent = new AppNotificationBuilder()
 					.AddText(Strings.ExceptionNotificationHeader.GetLocalizedResource())
 					.AddText(Strings.ExceptionNotificationBody.GetLocalizedResource())
@@ -19,6 +27,9 @@ namespace Files.App.Helpers.Application
 
 		public static void ShowBackgroundRunningToast()
 		{
+			if (Silent)
+				return;
+
 			var toastContent = new AppNotificationBuilder()
 				.AddText(Strings.BackgroundRunningNotificationHeader.GetLocalizedResource())
 				.AddText(Strings.BackgroundRunningNotificationBody.GetLocalizedResource())
@@ -28,6 +39,9 @@ namespace Files.App.Helpers.Application
 
 		public static void ShowDriveEjectToast()
 		{
+			if (Silent)
+				return;
+
 			var toastContent = new AppNotificationBuilder()
 				.AddText(Strings.EjectNotificationHeader.GetLocalizedResource())
 				.AddText(Strings.EjectNotificationBody.GetLocalizedResource())

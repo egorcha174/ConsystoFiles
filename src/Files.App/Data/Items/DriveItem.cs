@@ -141,7 +141,8 @@ namespace Files.App.Data.Items
 		private string? text;
 		public string? Text
 		{
-			get => text;
+			// Consysto fork: the build for screenshots shows invented names of disks in place of this computer's ones
+			get => DemoMode.IsOn ? DemoMode.DriveText(text ?? string.Empty, Path ?? string.Empty) : text;
 			set => SetProperty(ref text, value);
 		}
 

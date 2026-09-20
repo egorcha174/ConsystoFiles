@@ -14,7 +14,7 @@ namespace Files.App.Utils.FileTags
 	public sealed class FileTagsDatabase
 	{
 		private static string? _FileTagsKey;
-		private string? FileTagsKey => _FileTagsKey ??= SafetyExtensions.IgnoreExceptions(() => @$"Software\Files Community\{Package.Current.Id.Name}\v1\FileTags");
+		private string? FileTagsKey => _FileTagsKey ??= SafetyExtensions.IgnoreExceptions(() => @$"Software\Files Community\{AppStorage.PackageName}\v1\FileTags");
 
 		public void SetTags(string filePath, ulong? frn, string[] tags)
 		{
@@ -23,13 +23,13 @@ namespace Files.App.Utils.FileTags
 
 			if (tags is [])
 			{
-				using var existingFilePathKey = Registry.CurrentUser.OpenSubKey(CombineKeys(FileTagsKey, filePath), writable: true);
+				using var existingFilePathKey = AppStorage.UserRegistry.OpenSubKey(CombineKeys(FileTagsKey, filePath), writable: true);
 				if (existingFilePathKey is not null)
 					SaveValues(existingFilePathKey, null);
 
 				if (frn is not null)
 				{
-					using var existingFrnKey = Registry.CurrentUser.OpenSubKey(CombineKeys(FileTagsKey, "FRN", frn.Value.ToString()), writable: true);
+					using var existingFrnKey = AppStorage.UserRegistry.OpenSubKey(CombineKeys(FileTagsKey, "FRN", frn.Value.ToString()), writable: true);
 					if (existingFrnKey is not null)
 						SaveValues(existingFrnKey, null);
 				}
@@ -37,7 +37,7 @@ namespace Files.App.Utils.FileTags
 				return;
 			}
 
-			using var filePathKey = Registry.CurrentUser.CreateSubKey(CombineKeys(FileTagsKey, filePath));
+			using var filePathKey = AppStorage.UserRegistry.CreateSubKey(CombineKeys(FileTagsKey, filePath));
 
 			var newTag = new TaggedFile()
 			{
@@ -49,7 +49,7 @@ namespace Files.App.Utils.FileTags
 
 			if (frn is not null)
 			{
-				using var frnKey = Registry.CurrentUser.CreateSubKey(CombineKeys(FileTagsKey, "FRN", frn.Value.ToString()));
+				using var frnKey = AppStorage.UserRegistry.CreateSubKey(CombineKeys(FileTagsKey, "FRN", frn.Value.ToString()));
 				SaveValues(frnKey, newTag);
 			}
 		}
@@ -61,7 +61,7 @@ namespace Files.App.Utils.FileTags
 
 			if (filePath is not null)
 			{
-				using var filePathKey = Registry.CurrentUser.OpenSubKey(CombineKeys(FileTagsKey, filePath), writable: true);
+				using var filePathKey = AppStorage.UserRegistry.OpenSubKey(CombineKeys(FileTagsKey, filePath), writable: true);
 				if (filePathKey is not null && filePathKey.ValueCount > 0)
 				{
 					var tag = new TaggedFile();
@@ -79,7 +79,7 @@ namespace Files.App.Utils.FileTags
 
 			if (frn is not null)
 			{
-				using var frnKey = Registry.CurrentUser.OpenSubKey(CombineKeys(FileTagsKey, "FRN", frn.Value.ToString()), writable: true);
+				using var frnKey = AppStorage.UserRegistry.OpenSubKey(CombineKeys(FileTagsKey, "FRN", frn.Value.ToString()), writable: true);
 				if (frnKey is not null && frnKey.ValueCount > 0)
 				{
 					var tag = new TaggedFile();
@@ -103,7 +103,7 @@ namespace Files.App.Utils.FileTags
 				return;
 
 			var tag = FindTag(oldFilePath, null);
-			using var filePathKey = Registry.CurrentUser.OpenSubKey(CombineKeys(FileTagsKey, oldFilePath), writable: true);
+			using var filePathKey = AppStorage.UserRegistry.OpenSubKey(CombineKeys(FileTagsKey, oldFilePath), writable: true);
 			if (filePathKey is not null)
 				SaveValues(filePathKey, null);
 
@@ -114,13 +114,13 @@ namespace Files.App.Utils.FileTags
 
 				if (frn is not null)
 				{
-					using var newFrnKey = Registry.CurrentUser.CreateSubKey(CombineKeys(FileTagsKey, "FRN", frn.Value.ToString()));
+					using var newFrnKey = AppStorage.UserRegistry.CreateSubKey(CombineKeys(FileTagsKey, "FRN", frn.Value.ToString()));
 					SaveValues(newFrnKey, tag);
 				}
 
 				if (newFilePath is not null)
 				{
-					using var newFilePathKey = Registry.CurrentUser.CreateSubKey(CombineKeys(FileTagsKey, newFilePath));
+					using var newFilePathKey = AppStorage.UserRegistry.CreateSubKey(CombineKeys(FileTagsKey, newFilePath));
 					SaveValues(newFilePathKey, tag);
 				}
 			}
@@ -132,7 +132,7 @@ namespace Files.App.Utils.FileTags
 				return;
 
 			var tag = FindTag(null, oldFrn);
-			using var frnKey = Registry.CurrentUser.OpenSubKey(CombineKeys(FileTagsKey, "FRN", oldFrn.ToString()), writable: true);
+			using var frnKey = AppStorage.UserRegistry.OpenSubKey(CombineKeys(FileTagsKey, "FRN", oldFrn.ToString()), writable: true);
 			if (frnKey is not null)
 				SaveValues(frnKey, null);
 
@@ -143,13 +143,13 @@ namespace Files.App.Utils.FileTags
 
 				if (frn is not null)
 				{
-					using var newFrnKey = Registry.CurrentUser.CreateSubKey(CombineKeys(FileTagsKey, "FRN", frn.Value.ToString()));
+					using var newFrnKey = AppStorage.UserRegistry.CreateSubKey(CombineKeys(FileTagsKey, "FRN", frn.Value.ToString()));
 					SaveValues(newFrnKey, tag);
 				}
 
 				if (newFilePath is not null)
 				{
-					using var newFilePathKey = Registry.CurrentUser.CreateSubKey(CombineKeys(FileTagsKey, newFilePath));
+					using var newFilePathKey = AppStorage.UserRegistry.CreateSubKey(CombineKeys(FileTagsKey, newFilePath));
 					SaveValues(newFilePathKey, tag);
 				}
 			}
@@ -206,18 +206,18 @@ namespace Files.App.Utils.FileTags
 
 			var tags = JsonSerializer.Deserialize(json, AppJsonSerializerContext.Default.TaggedFileArray);
 
-			Registry.CurrentUser.DeleteSubKeyTree(FileTagsKey, false);
+			AppStorage.UserRegistry.DeleteSubKeyTree(FileTagsKey, false);
 			if (tags is null)
 			{
 				return;
 			}
 			foreach (var tag in tags)
 			{
-				using var filePathKey = Registry.CurrentUser.CreateSubKey(CombineKeys(FileTagsKey, tag.FilePath));
+				using var filePathKey = AppStorage.UserRegistry.CreateSubKey(CombineKeys(FileTagsKey, tag.FilePath));
 				SaveValues(filePathKey, tag);
 				if (tag.Frn is not null)
 				{
-					using var frnKey = Registry.CurrentUser.CreateSubKey(CombineKeys(FileTagsKey, "FRN", tag.Frn.Value.ToString()));
+					using var frnKey = AppStorage.UserRegistry.CreateSubKey(CombineKeys(FileTagsKey, "FRN", tag.Frn.Value.ToString()));
 					SaveValues(frnKey, tag);
 				}
 			}
@@ -235,7 +235,7 @@ namespace Files.App.Utils.FileTags
 
 		private void IterateKeys(List<TaggedFile> list, string path, int depth)
 		{
-			using var key = Registry.CurrentUser.OpenSubKey(path);
+			using var key = AppStorage.UserRegistry.OpenSubKey(path);
 			if (key is null)
 				return;
 

@@ -175,7 +175,8 @@ namespace Files.App.Services.Settings
 
 		public bool ShowLibrarySection
 		{
-			get => Get(false);
+			// Consysto fork: collections live in this section, so it is shown unless turned off
+			get => Get(true);
 			set => Set(value);
 		}
 

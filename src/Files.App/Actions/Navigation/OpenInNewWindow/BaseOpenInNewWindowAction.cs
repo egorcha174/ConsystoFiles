@@ -54,6 +54,13 @@ namespace Files.App.Actions
 			{
 				var targetPath = (listedItem as IShortcutItem)?.TargetPath;
 				var selectedItemPath = !string.IsNullOrEmpty(targetPath) ? targetPath : listedItem.GetRequiredPath();
+				// Consysto fork: the portable build has no address of its own registered in Windows, so it starts a second copy
+				if (AppStorage.IsPortable)
+				{
+					PortableLauncher.OpenWindow(selectedItemPath);
+					continue;
+				}
+
 				var folderUri = new Uri($"files-dev:?folder={@selectedItemPath}");
 
 				await Launcher.LaunchUriAsync(folderUri);

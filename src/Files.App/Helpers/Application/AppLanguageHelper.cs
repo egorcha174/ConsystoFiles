@@ -42,13 +42,47 @@ namespace Files.App.Helpers
 			}
 		}
 
+		// Consysto fork: the portable build has no package manifest to list its languages, so it lists the languages the
+		// project builds (AppxDefaultResourceQualifiers in Files.App.csproj) and keeps the chosen one in its own settings.
+		private static readonly string[] PortableLanguages =
+		[
+			"en-US", "af", "ar", "be-BY", "bg", "ca", "cs-CZ", "da", "de-DE", "el", "en-GB", "es-ES", "es-419", "fa-IR", "fi-FI",
+			"fil-PH", "fr-FR", "he-IL", "hi-IN", "hr-HR", "hu-HU", "hy-AM", "id-ID", "it-IT", "ja-JP", "ka", "km-KH", "ko-KR",
+			"lt-LT", "lv-LV", "ms-MY", "nb-NO", "nl-NL", "pl-PL", "pt-BR", "pt-PT", "ro-RO", "ru-RU", "sk-SK", "sq-AL",
+			"sr-Cyrl", "sv-SE", "ta", "th-TH", "tr-TR", "uk-UA", "vi", "zh-Hans", "zh-Hant",
+		];
+
+		private const string PortableLanguageKey = AppStorage.PortableLanguageKey;
+
+		private static IEnumerable<string> ManifestLanguages
+			=> AppStorage.IsPortable ? PortableLanguages : ApplicationLanguages.ManifestLanguages;
+
+		private static string LanguageOverride
+		{
+			get => AppStorage.IsPortable
+				? AppStorage.LocalSettings.TryGetValue(PortableLanguageKey, out var code) ? code as string ?? string.Empty : string.Empty
+				: ApplicationLanguages.PrimaryLanguageOverride;
+			set
+			{
+				if (!AppStorage.IsPortable)
+				{
+					ApplicationLanguages.PrimaryLanguageOverride = value;
+					return;
+				}
+
+				AppStorage.LocalSettings[PortableLanguageKey] = value;
+				AppStorage.ApplyPortableLanguage();
+			}
+		}
+
+
 		/// <summary>
 		/// Initializes the <see cref="AppLanguageHelper"/> class.
 		/// </summary>
 		static AppLanguageHelper()
 		{
 			// Populate the Languages collection with available languages
-			var appLanguages = ApplicationLanguages.ManifestLanguages
+			var appLanguages = ManifestLanguages
 			   .Append(string.Empty) // Add default language code
 			   .Select(language => new AppLanguageItem(language))
 			   .OrderBy(language => language.Code is not "") // Default language on top
@@ -56,7 +90,7 @@ namespace Files.App.Helpers
 			   .ToList();
 
 			// Get the current primary language override.
-			var current = new AppLanguageItem(ApplicationLanguages.PrimaryLanguageOverride);
+			var current = new AppLanguageItem(LanguageOverride);
 
 			// Find the index of the saved language
 			var index = appLanguages.IndexOf(appLanguages.FirstOrDefault(dl => dl.Name == current.Name) ?? appLanguages.First());
@@ -86,7 +120,7 @@ namespace Files.App.Helpers
 			PreferredLanguage = SupportedLanguages[index];
 
 			// Update the primary language override
-			ApplicationLanguages.PrimaryLanguageOverride = index == 0 ? _defaultCode : PreferredLanguage.Code;
+			LanguageOverride = index == 0 ? _defaultCode : PreferredLanguage.Code;
 			return true;
 		}
 
@@ -116,7 +150,7 @@ namespace Files.App.Helpers
 			PreferredLanguage = SupportedLanguages[index];
 
 			// Update the primary language override
-			ApplicationLanguages.PrimaryLanguageOverride = index == 0 ? _defaultCode : PreferredLanguage.Code;
+			LanguageOverride = index == 0 ? _defaultCode : PreferredLanguage.Code;
 			return true;
 		}
 	}

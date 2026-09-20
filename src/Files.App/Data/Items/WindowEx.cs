@@ -30,7 +30,6 @@ namespace Files.App.Data.Items
 		private readonly nint _oldWndProc;
 		private readonly WNDPROC _newWndProc;
 
-		private readonly ApplicationDataContainer _applicationDataContainer = ApplicationData.Current.LocalSettings;
 
 		/// <summary>
 		/// Gets hWnd of this <see cref="Window"/>.
@@ -147,8 +146,8 @@ namespace Files.App.Data.Items
 
 			var values = GetDataStore(out _, true);
 
-			if (_applicationDataContainer.Containers.ContainsKey("WinUIEx"))
-				_applicationDataContainer.DeleteContainer("WinUIEx");
+			if (!AppStorage.IsPortable && ApplicationData.Current.LocalSettings.Containers.ContainsKey("WinUIEx"))
+				ApplicationData.Current.LocalSettings.DeleteContainer("WinUIEx");
 
 			values["MainWindowPlacementData"] = Convert.ToBase64String(data.ToArray());
 		}
@@ -216,11 +215,16 @@ namespace Files.App.Data.Items
 			}
 		}
 
-		private IPropertySet GetDataStore(out bool oldDataExists, bool useNewStore = true)
+		private IDictionary<string, object> GetDataStore(out bool oldDataExists, bool useNewStore = true)
 		{
-			IPropertySet values;
+			IDictionary<string, object> values;
 			oldDataExists = false;
 
+			// Consysto fork: the portable build keeps the window placement in its own settings file
+			if (AppStorage.IsPortable)
+				return AppStorage.SettingsContainer("Files");
+
+			var _applicationDataContainer = ApplicationData.Current.LocalSettings;
 			if (_applicationDataContainer.Containers.TryGetValue("Files", out var dataContainer))
 			{
 				values = dataContainer.Values;

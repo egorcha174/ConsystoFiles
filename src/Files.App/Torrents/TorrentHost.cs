@@ -14,7 +14,7 @@ namespace Files.App.Torrents
 	/// </summary>
 	public static class TorrentHost
 	{
-		private static readonly string StateDirectory = SystemIO.Path.Combine(ApplicationData.Current.LocalFolder.Path, "torrents");
+		private static readonly string StateDirectory = SystemIO.Path.Combine(AppStorage.LocalFolderPath, "torrents");
 
 		public static TorrentService Service { get; } = new(StateDirectory);
 

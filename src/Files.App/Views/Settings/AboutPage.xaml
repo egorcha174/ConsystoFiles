@@ -47,8 +47,10 @@
 				</Button>
 			</wctcontrols:SettingsCard>
 
-			<!--  GitHub Sponsor  -->
+			<!--  Consysto fork: hidden until this build has a page of its own  -->
 			<wctcontrols:SettingsCard
+				x:Name="SponsorCard"
+				x:Load="False"
 				Command="{x:Bind ViewModel.SupportUsCommand}"
 				Header="{helpers:ResourceString Name=SponsorUsOnGitHub}"
 				IsClickEnabled="True">
@@ -145,6 +147,22 @@
 			</wctcontrols:SettingsCard>
 
 
+			<!--  Consysto fork: save an error report next to the log  -->
+			<wctcontrols:SettingsCard
+				HorizontalAlignment="Stretch"
+				Command="{x:Bind ViewModel.SaveErrorReportCommand}"
+				Description="{helpers:ResourceString Name=ConsystoSaveErrorReportDescription}"
+				Header="{helpers:ResourceString Name=ConsystoSaveErrorReport}"
+				IsClickEnabled="True">
+				<wctcontrols:SettingsCard.HeaderIcon>
+					<FontIcon Glyph="&#xE898;" />
+				</wctcontrols:SettingsCard.HeaderIcon>
+
+				<wctcontrols:SettingsCard.ActionIcon>
+					<FontIcon Glyph="&#xE8A7;" />
+				</wctcontrols:SettingsCard.ActionIcon>
+			</wctcontrols:SettingsCard>
+
 			<!--  Open Source  -->
 			<TextBlock
 				Padding="0,16,0,4"
@@ -155,6 +173,8 @@
 			<!--  Translate  -->
 			<wctcontrols:SettingsCard
 				HorizontalAlignment="Stretch"
+				x:Name="CrowdinCard"
+				x:Load="False"
 				Command="{x:Bind ViewModel.OpenCrowdinCommand}"
 				Header="{helpers:ResourceString Name=ImproveTranslation}"
 				IsClickEnabled="True">
@@ -216,6 +236,8 @@
 			<!--  Privacy  -->
 			<wctcontrols:SettingsCard
 				HorizontalAlignment="Stretch"
+				x:Name="PrivacyCard"
+				x:Load="False"
 				Command="{x:Bind ViewModel.OpenPrivacyPolicyCommand}"
 				Header="{helpers:ResourceString Name=Privacy}"
 				IsClickEnabled="True">

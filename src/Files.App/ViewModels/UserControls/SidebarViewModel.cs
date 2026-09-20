@@ -1327,6 +1327,11 @@ namespace Files.App.ViewModels.UserControls
 				{
 					IsVisible = UserSettingsService.GeneralSettingsService.ShowOpenTerminal && Commands.OpenTerminalFromSidebar.IsExecutable
 				}.Build(),
+				// Consysto fork: the same folder, but in a terminal inside the tab
+				new ContextMenuFlyoutItemViewModelBuilder(Commands.OpenTerminalInTabFromSidebar)
+				{
+					IsVisible = UserSettingsService.GeneralSettingsService.ShowOpenTerminal && Commands.OpenTerminalInTabFromSidebar.IsExecutable
+				}.Build(),
 				new ContextMenuFlyoutItemViewModelBuilder(Commands.OpenStorageSenseFromSidebar).Build(),
 				new ContextMenuFlyoutItemViewModelBuilder(Commands.FormatDriveFromSidebar).Build(),
 				new ContextMenuFlyoutItemViewModel()

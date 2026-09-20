@@ -14,9 +14,20 @@ namespace Files.App.Views.Settings
 		/// </summary>
 		private async void TorrentDefault_Click(object sender, RoutedEventArgs e)
 		{
-			var appUserModelId = $"{Windows.ApplicationModel.Package.Current.Id.FamilyName}!App";
+			// The portable build has no manifest to declare the file types, so it declares them for the current user first
+			if (AppStorage.IsPortable)
+			{
+				Files.App.Torrents.PortableTorrentAssociation.Register();
+				await Windows.System.Launcher.LaunchUriAsync(new Uri("ms-settings:defaultapps"));
+				return;
+			}
+
+			var appUserModelId = $"{AppStorage.PackageFamilyName}!App";
 			await Windows.System.Launcher.LaunchUriAsync(new Uri($"ms-settings:defaultapps?registeredAUMID={Uri.EscapeDataString(appUserModelId)}"));
 		}
+
+		private void TorrentForget_Click(object sender, RoutedEventArgs e)
+			=> Files.App.Torrents.PortableTorrentAssociation.Unregister();
 
 		public AdvancedPage()
 		{

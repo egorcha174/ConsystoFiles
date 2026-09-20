@@ -32,7 +32,9 @@ namespace Files.App
 			InitializeComponent();
 
 			ExtendsContentIntoTitleBar = true;
-			Title = "Files";
+
+			// Consysto fork: the window carries the name of this build, not of the project it grew from
+			Title = AppStorage.DisplayName;
 			AppWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
 			AppWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 			AppWindow.TitleBar.ButtonPressedBackgroundColor = Colors.Transparent;
@@ -53,6 +55,22 @@ namespace Files.App
 			rootFrame?.Navigate(typeof(SplashScreenPage));
 		}
 
+		/// <summary>The magnet link or .torrent file among the launch arguments, if the program was started for one.</summary>
+		private static string? TorrentLaunchArgument(string? arguments)
+		{
+			if (string.IsNullOrWhiteSpace(arguments))
+				return null;
+
+			foreach (var argument in CommandLineParser.SplitArguments(arguments, true).Skip(1))
+			{
+				if (argument.StartsWith("magnet:", StringComparison.OrdinalIgnoreCase) ||
+					(argument.EndsWith(".torrent", StringComparison.OrdinalIgnoreCase) && File.Exists(argument)))
+					return argument;
+			}
+
+			return null;
+		}
+
 		[DynamicWindowsRuntimeCast(typeof(OverlappedPresenter))]
 		public async Task InitializeApplicationAsync(object? activatedEventArgs)
 		{
@@ -67,10 +85,23 @@ namespace Files.App
 			switch (activatedEventArgs)
 			{
 				case ILaunchActivatedEventArgs launchArgs:
+					// Consysto fork: without a manifest Windows hands a magnet link or a .torrent file to the portable build as a
+					// plain argument rather than as an activation of its own, so they are recognized here.
+					if (AppStorage.IsPortable && TorrentLaunchArgument(launchArgs.Arguments) is { } launchTorrent)
+					{
+						if (rootFrame.Content is null || rootFrame.Content is SplashScreenPage || !MainPageViewModel.AppInstances.Any())
+							rootFrame.Navigate(typeof(MainPage), null, new SuppressNavigationTransitionInfo());
+						else
+							Win32Helper.BringToForegroundEx(new(WindowHandle));
+
+						_ = Files.App.Torrents.TorrentHost.AddAsync(launchTorrent, null);
+						break;
+					}
+
 					if (launchArgs.Arguments is not null &&
 						(CommandLineParser.SplitArguments(launchArgs.Arguments, true)[0].EndsWith($"files-dev.exe", StringComparison.OrdinalIgnoreCase)
 						|| CommandLineParser.SplitArguments(launchArgs.Arguments, true)[0].EndsWith($"files-dev", StringComparison.OrdinalIgnoreCase)
-						|| CommandLineParser.SplitArguments(launchArgs.Arguments, true)[0].Equals(Path.Join(Package.Current.InstalledLocation.Path, "Files.exe"), StringComparison.OrdinalIgnoreCase)))
+						|| CommandLineParser.SplitArguments(launchArgs.Arguments, true)[0].Equals(Path.Join(AppStorage.InstalledPath, "Files.exe"), StringComparison.OrdinalIgnoreCase)))
 					{
 						// WINUI3: When launching from commandline the argument is not ICommandLineActivatedEventArgs (#10370)
 						var ppm = CommandLineParser.ParseUntrustedCommands(launchArgs.Arguments);
@@ -295,7 +326,8 @@ namespace Files.App
 		{
 			async Task PerformNavigationAsync(string? payload, string? selectItem = null)
 			{
-				if (!string.IsNullOrEmpty(payload))
+				// Consysto fork: a page of this fork is not a folder on disk and must not be looked up as one
+				if (!string.IsNullOrEmpty(payload) && !Files.App.Books.Library.ConsystoPages.IsPagePath(payload))
 				{
 					payload = ShellHelpers.ResolveShellPath(payload);
 					var folderResult = await FilesystemTasks.Wrap(() => StorageFolder.GetFolderFromPathAsync(payload).AsTask());

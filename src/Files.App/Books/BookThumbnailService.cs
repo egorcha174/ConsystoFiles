@@ -25,7 +25,7 @@ namespace Files.App.Books
 
 		private static readonly Lazy<string> cacheDirectory = new(() =>
 		{
-			var directory = SystemIO.Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "book-thumbnails");
+			var directory = SystemIO.Path.Combine(AppStorage.LocalCacheFolderPath, "book-thumbnails");
 			SystemIO.Directory.CreateDirectory(directory);
 			return directory;
 		});

@@ -254,7 +254,7 @@ namespace Files.App.Services
 
 			try
 			{
-				var srcExeFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/FilesOpenDialog/Files.App.Launcher.exe"));
+				var srcExeFile = await AppStorage.GetAppFileAsync(new Uri("ms-appx:///Assets/FilesOpenDialog/Files.App.Launcher.exe"));
 				var destFolder = await StorageFolder.GetFolderFromPathAsync(destFolderPath);
 
 				await srcExeFile.CopyAsync(destFolder, "Files.App.Launcher.exe", NameCollisionOption.ReplaceExisting);

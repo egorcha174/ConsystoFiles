@@ -43,13 +43,16 @@
 	term.attachCustomKeyEventHandler(event => {
 		if (event.type !== 'keydown' || !event.ctrlKey || event.altKey)
 			return true;
-		if (event.key === 'c' && term.hasSelection()) {
-			navigator.clipboard.writeText(term.getSelection());
+		// The key is recognised by its place on the keyboard, not by the letter it types: with a Russian layout Ctrl+C and
+		// Ctrl+V arrive as Ctrl+С and Ctrl+М. The clipboard itself goes through the program, since the browser engine
+		// refuses to read it without asking the user every time.
+		if (event.code === 'KeyC' && term.hasSelection()) {
+			send({ type: 'selection', data: term.getSelection() });
 			term.clearSelection();
 			return false;
 		}
-		if (event.key === 'v') {
-			navigator.clipboard.readText().then(text => term.paste(text));
+		if (event.code === 'KeyV') {
+			send({ type: 'pasteRequest' });
 			return false;
 		}
 		return true;
@@ -63,6 +66,31 @@
 			term.write('\r\n\x1b[90m' + message.text + '\x1b[0m\r\n');
 		else if (message.type === 'focus')
 			term.focus();
+		// Commands of the context menu of the tab
+		// Ctrl+C copies the selection, and interrupts the running command when there is nothing selected
+		else if (message.type === 'copy') {
+			if (term.hasSelection()) {
+				send({ type: 'selection', data: term.getSelection() });
+				term.clearSelection();
+			}
+			else {
+				send({ type: 'input', data: '\x03' });
+			}
+		}
+		else if (message.type === 'paste')
+			send({ type: 'pasteRequest' });
+		else if (message.type === 'clear') {
+			term.clear();
+			term.focus();
+		}
+		else if (message.type === 'selectAll')
+			term.selectAll();
+	});
+
+	// The web view shows no menu of its own; the tab offers its own one instead
+	document.addEventListener('contextmenu', event => {
+		event.preventDefault();
+		send({ type: 'menu', hasSelection: term.hasSelection() });
 	});
 
 	new ResizeObserver(resize).observe(document.getElementById('terminal'));

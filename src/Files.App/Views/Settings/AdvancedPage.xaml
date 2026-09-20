@@ -118,7 +118,15 @@
 				<wctcontrols:SettingsCard.HeaderIcon>
 					<FontIcon Glyph="&#xE896;" />
 				</wctcontrols:SettingsCard.HeaderIcon>
-				<Button Click="TorrentDefault_Click" Content="{helpers:ResourceString Name=ConsystoTorrentDefaultButton}" />
+				<StackPanel Orientation="Horizontal" Spacing="8">
+					<Button Click="TorrentDefault_Click" Content="{helpers:ResourceString Name=ConsystoTorrentDefaultButton}" />
+					<!--  Portable only: takes back the file types it registered, so the folder can be deleted without a trace  -->
+					<Button
+						x:Name="TorrentForgetButton"
+						x:Load="{x:Bind ViewModel.IsPortableBuild}"
+						Click="TorrentForget_Click"
+						Content="{helpers:ResourceString Name=ConsystoTorrentDefaultForget}" />
+				</StackPanel>
 			</wctcontrols:SettingsCard>
 
 			<!--  Experimental Settings  -->
@@ -131,6 +139,7 @@
 			<!--  Replace File Explorer  -->
 			<wctcontrols:SettingsCard
 				x:Name="SetAsDefaultSettingsBlockControl"
+				x:Load="{x:Bind ViewModel.CanReplaceWindowsExplorer}"
 				Description="{helpers:ResourceString Name=SettingsSetAsDefaultFileManagerDescription}"
 				Header="{helpers:ResourceString Name=SettingsSetAsDefaultFileManager}">
 				<wctcontrols:SettingsCard.HeaderIcon>
@@ -145,7 +154,7 @@
 			<!--  Replace Open File Dialog  -->
 			<wctcontrols:SettingsCard
 				x:Name="ReplaceOpenFileDialogSetting"
-				x:Load="{x:Bind ViewModel.IsAppEnvironmentDev}"
+				x:Load="{x:Bind ViewModel.CanReplaceOpenFileDialog}"
 				Header="{helpers:ResourceString Name=SettingsSetAsOpenDialog}">
 				<wctcontrols:SettingsCard.HeaderIcon>
 					<FontIcon Glyph="&#xE8E5;" />

@@ -1047,7 +1047,7 @@ namespace Files.App.Views
 
 			// Self-drop: leave the close-on-drop flag unset so the source tab survives the split.
 			if (!ReferenceEquals(_draggedTabItem?.TabItemContent, this))
-				ApplicationData.Current.LocalSettings.Values[BaseTabBar.TabDropHandledIdentifier] = true;
+				AppStorage.LocalSettings[BaseTabBar.TabDropHandledIdentifier] = true;
 		}
 
 		private void MainWindow_SizeChanged(object sender, WindowSizeChangedEventArgs e)
@@ -1087,6 +1087,13 @@ namespace Files.App.Views
 			// 1. Sender is not the currently active pane (user is switching panes), or the sender is the active pane,
 			// but the user is refocusing the pane (e.g. user taps pane to refocus while the Omnibar flyout is open)
 			// 2. AND the sender is a valid shell page not using a column-based layout
+			// Consysto fork: a press on a button in the pane's own header (close, swap, compare) is left alone. Moving the focus
+			// to the pane here takes the press away from the button, so its first click would only activate the pane. Only the
+			// header is exempt: everywhere else the pane must come forward as it always did.
+			if (e.OriginalSource is DependencyObject source &&
+				CommunityToolkit.WinUI.DependencyObjectExtensions.FindAscendant<Files.App.MacStyle.PaneHeader>(source) is not null)
+				return;
+
 			if (((IsMultiPaneActive && sender != ActivePane) || e.Pointer.PointerDeviceType == PointerDeviceType.Touch) && sender is IShellPage shellPage && shellPage.SlimContentPage is not ColumnsLayoutPage)
 				(sender as UIElement)?.Focus(FocusState.Pointer);
 		}

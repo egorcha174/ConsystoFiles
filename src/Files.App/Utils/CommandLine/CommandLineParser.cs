@@ -74,7 +74,8 @@ namespace Files.App.Utils.CommandLine
 							{
 								command.Type = ParsedCommandType.ExplorerShellCommand;
 							}
-							else if (Path.IsPathRooted(kvp.Value[0]))
+							// Consysto fork: the pages of this fork (a terminal, downloads, a collection) are addressed like folders
+							else if (Path.IsPathRooted(kvp.Value[0]) || Files.App.Books.Library.ConsystoPages.IsPagePath(kvp.Value[0]))
 							{
 								command.Type = ParsedCommandType.OpenPath;
 							}

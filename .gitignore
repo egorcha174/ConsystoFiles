@@ -409,3 +409,6 @@ FodyWeavers.xsd
 *.sln.iml
 .idea/
 src/Files.App/Assets/FilesOpenDialog/Files.App.Launcher.exe.sha256
+
+# Личные заметки и отчёты, в публичный репозиторий не идут
+build/consysto/reports/

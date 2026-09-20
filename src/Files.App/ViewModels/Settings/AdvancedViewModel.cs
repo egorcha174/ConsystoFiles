@@ -55,10 +55,10 @@ namespace Files.App.ViewModels.Settings
 			if (IsSetAsDefaultFileManager == DetectIsSetAsDefaultFileManager())
 				return;
 
-			var destFolder = Path.Combine(ApplicationData.Current.LocalFolder.Path, "FilesOpenDialog");
+			var destFolder = Path.Combine(AppStorage.LocalFolderPath, "FilesOpenDialog");
 			Directory.CreateDirectory(destFolder);
 
-			foreach (var file in Directory.GetFiles(Path.Combine(Package.Current.InstalledLocation.Path, "Assets", "FilesOpenDialog")))
+			foreach (var file in Directory.GetFiles(Path.Combine(AppStorage.InstalledPath, "Assets", "FilesOpenDialog")))
 			{
 				if (!SafetyExtensions.IgnoreExceptions(() => File.Copy(file, Path.Combine(destFolder, Path.GetFileName(file)), true), App.Logger))
 				{
@@ -119,9 +119,9 @@ namespace Files.App.ViewModels.Settings
 			if (IsSetAsOpenFileDialog == DetectIsSetAsOpenFileDialog())
 				return;
 
-			var destFolder = Path.Combine(ApplicationData.Current.LocalFolder.Path, "FilesOpenDialog");
+			var destFolder = Path.Combine(AppStorage.LocalFolderPath, "FilesOpenDialog");
 			Directory.CreateDirectory(destFolder);
-			foreach (var file in Directory.GetFiles(Path.Combine(Package.Current.InstalledLocation.Path, "Assets", "FilesOpenDialog")))
+			foreach (var file in Directory.GetFiles(Path.Combine(AppStorage.InstalledPath, "Assets", "FilesOpenDialog")))
 			{
 				if (!SafetyExtensions.IgnoreExceptions(() => File.Copy(file, Path.Combine(destFolder, Path.GetFileName(file)), true), App.Logger))
 				{
@@ -169,7 +169,7 @@ namespace Files.App.ViewModels.Settings
 				if (await ZipStorageFolder.FromStorageFileAsync(file) is not ZipStorageFolder zipFolder)
 					return;
 
-				var localFolderPath = ApplicationData.Current.LocalFolder.Path;
+				var localFolderPath = AppStorage.LocalFolderPath;
 				var settingsFolder = await StorageFolder.GetFolderFromPathAsync(Path.Combine(localFolderPath, Constants.LocalSettings.SettingsFolderName));
 
 				// Import user settings
@@ -232,7 +232,7 @@ namespace Files.App.ViewModels.Settings
 				if (await ZipStorageFolder.FromStorageFileAsync(file) is not ZipStorageFolder zipFolder)
 					return;
 
-				var localFolderPath = ApplicationData.Current.LocalFolder.Path;
+				var localFolderPath = AppStorage.LocalFolderPath;
 
 				// Export user settings
 				var exportSettings = UTF8Encoding.UTF8.GetBytes((string)UserSettingsService.ExportSettings());
@@ -288,6 +288,16 @@ namespace Files.App.ViewModels.Settings
 			get => isSetAsOpenFileDialog;
 			set => SetProperty(ref isSetAsOpenFileDialog, value);
 		}
+
+		/// <summary>Replacing File Explorer and the open and save dialogs relies on parts that only an installed app has.</summary>
+		public bool CanReplaceWindowsExplorer
+			=> !AppStorage.IsPortable;
+
+		public bool IsPortableBuild
+			=> AppStorage.IsPortable;
+
+		public bool CanReplaceOpenFileDialog
+			=> !AppStorage.IsPortable && IsAppEnvironmentDev;
 
 		public bool IsAppEnvironmentDev
 		{
@@ -414,8 +424,40 @@ namespace Files.App.ViewModels.Settings
 			//TODO: Get thumbnail cache size and update CacheSizeText and IsClearCacheButtonEnabled accordingly.
 		}
 
+		// Consysto fork: an installed app is started by Windows through its startup task, which a portable folder has no
+		// right to. It registers itself the ordinary way instead, and removes the entry when the setting is turned off.
+		private const string PortableStartupKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
+
+		private const string PortableStartupName = "ConsystoFiles";
+
+		private static bool PortableStartupEnabled
+		{
+			get
+			{
+				using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(PortableStartupKey);
+				return key?.GetValue(PortableStartupName) is string command && command.Contains(AppContext.BaseDirectory, StringComparison.OrdinalIgnoreCase);
+			}
+			set
+			{
+				using var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(PortableStartupKey);
+				if (value)
+					key.SetValue(PortableStartupName, $"\"{SystemIO.Path.Combine(AppContext.BaseDirectory, "Files.exe")}\"");
+				else
+					key.DeleteValue(PortableStartupName, false);
+			}
+		}
+
 		public async Task OpenFilesOnWindowsStartupAsync()
 		{
+			if (AppStorage.IsPortable)
+			{
+				if (PortableStartupEnabled != OpenOnWindowsStartup)
+					PortableStartupEnabled = OpenOnWindowsStartup;
+
+				await DetectOpenFilesAtStartupAsync();
+				return;
+			}
+
 			var stateMode = await ReadState();
 
 			bool state = stateMode switch
@@ -447,6 +489,13 @@ namespace Files.App.ViewModels.Settings
 
 		public async Task DetectOpenFilesAtStartupAsync()
 		{
+			if (AppStorage.IsPortable)
+			{
+				CanOpenOnWindowsStartup = true;
+				OpenOnWindowsStartup = PortableStartupEnabled;
+				return;
+			}
+
 			var stateMode = await ReadState();
 
 			switch (stateMode)
