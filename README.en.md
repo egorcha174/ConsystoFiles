@@ -44,6 +44,16 @@ build\consysto\Build-ConsystoPortable.ps1
 
 The script builds the portable version and puts the folder and a `.zip` into `artifacts\ConsystoFiles`. For an installable package there is `build\consysto\Build-ConsystoFiles.ps1`, which needs a signing certificate.
 
+### The demonstration build
+
+A separate build switch (`-p:ConsystoDemo=true`) produces a variant where the names of the
+drives and of the computer are replaced by plain ones — "System (C:)", "Work (D:)",
+"Archive (Z:)". Nothing else changes: the files, the folders and their properties stay real.
+
+This is meant for screenshots and for showing the program: one can see how it works with
+real files without seeing how the owner's drives are named. The code is left out of ordinary
+builds.
+
 ## Licences and credits
 
 The foundation is [Files](https://github.com/files-community/Files) by Files Community, under MPL-2.0 (see `LICENSE-MPL`); some parts are under MIT (`LICENSE-MIT`). My changes are released under the same licences.
