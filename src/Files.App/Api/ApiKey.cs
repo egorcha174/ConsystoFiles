@@ -2,6 +2,7 @@
 
 using Microsoft.Extensions.Logging;
 using System.IO;
+using System.Security.AccessControl;
 using System.Security.Cryptography;
 
 namespace Files.App.Api
@@ -20,6 +21,33 @@ namespace Files.App.Api
 		public static string FilePath
 			=> Path.Combine(AppStorage.LocalFolderPath, "api-key.txt");
 
+		/// <summary>
+		/// Leaves the file readable by this user alone. A portable copy may sit in a folder anyone can open — the folder cannot
+		/// be relied on, so the file guards itself.
+		/// </summary>
+		private static void RestrictToOwner(string path)
+		{
+			try
+			{
+				var file = new FileInfo(path);
+				var rights = file.GetAccessControl();
+				rights.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
+
+				var user = System.Security.Principal.WindowsIdentity.GetCurrent().User!;
+				rights.AddAccessRule(new FileSystemAccessRule(
+					user,
+					FileSystemRights.FullControl,
+					System.Security.AccessControl.AccessControlType.Allow));
+
+				file.SetAccessControl(rights);
+			}
+			catch (Exception ex)
+			{
+				// A file system without rights at all, such as a memory stick, cannot be guarded this way
+				App.Logger.LogWarning(ex, "The key file of the control channel could not be closed to other users");
+			}
+		}
+
 		private static string Read()
 		{
 			try
@@ -34,6 +62,7 @@ namespace Files.App.Api
 				var made = Convert.ToHexString(RandomNumberGenerator.GetBytes(24));
 				Directory.CreateDirectory(Path.GetDirectoryName(FilePath)!);
 				File.WriteAllText(FilePath, made);
+				RestrictToOwner(FilePath);
 
 				return made;
 			}

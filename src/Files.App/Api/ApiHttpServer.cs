@@ -24,7 +24,7 @@ namespace Files.App.Api
 		public ApiHttpServer(int port)
 			=> this.port = port is > 0 and < 65536 ? port : DefaultPort;
 
-		public void Start()
+		public bool Start()
 		{
 			try
 			{
@@ -38,10 +38,11 @@ namespace Files.App.Api
 			{
 				// A taken port or a system that refuses the prefix is not a reason to fail the program: the pipe still works
 				App.Logger.LogWarning(ex, "The web entrance of the control channel could not start on port {Port}", port);
-				return;
+				return false;
 			}
 
 			_ = Task.Run(() => ListenAsync(stopping.Token));
+			return true;
 		}
 
 		private async Task ListenAsync(CancellationToken token)
@@ -76,8 +77,19 @@ namespace Files.App.Api
 				}
 				else
 				{
-					using var reader = new StreamReader(context.Request.InputStream, Encoding.UTF8);
-					answer = await ApiPipeServer.AnswerAsync(await reader.ReadToEndAsync());
+					// A request is a short line; anything vastly larger is refused rather than read into memory
+					if (context.Request.ContentLength64 > ApiPipeServer.MaxRequestLength)
+					{
+						context.Response.StatusCode = 413;
+						answer = "{\"ok\":false,\"error\":\"the request is too long\"}";
+					}
+					else
+					{
+						using var reader = new StreamReader(context.Request.InputStream, Encoding.UTF8);
+						var buffer = new char[ApiPipeServer.MaxRequestLength];
+						var read = await reader.ReadBlockAsync(buffer);
+						answer = await ApiPipeServer.AnswerAsync(new string(buffer, 0, read));
+					}
 				}
 
 				var bytes = Encoding.UTF8.GetBytes(answer);

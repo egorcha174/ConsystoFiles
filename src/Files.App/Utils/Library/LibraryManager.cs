@@ -140,6 +140,11 @@ namespace Files.App.Utils.Library
 			if (string.IsNullOrWhiteSpace(name) || !CanCreateLibrary(name).result)
 				return false;
 
+			// A folder that cannot be opened would be found only after the library file is written, and a half-made library
+			// would stay behind and block the next attempt at the same name
+			if (folders is { Count: > 0 } && folders.Any(folder => !Directory.Exists(folder)))
+				return false;
+
 			var shellLibrary = await STATask.Run(() =>
 			{
 				try

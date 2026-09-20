@@ -37,8 +37,13 @@ namespace Files.App.Api
 			var webWanted = settings.IsApiEnabled && settings.IsApiWebEnabled;
 			if (webWanted && web is null)
 			{
-				web = new ApiHttpServer(settings.ApiWebPort);
-				web.Start();
+				var started = new ApiHttpServer(settings.ApiWebPort);
+
+				// A port that is taken leaves nothing running, and saying otherwise would hide it from the next attempt
+				if (started.Start())
+					web = started;
+				else
+					started.Dispose();
 			}
 			else if (!webWanted && web is not null)
 			{

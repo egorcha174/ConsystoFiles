@@ -20,6 +20,9 @@ namespace Files.App.Api
 	{
 		public const string PipeName = "ConsystoFiles";
 
+		/// <summary>A command with a path or two fits many times over; beyond this something is wrong.</summary>
+		public const int MaxRequestLength = 64 * 1024;
+
 		private readonly CancellationTokenSource stopping = new();
 
 		public void Start()
@@ -42,6 +45,8 @@ namespace Files.App.Api
 				}
 				catch (OperationCanceledException)
 				{
+					// The pipe was made here and never handed on, so it is closed here too
+					pipe?.Dispose();
 					break;
 				}
 				catch (Exception ex)
@@ -91,7 +96,7 @@ namespace Files.App.Api
 
 					while (!token.IsCancellationRequested && pipe.IsConnected)
 					{
-						var line = await reader.ReadLineAsync(token);
+						var line = await ReadLineAsync(reader, token);
 						if (line is null)
 							break;
 
@@ -105,6 +110,33 @@ namespace Files.App.Api
 			catch (Exception ex)
 			{
 				App.Logger.LogWarning(ex, "The control channel failed while serving a caller");
+			}
+		}
+
+		/// <summary>
+		/// Reads one request, refusing one that has grown past all reason: a request is a short line, and a caller that keeps
+		/// writing without ever ending the line would otherwise fill this process's memory.
+		/// </summary>
+		private static async Task<string?> ReadLineAsync(StreamReader reader, CancellationToken token)
+		{
+			var builder = new System.Text.StringBuilder();
+			var buffer = new char[1024];
+
+			while (true)
+			{
+				var read = await reader.ReadAsync(buffer, token);
+				if (read == 0)
+					return builder.Length > 0 ? builder.ToString() : null;
+
+				for (var i = 0; i < read; i++)
+				{
+					if (buffer[i] == '\n')
+						return builder.ToString().TrimEnd('\r');
+
+					builder.Append(buffer[i]);
+					if (builder.Length > MaxRequestLength)
+						throw new InvalidOperationException("the request is too long");
+				}
 			}
 		}
 

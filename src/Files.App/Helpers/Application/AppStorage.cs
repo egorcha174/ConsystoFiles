@@ -392,8 +392,16 @@ namespace Files.App.Helpers
 					return all;
 
 				using var document = JsonDocument.Parse(ReadAllBytesWithRetries(FilePath));
+
+				// A file that is valid JSON but not the shape this expects — a list, a number — is as good as no file
+				if (document.RootElement.ValueKind != JsonValueKind.Object)
+					return all;
+
 				foreach (var group in document.RootElement.EnumerateObject())
 				{
+					if (group.Value.ValueKind != JsonValueKind.Object)
+						continue;
+
 					var values = new Dictionary<string, object>(StringComparer.Ordinal);
 					foreach (var entry in group.Value.EnumerateObject())
 					{
@@ -437,13 +445,14 @@ namespace Files.App.Helpers
 			if (!element.TryGetProperty("t", out var type) || !element.TryGetProperty("v", out var value))
 				return null;
 
+			// A value whose kind does not match its stated type is skipped: one spoiled setting must not cost all the rest
 			return type.GetString() switch
 			{
-				"s" => value.GetString(),
-				"b" => value.GetBoolean(),
-				"i" => value.GetInt32(),
-				"l" => value.GetInt64(),
-				"d" => value.GetDouble(),
+				"s" when value.ValueKind is JsonValueKind.String => value.GetString(),
+				"b" when value.ValueKind is JsonValueKind.True or JsonValueKind.False => value.GetBoolean(),
+				"i" when value.ValueKind is JsonValueKind.Number && value.TryGetInt32(out var number) => number,
+				"l" when value.ValueKind is JsonValueKind.Number && value.TryGetInt64(out var number) => number,
+				"d" when value.ValueKind is JsonValueKind.Number && value.TryGetDouble(out var number) => number,
 				_ => null,
 			};
 		}

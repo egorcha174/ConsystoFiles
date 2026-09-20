@@ -20,7 +20,10 @@ namespace Files.App.Api
 			{
 				try
 				{
-					answer.TrySetResult(await ExecuteAsync(request));
+					// The channel may have been switched off while this waited its turn in the queue
+					answer.TrySetResult(ApiHost.IsRunning
+						? await ExecuteAsync(request)
+						: new ApiResponse(false, "control from other programs is switched off"));
 				}
 				catch (Exception ex)
 				{
@@ -31,7 +34,18 @@ namespace Files.App.Api
 				answer.TrySetResult(new ApiResponse(false, "the window is not ready"));
 			}
 
-			return answer.Task;
+			// Some commands can stop on a dialog that only a person can answer, and the window may close mid-command:
+			// the caller gets an answer either way rather than waiting for something that will never come
+			return WithDeadline(answer.Task);
+		}
+
+		private static async Task<ApiResponse> WithDeadline(Task<ApiResponse> running)
+		{
+			var finished = await Task.WhenAny(running, Task.Delay(TimeSpan.FromSeconds(30)));
+
+			return finished == running
+				? await running
+				: new ApiResponse(false, "the command did not finish in time; it may be waiting for someone at the window");
 		}
 
 		private static async Task<ApiResponse> ExecuteAsync(ApiRequest request)
@@ -131,6 +145,14 @@ namespace Files.App.Api
 			var folders = request.folders ?? (string.IsNullOrEmpty(request.path) ? [] : new[] { request.path });
 			if (folders.Length == 0)
 				return new ApiResponse(false, "the collection has no folders");
+
+			// The kind decides what a collection is; without a known one a plain library would be made and then reported
+			// as a failure, leaving a library behind that nobody asked for
+			if (Files.App.Books.Library.CollectionKinds.Find(request.where) is null)
+				return new ApiResponse(false, "the kind of the collection is missing or unknown: books, photos, music or drawings");
+
+			if (folders.FirstOrDefault(folder => !SystemIO.Directory.Exists(folder)) is { } missing)
+				return new ApiResponse(false, $"there is no folder {missing}");
 
 			var manager = Files.App.Books.Library.CollectionManager.Instance;
 			var made = await manager.CreateLibraryAsync(request.name, request.where, folders);
