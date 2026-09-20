@@ -1,6 +1,8 @@
 using Consysto.CadPreview.Drawing;
 using Consysto.CadPreview.Inventor;
+using Consysto.CadPreview.Kompas;
 using Consysto.CadPreview.Mesh;
+using Consysto.CadPreview.SolidWorks;
 using Consysto.CadPreview.Step;
 
 namespace Consysto.CadPreview;
@@ -33,6 +35,8 @@ public static class CadPreviewSource
             && (DrawingExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase)
                 || MeshExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase)
                 || InventorPreviewReader.IsSupported(extension)
+                || SolidWorksPreviewReader.IsSupported(extension)
+                || KompasPreviewReader.IsSupported(extension)
                 || StepMeshSource.IsSupported(extension));
 
     public static CadPreviewContent Load(string path)
@@ -66,6 +70,13 @@ public static class CadPreviewSource
                     : new CadPreviewContent { Mesh = package.Mesh };
 
             default:
+                // Documents of other CAD systems: what they saved as their own picture is what we show
+                if (SolidWorksPreviewReader.IsSupported(extension))
+                    return new CadPreviewContent { Image = SolidWorksPreviewReader.TryRead(path) };
+
+                if (KompasPreviewReader.IsSupported(extension))
+                    return new CadPreviewContent { Image = KompasPreviewReader.TryRead(path) };
+
                 return InventorPreviewReader.IsSupported(extension)
                     ? new CadPreviewContent { Image = InventorPreviewReader.TryRead(path) }
                     : new CadPreviewContent();

@@ -35,7 +35,8 @@ public static class DrawingFields
 public sealed class DrawingCollection : CollectionKind
 {
     private static readonly string[] Extensions =
-        [".ipt", ".iam", ".idw", ".ipn", ".dwg", ".dxf", ".step", ".stp", ".iges", ".igs", ".stl", ".obj", ".3mf"];
+        [".ipt", ".iam", ".idw", ".ipn", ".dwg", ".dxf", ".step", ".stp", ".iges", ".igs", ".stl", ".obj", ".3mf",
+         ".sldprt", ".sldasm", ".slddrw", ".m3d", ".a3d", ".cdw", ".frw"];
 
     public override string Id => "drawings";
 
@@ -111,6 +112,10 @@ public sealed class DrawingCollection : CollectionKind
             ".idw" => "Чертёж",
             ".ipn" => "Презентация",
             ".dwg" or ".dxf" => "Чертёж",
+            ".sldprt" or ".m3d" => "Деталь",
+            ".sldasm" or ".a3d" => "Сборка",
+            ".slddrw" or ".cdw" => "Чертёж",
+            ".frw" => "Фрагмент",
             ".step" or ".stp" or ".iges" or ".igs" => "Обменная модель",
             _ => "Модель",
         };
