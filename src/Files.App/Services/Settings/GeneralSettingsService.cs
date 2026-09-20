@@ -265,6 +265,25 @@ namespace Files.App.Services.Settings
 			set => Set(value);
 		}
 
+		// Consysto fork: the control channel, off until someone asks for it
+		public bool IsApiEnabled
+		{
+			get => Get(false);
+			set => Set(value);
+		}
+
+		public bool IsApiWebEnabled
+		{
+			get => Get(false);
+			set => Set(value);
+		}
+
+		public int ApiWebPort
+		{
+			get => Get(Files.App.Api.ApiHttpServer.DefaultPort);
+			set => Set(value);
+		}
+
 		public bool MoveShellExtensionsToSubMenu
 		{
 			get => Get(true);

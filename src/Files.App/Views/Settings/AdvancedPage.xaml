@@ -129,6 +129,34 @@
 				</StackPanel>
 			</wctcontrols:SettingsCard>
 
+			<!--  Consysto fork: the control channel  -->
+			<wctcontrols:SettingsExpander Description="{helpers:ResourceString Name=ConsystoApiDescription}" Header="{helpers:ResourceString Name=ConsystoApi}">
+				<wctcontrols:SettingsExpander.HeaderIcon>
+					<FontIcon Glyph="&#xE968;" />
+				</wctcontrols:SettingsExpander.HeaderIcon>
+				<ToggleSwitch AutomationProperties.Name="{helpers:ResourceString Name=ConsystoApi}" IsOn="{x:Bind ViewModel.IsApiEnabled, Mode=TwoWay}" />
+				<wctcontrols:SettingsExpander.Items>
+					<wctcontrols:SettingsCard Description="{helpers:ResourceString Name=ConsystoApiWebDescription}" Header="{helpers:ResourceString Name=ConsystoApiWeb}">
+						<ToggleSwitch
+							AutomationProperties.Name="{helpers:ResourceString Name=ConsystoApiWeb}"
+							IsEnabled="{x:Bind ViewModel.IsApiEnabled, Mode=OneWay}"
+							IsOn="{x:Bind ViewModel.IsApiWebEnabled, Mode=TwoWay}" />
+					</wctcontrols:SettingsCard>
+					<wctcontrols:SettingsCard Header="{helpers:ResourceString Name=ConsystoApiPort}">
+						<NumberBox
+							MinWidth="120"
+							IsEnabled="{x:Bind ViewModel.IsApiWebEnabled, Mode=OneWay}"
+							Maximum="65535"
+							Minimum="1"
+							SpinButtonPlacementMode="Inline"
+							Value="{x:Bind ViewModel.ApiWebPort, Mode=TwoWay}" />
+					</wctcontrols:SettingsCard>
+					<wctcontrols:SettingsCard Header="{helpers:ResourceString Name=ConsystoApiKey}">
+						<Button Click="ApiKey_Click" Content="{helpers:ResourceString Name=ConsystoApiKeyButton}" />
+					</wctcontrols:SettingsCard>
+				</wctcontrols:SettingsExpander.Items>
+			</wctcontrols:SettingsExpander>
+
 			<!--  Experimental Settings  -->
 			<TextBlock
 				Padding="0,16,0,4"

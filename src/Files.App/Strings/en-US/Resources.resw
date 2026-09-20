@@ -5671,4 +5671,25 @@
   <data name="ConsystoSyncTargetNewer" xml:space="preserve">
     <value>Newer in backup</value>
   </data>
+  <data name="ConsystoApi" xml:space="preserve">
+    <value>Control from other programs</value>
+  </data>
+  <data name="ConsystoApiDescription" xml:space="preserve">
+    <value>Lets another program on this computer open folders, split the window into panes and run commands here. Nothing outside this computer can reach it.</value>
+  </data>
+  <data name="ConsystoApiWeb" xml:space="preserve">
+    <value>Answer over http as well</value>
+  </data>
+  <data name="ConsystoApiWebDescription" xml:space="preserve">
+    <value>For callers that cannot use a channel — a web page, a script in any language. A port is open to every program on this computer, so a key is required.</value>
+  </data>
+  <data name="ConsystoApiPort" xml:space="preserve">
+    <value>Port</value>
+  </data>
+  <data name="ConsystoApiKey" xml:space="preserve">
+    <value>Key file</value>
+  </data>
+  <data name="ConsystoApiKeyButton" xml:space="preserve">
+    <value>Show the key file</value>
+  </data>
 </root>

@@ -130,6 +130,9 @@ namespace Files.App.Helpers
 			// Consysto fork: collections are indexed while Files runs, and books shared with a phone if that is on
 			_ = Task.Run(Files.App.Books.Library.CollectionManager.Instance.Initialize);
 
+			// Consysto fork: other programs may drive this window, if that was switched on in the settings
+			Files.App.Api.ApiHost.Apply();
+
 			// Consysto fork: torrent downloads of the previous run go on
 			_ = Task.Run(Files.App.Torrents.TorrentHost.ResumeIfAnyAsync);
 

@@ -216,6 +216,21 @@ namespace Files.App.Data.Contracts
 		bool IsOpdsCatalogsSectionExpanded { get; set; }
 
 		/// <summary>
+		/// Gets or sets a value indicating whether other programs may drive this window through the control channel (Consysto fork).
+		/// </summary>
+		bool IsApiEnabled { get; set; }
+
+		/// <summary>
+		/// Gets or sets a value indicating whether the control channel also answers over http on this machine (Consysto fork).
+		/// </summary>
+		bool IsApiWebEnabled { get; set; }
+
+		/// <summary>
+		/// Gets or sets the port the control channel answers on over http (Consysto fork).
+		/// </summary>
+		int ApiWebPort { get; set; }
+
+		/// <summary>
 		/// Gets or sets a value indicating whether or not to move shell extensions into a sub menu.
 		/// </summary>
 		bool MoveShellExtensionsToSubMenu { get; set; }

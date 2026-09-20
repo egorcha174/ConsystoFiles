@@ -20,6 +20,8 @@ The project is free and open. This is an early version: it works, but rough edge
 
 **Synchronisation and backups.** Comparison of two folders, copying of the differences, and backup plans with a preview of exactly what will be copied and what will be deleted.
 
+**Control from other programs.** The window can be driven by commands from outside: open a folder in a chosen pane, split the window into two panes, open the terminal or the downloads, make a collection or a backup plan, start a download. It is off by default and is switched on under Settings → Advanced. See the [description of the control channel](build/consysto/api/README.md).
+
 **Two panes.** A header above each pane with drives and free space, swapping the panes, moving through folders in step, and comparing the two open folders.
 
 ## The portable build

@@ -190,15 +190,17 @@ namespace Files.App.Books.Library
 		}
 
 		/// <summary>Creates a Windows library with one folder, pinned to the navigation pane, and gives it a kind.</summary>
-		public async Task<CollectionSettings?> CreateLibraryAsync(string name, string? kindId, string folder)
+		public Task<CollectionSettings?> CreateLibraryAsync(string name, string? kindId, string folder)
+			=> CreateLibraryAsync(name, kindId, [folder]);
+
+		public async Task<CollectionSettings?> CreateLibraryAsync(string name, string? kindId, IReadOnlyList<string> folders)
 		{
-			if (!await App.LibraryManager.CreateNewLibrary(name))
+			if (folders.Count == 0 || !await App.LibraryManager.CreateNewLibrary(name, folders))
 				return null;
 
-			// A new library starts with Documents in it; the chosen folder takes its place
 			var path = SystemIO.Path.Combine(ShellLibraryItem.LibrariesPath, name + ShellLibraryItem.EXTENSION);
-			await App.LibraryManager.UpdateLibrary(path, defaultSaveFolder: folder, folders: [folder], isPinned: true);
 			SetKind(path, kindId);
+
 			return FindByLibrary(path);
 		}
 
@@ -210,7 +212,14 @@ namespace Files.App.Books.Library
 
 			var library = App.LibraryManager.Libraries.FirstOrDefault(item => string.Equals(item.Path, collection.LibraryPath, StringComparison.OrdinalIgnoreCase));
 			var keepsSaveFolder = library?.DefaultSaveFolder is { } saveFolder && folders.Contains(saveFolder, StringComparer.OrdinalIgnoreCase);
-			await App.LibraryManager.UpdateLibrary(collection.LibraryPath, defaultSaveFolder: keepsSaveFolder ? null : folders[0], folders: [.. folders]);
+			// Same wait as when a collection is made: the file may still be held by whoever wrote it last
+			for (var attempt = 0; attempt < 40; attempt++)
+			{
+				if (await App.LibraryManager.UpdateLibrary(collection.LibraryPath, defaultSaveFolder: keepsSaveFolder ? null : folders[0], folders: [.. folders]) is not null)
+					break;
+
+				await Task.Delay(250);
+			}
 		}
 
 		/// <summary>Shares one books library, or none when <paramref name="collectionId"/> is null.</summary>

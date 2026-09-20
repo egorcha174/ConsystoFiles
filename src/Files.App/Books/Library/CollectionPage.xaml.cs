@@ -300,7 +300,9 @@ namespace Files.App.Books.Library
 			UpdateScanProgress();
 			PageSubtitle.Text = collection is null || kind is null
 				? string.Empty
-				: collection.Folders.Count == 0
+				// The folders of a collection just made are not known here yet, while its scan is already running and finding
+				// files: saying that it has no folders would be plainly wrong in front of a page full of drawings
+				: collection.Folders.Count == 0 && !scanning && library.Items.Count == 0
 					? Strings.ConsystoLibraryNoFolders.GetLocalizedResource()
 					: scanning && library.Scanned is null
 						? Strings.ConsystoCollectionScanning.GetLocalizedResource()

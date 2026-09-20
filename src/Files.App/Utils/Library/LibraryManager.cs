@@ -128,7 +128,14 @@ namespace Files.App.Utils.Library
 		/// </summary>
 		/// <param name="name">The name of the new library (must be unique)</param>
 		/// <returns>The new library if successfully created</returns>
-		public async Task<bool> CreateNewLibrary(string name)
+		public Task<bool> CreateNewLibrary(string name)
+			=> CreateNewLibrary(name, null);
+
+		/// <summary>
+		/// Consysto fork: the folders may be given at once. Windows keeps holding the file it has just written, so a library
+		/// created first and filled afterwards silently keeps the folder it started with.
+		/// </summary>
+		public async Task<bool> CreateNewLibrary(string name, IReadOnlyList<string>? folders)
 		{
 			if (string.IsNullOrWhiteSpace(name) || !CanCreateLibrary(name).result)
 				return false;
@@ -138,7 +145,24 @@ namespace Files.App.Utils.Library
 				try
 				{
 					using var library = new ShellLibraryEx(name, PInvoke.FOLDERID_Libraries, false);
-					library.Folders.Add(ShellItem.Open(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments))); // Add default folder so it's not empty
+
+					var wanted = folders is { Count: > 0 }
+						? folders
+						: [Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)]; // Add default folder so it's not empty
+
+					foreach (var folder in wanted)
+					{
+						using var item = ShellItem.Open(folder);
+						library.Folders.Add(item);
+					}
+
+					if (folders is { Count: > 0 })
+					{
+						using var saveFolder = ShellItem.Open(folders[0]);
+						library.DefaultSaveFolder = saveFolder;
+						library.PinnedToNavigationPane = true;
+					}
+
 					library.Commit();
 					library.Reload();
 					var libraryPath = library.GetDisplayName(SIGDN.SIGDN_DESKTOPABSOLUTEPARSING);

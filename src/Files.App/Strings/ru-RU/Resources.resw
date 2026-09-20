@@ -5664,4 +5664,25 @@
   <data name="ConsystoSyncTargetNewer" xml:space="preserve">
     <value>Новее в копии</value>
   </data>
+  <data name="ConsystoApi" xml:space="preserve">
+    <value>Управление из других программ</value>
+  </data>
+  <data name="ConsystoApiDescription" xml:space="preserve">
+    <value>Позволяет другой программе на этом компьютере открывать папки, делить окно на панели и выполнять команды. Снаружи компьютера обратиться нельзя.</value>
+  </data>
+  <data name="ConsystoApiWeb" xml:space="preserve">
+    <value>Отвечать ещё и по http</value>
+  </data>
+  <data name="ConsystoApiWebDescription" xml:space="preserve">
+    <value>Для тех, кому канал неудобен: веб-страница, скрипт на любом языке. Порт открыт всем программам этого компьютера, поэтому нужен ключ.</value>
+  </data>
+  <data name="ConsystoApiPort" xml:space="preserve">
+    <value>Порт</value>
+  </data>
+  <data name="ConsystoApiKey" xml:space="preserve">
+    <value>Файл ключа</value>
+  </data>
+  <data name="ConsystoApiKeyButton" xml:space="preserve">
+    <value>Показать файл ключа</value>
+  </data>
 </root>

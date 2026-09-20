@@ -87,6 +87,18 @@ namespace Files.App.Torrents
 				await OpenPageAsync();
 		}
 
+		/// <summary>
+		/// Adds a download to a folder that is already known, without asking. This is what the control channel uses: a command
+		/// from another program must not stop on a dialog nobody is there to answer.
+		/// </summary>
+		public static async Task AddToFolderAsync(string torrentOrMagnet, string folder)
+		{
+			if (TorrentService.IsMagnetLink(torrentOrMagnet))
+				await Service.AddMagnetAsync(torrentOrMagnet.Trim(), folder);
+			else
+				await Service.AddTorrentFileAsync(torrentOrMagnet, folder);
+		}
+
 		/// <summary>The downloads live in one tab; an open one is reused.</summary>
 		public static Task OpenPageAsync()
 			=> NavigationHelpers.AddNewTabByPathAsync(typeof(ShellPanesPage), TorrentPaths.Path, true);

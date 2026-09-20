@@ -303,6 +303,8 @@ namespace Files.App
 			// Consysto fork: fast-resume data is written, so the downloads are not checked again on the next start
 			await Files.App.Torrents.TorrentHost.StopAsync();
 
+			Files.App.Api.ApiHost.Stop();
+
 			// Persist the final active stretch; it is reported on the next launch
 			ActiveSessionTracker.OnActivationChanged(false);
 

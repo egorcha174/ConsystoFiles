@@ -41,6 +41,10 @@ namespace Files.App.Helpers
 			return $"{name} ({letter}:)";
 		}
 
+		/// <summary>The same, but only when the path really is the root of a disk and not a folder on it.</summary>
+		public static string DriveTextIfRoot(string text, string path)
+			=> IsOn && path.Length is 2 or 3 && path[1] == ':' ? DriveText(text, path) : text;
+
 		/// <summary>The name of the computer as the picture should show it.</summary>
 		public static string ComputerName(string name)
 			=> IsOn ? "КОМПЬЮТЕР" : name;

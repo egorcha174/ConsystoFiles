@@ -296,6 +296,58 @@ namespace Files.App.ViewModels.Settings
 		public bool IsPortableBuild
 			=> AppStorage.IsPortable;
 
+		// Consysto fork: the control channel, through which other programs may drive this window
+		public bool IsApiEnabled
+		{
+			get => UserSettingsService.GeneralSettingsService.IsApiEnabled;
+			set
+			{
+				if (value == IsApiEnabled)
+					return;
+
+				UserSettingsService.GeneralSettingsService.IsApiEnabled = value;
+				Files.App.Api.ApiHost.Apply();
+				OnPropertyChanged();
+			}
+		}
+
+		public bool IsApiWebEnabled
+		{
+			get => UserSettingsService.GeneralSettingsService.IsApiWebEnabled;
+			set
+			{
+				if (value == IsApiWebEnabled)
+					return;
+
+				UserSettingsService.GeneralSettingsService.IsApiWebEnabled = value;
+				Files.App.Api.ApiHost.Apply();
+				OnPropertyChanged();
+			}
+		}
+
+		public int ApiWebPort
+		{
+			get => UserSettingsService.GeneralSettingsService.ApiWebPort;
+			set
+			{
+				if (value == ApiWebPort || value is < 1 or > 65535)
+					return;
+
+				UserSettingsService.GeneralSettingsService.ApiWebPort = value;
+
+				// The entrance is already listening on the old port, so it is taken down and raised again on the new one
+				if (IsApiWebEnabled)
+				{
+					UserSettingsService.GeneralSettingsService.IsApiWebEnabled = false;
+					Files.App.Api.ApiHost.Apply();
+					UserSettingsService.GeneralSettingsService.IsApiWebEnabled = true;
+					Files.App.Api.ApiHost.Apply();
+				}
+
+				OnPropertyChanged();
+			}
+		}
+
 		public bool CanReplaceOpenFileDialog
 			=> !AppStorage.IsPortable && IsAppEnvironmentDev;
 

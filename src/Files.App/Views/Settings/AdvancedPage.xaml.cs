@@ -29,6 +29,15 @@ namespace Files.App.Views.Settings
 		private void TorrentForget_Click(object sender, RoutedEventArgs e)
 			=> Files.App.Torrents.PortableTorrentAssociation.Unregister();
 
+		// Consysto fork: shows the file with the key of the control channel, so it can be copied into whatever will be calling
+		private void ApiKey_Click(object sender, RoutedEventArgs e)
+			=> SafetyExtensions.IgnoreExceptions(() =>
+			{
+				// Touching the value makes the file, so the first look does not land on an empty folder
+				_ = Files.App.Api.ApiKey.Value;
+				using var explorer = System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{Files.App.Api.ApiKey.FilePath}\"");
+			});
+
 		public AdvancedPage()
 		{
 			InitializeComponent();

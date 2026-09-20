@@ -159,6 +159,9 @@ namespace Files.App.Utils.Storage
 						item.Title = folder.DisplayName;
 				}
 
+				// Consysto fork: in a demo build the drives carry made-up names, here too
+				item.Title = Files.App.Helpers.DemoMode.DriveTextIfRoot(item.Title ?? string.Empty, item.Path ?? string.Empty);
+
 				item.ChevronToolTip = string.Format(Strings.BreadcrumbBarChevronButtonToolTip.GetLocalizedResource(), item.Title);
 			}
 
