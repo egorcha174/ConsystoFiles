@@ -36,6 +36,7 @@ public static class CadPreviewSource
                 || MeshExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase)
                 || InventorPreviewReader.IsSupported(extension)
                 || SolidWorksPreviewReader.IsSupported(extension)
+                || CadMeshSource.IsSupported(extension)
                 || KompasPreviewReader.IsSupported(extension)
                 || StepMeshSource.IsSupported(extension));
 
@@ -71,18 +72,16 @@ public static class CadPreviewSource
 
             default:
                 // Documents of other CAD systems: what they saved as their own picture is what we show
-                if (SolidWorksPreviewReader.IsSupported(extension))
+                // Geometry first, so a document can be turned in the hand; what cannot be read falls back to its own picture
+                if (CadMeshSource.IsSupported(extension))
                 {
-                    // A part can be read as real geometry and turned in the hand; what cannot be read falls back to the picture
-                    if (SolidWorksMeshSource.IsSupported(extension))
-                    {
-                        var part = SolidWorksMeshSource.Load(path);
-                        if (!part.IsEmpty)
-                            return new CadPreviewContent { Mesh = part };
-                    }
-
-                    return new CadPreviewContent { Image = SolidWorksPreviewReader.TryRead(path) };
+                    var shape = CadMeshSource.Load(path);
+                    if (!shape.IsEmpty)
+                        return new CadPreviewContent { Mesh = shape };
                 }
+
+                if (SolidWorksPreviewReader.IsSupported(extension))
+                    return new CadPreviewContent { Image = SolidWorksPreviewReader.TryRead(path) };
 
                 if (KompasPreviewReader.IsSupported(extension))
                     return new CadPreviewContent { Image = KompasPreviewReader.TryRead(path) };

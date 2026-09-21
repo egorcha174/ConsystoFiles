@@ -99,7 +99,8 @@ public static class StepMeshSource
         return mesherExists;
     }
 
-    private static void RunMesher(string input, string output, CancellationToken cancellationToken)
+    /// <summary>Also used for a file converted here from another CAD format, which has no cache of its own.</summary>
+    internal static void RunMesher(string input, string output, CancellationToken cancellationToken)
     {
         var start = new ProcessStartInfo(MesherPath)
         {
