@@ -112,6 +112,19 @@ foreach ($name in 'README.md', 'README.en.md', 'LICENSE-MIT', 'LICENSE-MPL', 'NO
 # Помощник для чтения чужих CAD-форматов: в репозитории его нет, скрипт берёт официальный выпуск
 & (Join-Path $PSScriptRoot 'Get-CadHelpers.ps1') -Destination (Join-Path $release 'CadHelpers')
 
+# Движок OpenCascade: им читаются STEP и IGES. Собирается отдельно (native\StepMesher\build.ps1),
+# потому что требует исходников OpenCascade; без него эти форматы просто не показываются.
+$occtSource = Join-Path $filesRoot 'native\out\occt'
+if (Test-Path -LiteralPath $occtSource) {
+    $occtTarget = Join-Path $release 'occt'
+    robocopy $occtSource $occtTarget /MIR /NFL /NDL /NJH /NJS /NP | Out-Null
+    if ($LASTEXITCODE -ge 8) { throw "Не удалось скопировать движок STEP (robocopy $LASTEXITCODE)." }
+    $occtSize = [math]::Round((Get-ChildItem $occtTarget -Recurse -File | Measure-Object Length -Sum).Sum / 1MB)
+    Write-Host "Движок STEP и IGES на месте: $occtTarget ($occtSize МБ)"
+} else {
+    Write-Warning "Движка STEP нет ($occtSource) — в этой сборке STEP и IGES показываться не будут. Соберите native\StepMesher\build.ps1."
+}
+
 $size = [math]::Round((Get-ChildItem $release -Recurse -File | Measure-Object Length -Sum).Sum / 1MB)
 Write-Host "Папка: $release ($size МБ)"
 

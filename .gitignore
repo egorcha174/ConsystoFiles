@@ -412,3 +412,7 @@ src/Files.App/Assets/FilesOpenDialog/Files.App.Launcher.exe.sha256
 
 # Личные заметки и отчёты, в публичный репозиторий не идут
 build/consysto/reports/
+
+# РЎР±РѕСЂРєР° РґРІРёР¶РєР° STEP: СЂРµР·СѓР»СЊС‚Р°С‚ Рё РїСЂРѕРјРµР¶СѓС‚РѕС‡РЅС‹Рµ С„Р°Р№Р»С‹
+native/out/
+native/StepMesher/obj/
