@@ -29,10 +29,14 @@ public static class CadMeshSource
 	private const string HelperName = "cadmpeg.exe";
 
 	/// <summary>
-	/// Formats confirmed on real documents. The helper claims to read more — CATIA, Creo, NX, SAT, Fusion — but nothing
-	/// is promised here that has not been seen working on a genuine file of that kind.
+	/// Formats confirmed on real documents: parts from SolidWorks, Rhino, FreeCAD, Siemens NX and CATIA. The helper
+	/// claims to read Creo as well, but on genuine NIST parts it gives back a handful of triangles instead of a shape,
+	/// and a wrong shape is worse than none — so Creo is left out until it can be seen working.
+	///
+	/// Note that ".prt" belongs to NX here: Creo keeps the version after its extension, as in "part.prt.3", which is
+	/// not this extension at all.
 	/// </summary>
-	private static readonly string[] SupportedExtensions = [".sldprt", ".3dm", ".fcstd"];
+	private static readonly string[] SupportedExtensions = [".sldprt", ".3dm", ".fcstd", ".prt", ".catpart"];
 
 	/// <summary>Below this, a document is treated as having no usable mesh of its own and the surfaces are tried instead.</summary>
 	private const int MeaningfulTriangles = 8;
