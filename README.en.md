@@ -4,11 +4,22 @@ A file manager for Windows 11 — a fork of [Files](https://github.com/files-com
 
 The project is free and open. This is an early version: it works, but rough edges are still there, and reports about them are welcome.
 
-Русская версия этого текста — [README.md](README.md).
+[**Download a ready build**](https://github.com/egorcha174/ConsystoFiles/releases) · Русская версия — [README.md](README.md)
+
+![A folder of SolidWorks, Fusion and Siemens NX parts, each shown as a model](docs/screenshots/cad-formats.png)
+
+*A folder of parts from several CAD systems. None of those systems is installed.*
 
 ## What is added to Files
 
-**Drawings and models.** DWG, DXF and Autodesk Inventor files (parts, assemblies, drawings, presentations) are shown in the preview pane without starting a CAD system. Columns carry the properties that matter: part code, material, mass, and the version of the program the file was last saved in. The same properties can be filtered on.
+**Drawings and models.** Shown in the preview pane without starting a CAD system, and without having one installed:
+
+- **DWG and DXF** — the drawing itself is redrawn, outlines and lines;
+- **Inventor** — parts, assemblies, drawings, presentations;
+- **SolidWorks, KOMPAS-3D, Autodesk Fusion, Siemens NX, CATIA, Rhino, FreeCAD** — the part appears as a model that can be turned with the mouse; where the format is closed and the geometry cannot be reached, the picture the program itself saved inside the file is shown instead;
+- **STEP and IGES** — exchange formats, tessellated by the Open CASCADE engine.
+
+Columns carry the properties that matter: part code, material, mass, and the version of the program the file was last saved in. The same properties can be filtered on.
 
 **Collections.** Libraries built on top of folders — books, pictures, music, drawings. Files stay where they are; only an index is built. Indexing shows its progress and the folder it is working through. Duplicates are found by sampling file contents, not by name alone.
 
@@ -53,6 +64,28 @@ drives and of the computer are replaced by plain ones — "System (C:)", "Work (
 This is meant for screenshots and for showing the program: one can see how it works with
 real files without seeing how the owner's drives are named. The code is left out of ordinary
 builds.
+
+## What it looks like
+
+**Model preview.** A SolidWorks part opened as real geometry — it can be turned and looked at from the other side.
+
+![Preview pane with a SolidWorks part](docs/screenshots/cad-preview.png)
+
+**Drawings for cutting.** DXF flat patterns are visible in the folder itself, without opening each one.
+
+![A folder of DXF flat patterns](docs/screenshots/drawings-dxf.png)
+
+**A collection of drawings.** An index over several folders: 543 drawings with previews, materials and filters. The files stay where they are.
+
+![A collection of 543 drawings](docs/screenshots/collection.png)
+
+**Two panes.** A header with drives above each one, swapping sides, moving through folders together.
+
+![Two panes side by side](docs/screenshots/two-panes.png)
+
+**A terminal tab.** A real console next to the folders.
+
+![A terminal in a tab](docs/screenshots/terminal.png)
 
 ## Licences and credits
 

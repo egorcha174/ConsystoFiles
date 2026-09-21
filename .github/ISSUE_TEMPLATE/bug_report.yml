@@ -1,29 +1,19 @@
-name: Bug Report
-description: Create a bug report to help improve Files.
-type: 'Bug'
-title: 'Bug: '
+name: Сообщить об ошибке
+description: Что-то работает не так, как ожидалось
+title: 'Ошибка: '
+labels: ['bug']
 body:
 
-  # Tip to warn of checking for existing issues
-  - type: markdown
-    attributes:
-      value: |
-        > [!TIP]
-        > Have you checked for similar issues? There's a possibility the bug you are experiencing has already been reported. Please do a thorough search before creating a new issue.
-
-  # Description
   - type: textarea
     attributes:
-      label: Description
-      description: A clear and concise description of what the issue is.
+      label: Что произошло
+      description: Что вы делали, что ожидали увидеть и что увидели вместо этого.
     validations:
       required: true
 
-  # Step To Reproduce
   - type: textarea
     attributes:
-      label: Steps To Reproduce
-      description: Steps to reproduce the behavior.
+      label: Как повторить
       placeholder: |
         1.
         2.
@@ -31,49 +21,38 @@ body:
     validations:
       required: true
 
-  # Files Version
   - type: input
-    id: files_version
+    id: app_version
     attributes:
-      label: Files Version
-      description: Which version of Files are you using? To copy your Files version, access it from Settings -> About -> Copy -> Files version.
-      placeholder: "e.g. 2.0.34.0"
+      label: Версия программы
+      description: «Настройки → О приложении».
+      placeholder: 'например, 1.26.921.1014'
     validations:
       required: true
 
-  # Windows Version
   - type: input
     id: windows_version
     attributes:
-      label: Windows Version
-      description: Which version of Windows are you using? To copy your Windows version, access it from Settings -> About -> Copy -> Windows version.
-      placeholder: "e.g. 10.0.22621.1848"
-    validations:
-      required: true
-
-  # User ID
-  - type: input
-    id: user_id
-    attributes:
-      label: User ID
-      description: Your User ID is a GUID that can be matched up with bug reports in Sentry. To copy your User ID, access it from Settings -> About -> Copy -> User ID.
-      placeholder: "74750836-5885-4eeb-964f-8177cb4babf6"
+      label: Версия Windows
+      description: 'Параметры → Система → О системе.'
+      placeholder: 'например, 10.0.26100'
     validations:
       required: false
 
-  # Note that the user should always upload the report rather than pasting it.
+  - type: textarea
+    id: cad
+    attributes:
+      label: Если дело в чертеже или модели
+      description: >
+        Какой формат файла и в какой программе он сохранён. **Сам файл присылать не надо**:
+        в нём может быть работа вашего заказчика. Достаточно формата и названия программы.
+      placeholder: 'например, .sldprt из SolidWorks 2024'
+    validations:
+      required: false
+
   - type: markdown
     attributes:
       value: |
-        > [!IMPORTANT]
-        > The log file can be accessed from **Settings → About → Open log location**. If you cannot access the UI, you can locate the file [manually](https://files.community/docs/getting-started/faq#:~:text=How%20to%20Locate%20the%20Log%20File).
-        >
-        > Feel free to remove potentially sensitive information such as usernames or drive names before uploading the file.
-
-  # Log File
-  - type: upload
-    attributes:
-      label: Log File
-    validations:
-      required: true
-      accept: ".log"
+        Журнал работы лежит в папке `data` рядом с программой. Прикладывать его не обязательно,
+        но он помогает. Перед отправкой уберите из него то, что не хотите показывать, —
+        имена дисков, папок и заказчиков.

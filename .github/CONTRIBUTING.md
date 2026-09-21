@@ -1,56 +1,32 @@
-# Contributing to Files
-Files thrives off of the contributions and input from users. There are several ways you can get involved.
+# Как помочь проекту
 
-We are happy to hear your feedback for the future of Files. Check the
-[issues tab](https://github.com/files-community/Files/issues) to see if others have
-submitted similar feedback. You can add your feedback to existing issues or you can open a new issue.
+Consysto Files — форк [Files](https://github.com/files-community/Files), который я делаю
+под свою работу конструктора. Проект небольшой и ведётся одним человеком, поэтому и порядок
+здесь простой.
 
-We always look at your feedback when we decide what to work on next and we look forward to hearing your ideas. Remember that
-all community interactions must abide by the [Code of Conduct](./CODE_OF_CONDUCT.md).
+## Нашли ошибку
 
-## Finding issues you can help with
-Looking for something to work on?
-Issues marked as ready to build are a good place to start. If you're interested in working on an issue, leave a comment to let everyone know and to help
-avoid duplicated effort from others.
+Откройте [задачу](https://github.com/egorcha174/ConsystoFiles/issues) и опишите, что произошло.
+Полезнее всего:
 
-## Contributions we accept
-We welcome your contributions to the Files project, especially to fix bugs and to make
-improvements which address the top issues reported by Files users. Some general guidelines:
+- что делали и что ожидали увидеть;
+- версия программы («Настройки → О приложении»);
+- если дело в чертеже или модели — какой формат и в какой программе файл сохранён.
+  **Сам файл присылать не надо**: в нём может быть работа вашего заказчика.
 
-* **DO** create one pull request per Issue, and ensure that the Issue is linked in the pull request.
-* **DO** follow our [Coding and Style](https://files.community/docs/contributing/code-style) guidelines, and keep code changes as small as possible.
-* **DO** include corresponding tests whenever possible.
-* **DO** check for additional occurrences of the same problem in other parts of the codebase before submitting your PR.
-* **DO** [link the issue](https://docs.github.com/en/github/managing-your-work-on-github/linking-a-pull-request-to-an-issue#manually-linking-a-pull-request-to-an-issue) you are addressing in the 
-   pull request.
-* **DO** write a good description for your pull request. More detail is better. Describe *why* the change is being 
-   made and *why* you have chosen a particular solution. Describe any manual testing you performed to validate your change.
-* **DO NOT** submit a PR unless the connected issue is marked as ready to build or approved by an org member.
-   This enables us to have a discussion on the idea before anyone invests time on the implementation.
-* **DO NOT** merge multiple changes into one PR unless they have the same root cause.
+Ошибки в просмотре CAD-файлов особенно ценны: под каждый формат приходится разбираться
+отдельно, и сообщение «такой-то файл не открылся» — это прямая подсказка, что чинить.
 
-> Submitting a pull request for an approved Issue is not a guarantee it will be approved.
-> The change must meet our high bar for code quality, architecture, and performance.
+## Хотите прислать правку
 
-## Making changes to the code
+Правки принимаются, но сперва лучше завести задачу и обсудить замысел — так никто
+не потратит вечер впустую. Дальше обычным порядком: ветка, одна правка на одну задачу,
+понятное описание того, **почему** сделано именно так.
 
-If your change is complex, please clean up the branch history before submitting a pull request.
-You can use [git rebase](https://docs.microsoft.com/en-us/azure/devops/repos/git/rebase#squash-local-commits)
-to group your changes into a small number of commits which we can review one at a time.
+Код держится стиля основного проекта Files. Новые куски (просмотр чертежей, коллекции,
+терминал, торренты) написаны на C# для .NET 10.
 
-When completing a pull request, we will generally squash your changes into a single commit. Please
-let us know if your pull request needs to be merged as separate commits.
+## Ошибки самого Files
 
-## Running interaction tests (optional)
-First, you will need to install WinAppDriver. You can download the latest version from [here](https://github.com/microsoft/WinAppDriver/releases).
-After installing WinAppDriver, you will need to run the Files.Package at least once to have the debug version be registered on your machine.
-Once you have the debug version registered, you can run the tests from the test explorer in Visual Studio.
-
-## Review Process
-After submitting a pull request, members of the Files team will review your code. Any member of the community may
-participate in the review, but at least one member of the Files team will ultimately approve
-the request.
-
-Often, multiple iterations will be needed to respond to feedback from reviewers. Try looking at
-[past pull requests](https://github.com/files-community/Files/pulls?q=is%3Apr+is%3Aclosed) to see
-what the experience might be like.
+Если та же беда воспроизводится в оригинальном [Files](https://github.com/files-community/Files),
+сообщать о ней лучше им: там её починят для всех сразу.

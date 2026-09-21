@@ -1,19 +1,13 @@
-<!-- 
-🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
-I ACKNOWLEDGE THE FOLLOWING BEFORE PROCEEDING:
-1. PR may be deleted if it is not following the template
-2. Try not to make duplicates. Do a quick search before posting
-3. Add a clear title starting with "Feature:" or "Fix:"
--->
+**Что меняется и зачем**
 
-**Resolved / Related Issues**
+Опишите, какую задачу решает правка и почему выбран именно такой способ.
 
-To prevent extra work, all changes to the Files codebase must link to an approved issue marked as `Ready to build`. Please insert the issue number following the hashtag with the issue number that this Pull Request resolves.
-- Closes #
+- Связанная задача: #
 
-**Steps used to test these changes**
+**Как проверяли**
 
-Stability is a top priority for Files and all changes are required to go through testing before being merged into the repo. Please include a list of steps that you used to test this PR.
+Перечислите шаги, которыми убедились, что работает. Если правка касается просмотра
+чертежей или моделей — напишите, на файлах каких форматов проверяли.
 
-1. Opened Files ...
-2. ...
+1.
+2.
