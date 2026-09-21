@@ -1,4 +1,5 @@
 using Consysto.CadPreview.Drawing;
+using Consysto.CadPreview.Fusion;
 using Consysto.CadPreview.Inventor;
 using Consysto.CadPreview.Kompas;
 using Consysto.CadPreview.Mesh;
@@ -38,6 +39,7 @@ public static class CadPreviewSource
                 || SolidWorksPreviewReader.IsSupported(extension)
                 || CadMeshSource.IsSupported(extension)
                 || KompasPreviewReader.IsSupported(extension)
+                || FusionPreviewReader.IsSupported(extension)
                 || StepMeshSource.IsSupported(extension));
 
     public static CadPreviewContent Load(string path)
@@ -85,6 +87,9 @@ public static class CadPreviewSource
 
                 if (KompasPreviewReader.IsSupported(extension))
                     return new CadPreviewContent { Image = KompasPreviewReader.TryRead(path) };
+
+                if (FusionPreviewReader.IsSupported(extension))
+                    return new CadPreviewContent { Image = FusionPreviewReader.TryRead(path) };
 
                 return InventorPreviewReader.IsSupported(extension)
                     ? new CadPreviewContent { Image = InventorPreviewReader.TryRead(path) }

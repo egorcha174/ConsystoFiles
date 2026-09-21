@@ -11,6 +11,8 @@
   <ItemGroup>
     <PackageReference Include="ACadSharp" />
     <PackageReference Include="OpenMcdf" />
+    <!-- Fusion squeezes what is inside its documents with Zstandard, which the zip reader of .NET does not know -->
+    <PackageReference Include="ZstdSharp.Port" />
   </ItemGroup>
 
   <ItemGroup>
