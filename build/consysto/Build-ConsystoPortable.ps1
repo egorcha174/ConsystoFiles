@@ -109,6 +109,9 @@ foreach ($name in 'README.md', 'README.en.md', 'LICENSE-MIT', 'LICENSE-MPL', 'NO
     if (Test-Path -LiteralPath $source) { Copy-Item -LiteralPath $source -Destination $release -Force }
 }
 
+# Помощник для чтения чужих CAD-форматов: в репозитории его нет, скрипт берёт официальный выпуск
+& (Join-Path $PSScriptRoot 'Get-CadHelpers.ps1') -Destination (Join-Path $release 'CadHelpers')
+
 $size = [math]::Round((Get-ChildItem $release -Recurse -File | Measure-Object Length -Sum).Sum / 1MB)
 Write-Host "Папка: $release ($size МБ)"
 

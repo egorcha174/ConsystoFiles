@@ -62,6 +62,8 @@ This project is not affiliated with Files Community and is not supported by them
 
 Thanks to the authors of Files and of the libraries everything rests on: ACadSharp, MonoTorrent, OpenMcdf, Win2D, CommunityToolkit.
 
+The geometry of SolidWorks parts is read by [cadmpeg](https://github.com/cadmpeg/cadmpeg) under the Apache-2.0 licence. It sits as a separate program in the `CadHelpers` folder next to Files and runs only while a file is being read; its licence is there too.
+
 ## Feedback
 
 Found a bug — please open an issue. It helps a lot to attach `data\Local\debug.log`, or, in the installed version, the report that Settings → About → "Save an error report" puts on your desktop.

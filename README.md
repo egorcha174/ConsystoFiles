@@ -62,6 +62,8 @@ build\consysto\Build-ConsystoPortable.ps1
 
 Спасибо авторам Files и библиотек, на которых всё держится: ACadSharp, MonoTorrent, OpenMcdf, Win2D, CommunityToolkit.
 
+Геометрию деталей SolidWorks читает [cadmpeg](https://github.com/cadmpeg/cadmpeg) под лицензией Apache-2.0. Он лежит отдельной программой в папке `CadHelpers` рядом с Files и запускается только на время чтения файла; его лицензия — там же.
+
 ## Обратная связь
 
 Нашли ошибку — напишите в разделе Issues. Полезно приложить `data\Local\debug.log` или отчёт, который кладёт на рабочий стол кнопка «Настройки» → «О программе» → «Сохранить отчёт об ошибке».
