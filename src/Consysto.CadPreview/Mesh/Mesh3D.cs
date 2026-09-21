@@ -40,6 +40,9 @@ public sealed class Mesh3D
 
     public int TriangleCount => Vertices.Length / 3;
 
+    /// <summary>Nothing to show: a file whose geometry this build could not read.</summary>
+    public static Mesh3D Empty { get; } = new([], MeshUp.Z);
+
     public bool IsEmpty => Vertices.Length == 0;
 
     public Vector3 Min { get; }

@@ -72,7 +72,17 @@ public static class CadPreviewSource
             default:
                 // Documents of other CAD systems: what they saved as their own picture is what we show
                 if (SolidWorksPreviewReader.IsSupported(extension))
+                {
+                    // A part can be read as real geometry and turned in the hand; what cannot be read falls back to the picture
+                    if (SolidWorksMeshSource.IsSupported(extension))
+                    {
+                        var part = SolidWorksMeshSource.Load(path);
+                        if (!part.IsEmpty)
+                            return new CadPreviewContent { Mesh = part };
+                    }
+
                     return new CadPreviewContent { Image = SolidWorksPreviewReader.TryRead(path) };
+                }
 
                 if (KompasPreviewReader.IsSupported(extension))
                     return new CadPreviewContent { Image = KompasPreviewReader.TryRead(path) };
