@@ -4728,6 +4728,10 @@
   <data name="ConfirmRemoveTagsDialogContent" xml:space="preserve">
     <value>Are you sure you want to remove tags from the selected items?</value>
   </data>
+  <!-- Consysto fork: a thank-you to the person who made this build -->
+  <data name="ConsystoSupportProject" xml:space="preserve">
+    <value>Поблагодарить автора</value>
+  </data>
   <data name="ConsystoWindowMinimize" xml:space="preserve">
     <value>Свернуть</value>
   </data>

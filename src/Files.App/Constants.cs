@@ -174,8 +174,11 @@ namespace Files.App
 			public const string DiscordUrl = @"https://github.com/egorcha174/ConsystoFiles/discussions";
 			public const string FeatureRequestUrl = @"https://github.com/egorcha174/ConsystoFiles/issues/new";
 			public const string BugReportUrl = @"https://github.com/egorcha174/ConsystoFiles/issues/new";
-			public const string PrivacyPolicyUrl = @"https://files.community/privacy";
-			public const string SupportUsUrl = @"https://files.community/sponsor";
+			// Consysto fork: our own page — the upstream one describes what a different program collects
+			public const string PrivacyPolicyUrl = @"https://github.com/egorcha174/ConsystoFiles/blob/main/.github/PRIVACY.md";
+			// Consysto fork: a thank-you goes to the person who made this build, not to the upstream project.
+			// GitHub Sponsors does not work from Russia, so this is a Russian payment page
+			public const string SupportUsUrl = @"https://pay.cloudtips.ru/p/c83072e9";
 			public const string CrowdinUrl = @"https://crowdin.com/project/files-app";
 			public static readonly string ReleaseNotesUrl = @"https://github.com/egorcha174/ConsystoFiles/releases";
 		}

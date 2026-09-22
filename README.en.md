@@ -97,6 +97,12 @@ Thanks to the authors of Files and of the libraries everything rests on: ACadSha
 
 The geometry of SolidWorks parts is read by [cadmpeg](https://github.com/cadmpeg/cadmpeg) under the Apache-2.0 licence. It sits as a separate program in the `CadHelpers` folder next to Files and runs only while a file is being read; its licence is there too.
 
+## Saying thank you
+
+The program is free and will stay that way. If it saved you time and you would like to say thanks, there is [a page for that](https://pay.cloudtips.ru/p/c83072e9). It takes Russian cards and transfers; no account needed.
+
+There is no GitHub Sponsors button and there will not be one: it does not work from Russia. Cards issued outside Russia are not accepted by the payment page either, so from abroad the kind thing is a bug report rather than money.
+
 ## Feedback
 
 Found a bug — please open an issue. It helps a lot to attach `data\Local\debug.log`, or, in the installed version, the report that Settings → About → "Save an error report" puts on your desktop.

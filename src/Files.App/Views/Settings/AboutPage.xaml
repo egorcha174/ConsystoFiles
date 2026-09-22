@@ -1,4 +1,4 @@
-<!--  Copyright (c) Files Community. Licensed under the MIT License.  -->
+﻿<!--  Copyright (c) Files Community. Licensed under the MIT License.  -->
 <Page
 	x:Class="Files.App.Views.Settings.AboutPage"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -47,12 +47,11 @@
 				</Button>
 			</wctcontrols:SettingsCard>
 
-			<!--  Consysto fork: hidden until this build has a page of its own  -->
+			<!--  Consysto fork: opens a Russian payment page; GitHub Sponsors does not work from Russia  -->
 			<wctcontrols:SettingsCard
 				x:Name="SponsorCard"
-				x:Load="False"
 				Command="{x:Bind ViewModel.SupportUsCommand}"
-				Header="{helpers:ResourceString Name=SponsorUsOnGitHub}"
+				Header="{helpers:ResourceString Name=ConsystoSupportProject}"
 				IsClickEnabled="True">
 				<wctcontrols:SettingsCard.HeaderIcon>
 					<FontIcon Glyph="&#xEB51;" />

@@ -37,7 +37,7 @@
 			BorderThickness="0,1,0,0">
 			<HyperlinkButton
 				HorizontalAlignment="Left"
-				Content="{helpers:ResourceString Name=SponsorUsOnGitHub}"
+				Content="{helpers:ResourceString Name=ConsystoSupportProject}"
 				NavigateUri="{x:Bind ViewModel.SupportUsUrl, Mode=OneTime}" />
 		</Border>
 	</Grid>
