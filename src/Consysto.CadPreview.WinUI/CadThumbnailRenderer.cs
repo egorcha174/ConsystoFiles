@@ -4,12 +4,17 @@ using Consysto.CadPreview.Mesh;
 using Microsoft.Graphics.Canvas;
 using Microsoft.UI;
 using Windows.Foundation;
+using Windows.Data.Pdf;
 using Windows.Graphics.DirectX;
+using Windows.Storage;
 using Windows.Storage.Streams;
 
 namespace Consysto.CadPreview.WinUI;
 
-/// <summary>Off-screen PNG thumbnails: a drawing on a white sheet, a shaded mesh, or an image embedded in the file.</summary>
+/// <summary>
+/// Off-screen PNG thumbnails: a drawing on a white sheet, a shaded mesh, an image embedded in the file,
+/// or the first page of a document that is a PDF inside.
+/// </summary>
 public static class CadThumbnailRenderer
 {
     public static async Task<byte[]?> RenderDrawingAsync(Drawing2D drawing, int size)
@@ -68,6 +73,49 @@ public static class CadThumbnailRenderer
         {
             session.Clear(Colors.Transparent);
             session.DrawImage(bitmap, new Rect((size - width) / 2, (size - height) / 2, width, height), bitmap.Bounds, 1f, CanvasImageInterpolation.HighQualityCubic);
+        }
+
+        return await EncodePngAsync(target);
+    }
+
+    /// <summary>
+    /// The first page of a PDF-shaped document, drawn on white. Used for Adobe Illustrator files, which are PDFs
+    /// inside: the artwork is their first page.
+    /// </summary>
+    public static async Task<byte[]?> RenderPdfPageAsync(string path, int size)
+    {
+        if (size < 8)
+            return null;
+
+        var file = await StorageFile.GetFileFromPathAsync(path);
+        var document = await PdfDocument.LoadFromFileAsync(file);
+        if (document.PageCount == 0)
+            return null;
+
+        using var page = document.GetPage(0);
+        var options = new PdfPageRenderOptions { BackgroundColor = Colors.White };
+        // The longer side is asked for, so a page of any shape comes back fitting the square
+        if (page.Size.Width >= page.Size.Height)
+            options.DestinationWidth = (uint)size;
+        else
+            options.DestinationHeight = (uint)size;
+
+        using var drawn = new InMemoryRandomAccessStream();
+        await page.RenderToStreamAsync(drawn, options);
+        drawn.Seek(0);
+
+        var device = CanvasDevice.GetSharedDevice();
+        using var bitmap = await CanvasBitmap.LoadAsync(device, drawn);
+
+        using var target = new CanvasRenderTarget(device, size, size, 96);
+        using (var session = target.CreateDrawingSession())
+        {
+            session.Clear(Colors.Transparent);
+            session.DrawImage(bitmap, new Rect(
+                (size - bitmap.SizeInPixels.Width) / 2.0,
+                (size - bitmap.SizeInPixels.Height) / 2.0,
+                bitmap.SizeInPixels.Width,
+                bitmap.SizeInPixels.Height));
         }
 
         return await EncodePngAsync(target);

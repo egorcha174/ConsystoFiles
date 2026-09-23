@@ -1,3 +1,4 @@
+using Consysto.CadPreview.Artwork;
 using Consysto.CadPreview.Drawing;
 using Consysto.CadPreview.Fusion;
 using Consysto.CadPreview.Inventor;
@@ -23,7 +24,13 @@ public sealed class CadPreviewContent
     /// </summary>
     public byte[]? Image { get; init; }
 
-    public bool IsEmpty => Drawing is null && Mesh is null && Image is null;
+    /// <summary>
+    /// A document that is a PDF inside and whose first page is the picture — an Adobe Illustrator file saved the usual
+    /// way. Drawing a page needs the engine of the host, so the path is passed on rather than the picture itself.
+    /// </summary>
+    public string? PdfPath { get; init; }
+
+    public bool IsEmpty => Drawing is null && Mesh is null && Image is null && PdfPath is null;
 }
 
 public static class CadPreviewSource
@@ -39,6 +46,7 @@ public static class CadPreviewSource
                 || SolidWorksPreviewReader.IsSupported(extension)
                 || CadMeshSource.IsSupported(extension)
                 || KompasPreviewReader.IsSupported(extension)
+                || ArtworkPreviewReader.IsSupported(extension)
                 || FusionPreviewReader.IsSupported(extension)
                 || StepMeshSource.IsSupported(extension));
 
@@ -90,6 +98,12 @@ public static class CadPreviewSource
 
                 if (FusionPreviewReader.IsSupported(extension))
                     return new CadPreviewContent { Image = FusionPreviewReader.TryRead(path) };
+
+                // Illustrator and CorelDRAW: an .ai is a PDF to be drawn, a .cdr carries a finished picture
+                if (ArtworkPreviewReader.IsSupported(extension))
+                    return ArtworkPreviewReader.IsPdfInside(path)
+                        ? new CadPreviewContent { PdfPath = path }
+                        : new CadPreviewContent { Image = ArtworkPreviewReader.TryRead(path) };
 
                 return InventorPreviewReader.IsSupported(extension)
                     ? new CadPreviewContent { Image = InventorPreviewReader.TryRead(path) }

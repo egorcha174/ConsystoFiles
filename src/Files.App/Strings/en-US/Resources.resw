@@ -5453,6 +5453,12 @@
   <data name="ConsystoFileType3mf" xml:space="preserve">
     <value>3MF print project</value>
   </data>
+  <data name="ConsystoFileTypeAi" xml:space="preserve">
+    <value>Illustrator artwork</value>
+  </data>
+  <data name="ConsystoFileTypeCdr" xml:space="preserve">
+    <value>CorelDRAW artwork</value>
+  </data>
   <data name="ConsystoCadVersion" xml:space="preserve">
     <value>Version</value>
   </data>

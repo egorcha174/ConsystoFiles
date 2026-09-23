@@ -1,4 +1,4 @@
-// Copyright (c) Files Community
+﻿// Copyright (c) Files Community
 // SPDX-License-Identifier: MPL-2.0
 
 using System.Collections.Concurrent;
@@ -29,6 +29,9 @@ namespace Files.App.Utils.Storage
 				".iges" or ".igs" => Strings.ConsystoFileTypeIges.GetLocalizedResource(),
 				".stl" => Strings.ConsystoFileTypeStl.GetLocalizedResource(),
 				".3mf" => Strings.ConsystoFileType3mf.GetLocalizedResource(),
+				// Windows names these after whichever program registered them; with none installed it has no name at all
+				".ai" => Strings.ConsystoFileTypeAi.GetLocalizedResource(),
+				".cdr" => Strings.ConsystoFileTypeCdr.GetLocalizedResource(),
 				_ => null,
 			};
 

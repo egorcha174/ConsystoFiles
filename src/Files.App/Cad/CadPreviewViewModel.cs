@@ -4,6 +4,7 @@ using Consysto.CadPreview;
 using Consysto.CadPreview.Drawing;
 using Consysto.CadPreview.Inventor;
 using Consysto.CadPreview.Mesh;
+using Consysto.CadPreview.WinUI;
 using Files.App.ViewModels.Previews;
 using Files.App.ViewModels.Properties;
 using Microsoft.Extensions.Logging;
@@ -71,6 +72,9 @@ namespace Files.App.Cad
 		public Visibility ReferencesVisibility
 			=> References.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
 
+		/// <summary>How large the page of a PDF-shaped document is drawn: enough to read in the pane without waste.</summary>
+		private const int PageSize = 1024;
+
 		public override async Task<List<FileProperty>> LoadPreviewAndDetailsAsync()
 		{
 			CadPreviewContent content;
@@ -88,6 +92,19 @@ namespace Files.App.Cad
 			Mesh = content.Mesh;
 			await LoadReferencesAsync();
 			var details = await LoadPropertiesAsync();
+			// An Illustrator document is a PDF inside: its first page is drawn here and then shown like any other picture
+			if (content.PdfPath is { } pdf)
+			{
+				try
+				{
+					content = new CadPreviewContent { Image = await CadThumbnailRenderer.RenderPdfPageAsync(pdf, PageSize) };
+				}
+				catch (Exception ex)
+				{
+					App.Logger.LogWarning(ex, "The first page of the PDF-shaped document could not be drawn");
+				}
+			}
+
 			if (content.Image is { } image)
 			{
 				await MainWindow.Instance.DispatcherQueue.EnqueueOrInvokeAsync(async () =>

@@ -56,6 +56,7 @@ namespace Files.App.Cad
 						{ Drawing: { } drawing } => await CadThumbnailRenderer.RenderDrawingAsync(drawing, (int)size),
 						{ Mesh: { } mesh } => await CadThumbnailRenderer.RenderMeshAsync(mesh, (int)size),
 						{ Image: { } image } => await CadThumbnailRenderer.RenderImageAsync(image, (int)size),
+						{ PdfPath: { } pdf } => await CadThumbnailRenderer.RenderPdfPageAsync(pdf, (int)size),
 						_ => null,
 					};
 

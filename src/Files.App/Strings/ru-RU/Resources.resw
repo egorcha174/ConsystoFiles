@@ -5446,6 +5446,12 @@
   <data name="ConsystoFileType3mf" xml:space="preserve">
     <value>Проект печати 3MF</value>
   </data>
+  <data name="ConsystoFileTypeAi" xml:space="preserve">
+    <value>Макет Illustrator</value>
+  </data>
+  <data name="ConsystoFileTypeCdr" xml:space="preserve">
+    <value>Макет CorelDRAW</value>
+  </data>
   <data name="ConsystoCadVersion" xml:space="preserve">
     <value>Версия</value>
   </data>
