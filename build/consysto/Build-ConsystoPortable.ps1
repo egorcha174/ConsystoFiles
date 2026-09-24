@@ -104,7 +104,7 @@ New-Item -ItemType Directory -Force -Path (Split-Path $release -Parent) | Out-Nu
 robocopy $build $release /MIR /NFL /NDL /NJH /NJS /NP | Out-Null
 if ($LASTEXITCODE -ge 8) { throw "Не удалось собрать папку раздачи (robocopy $LASTEXITCODE)." }
 
-foreach ($name in 'README.md', 'README.en.md', 'LICENSE-MIT', 'LICENSE-MPL', 'NOTICE.md') {
+foreach ($name in 'README.md', 'README.ru.md', 'LICENSE-MIT', 'LICENSE-MPL', 'NOTICE.md') {
     $source = Join-Path $filesRoot $name
     if (Test-Path -LiteralPath $source) { Copy-Item -LiteralPath $source -Destination $release -Force }
 }

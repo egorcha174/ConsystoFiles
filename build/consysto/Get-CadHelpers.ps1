@@ -42,15 +42,23 @@ if (-not (Test-Path $archive)) {
     Invoke-WebRequest -Uri $address -OutFile $archive -UseBasicParsing
 }
 
-# Сумму публикуют рядом с архивом: скачанное сверяется с ней, а не принимается на веру
-$published = (Invoke-WebRequest -Uri "$address.sha256" -UseBasicParsing).Content
-if ($published -is [byte[]]) { $published = [Text.Encoding]::ASCII.GetString($published) }
-$expected = "$published".Trim().Split()[0]
-$actual = (Get-FileHash $archive -Algorithm SHA256).Hash
+# Сумму публикуют рядом с архивом: скачанное сверяется с ней, а не принимается на веру.
+# Отметка о сверке лежит рядом с архивом, и уже проверенный архив второй раз не сверяется:
+# иначе сборка зависит от сети даже тогда, когда качать нечего, и падает от любого сбоя разрешения имён.
+$checked = "$archive.sha256-ok"
+if (-not (Test-Path $checked)) {
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    $published = (Invoke-WebRequest -Uri "$address.sha256" -UseBasicParsing).Content
+    if ($published -is [byte[]]) { $published = [Text.Encoding]::ASCII.GetString($published) }
+    $expected = "$published".Trim().Split()[0]
+    $actual = (Get-FileHash $archive -Algorithm SHA256).Hash
 
-if ($expected -and $actual -ne $expected) {
-    Remove-Item $archive -Force
-    throw "Контрольная сумма помощника не сошлась: ожидалась $expected, получена $actual. Файл удалён."
+    if ($expected -and $actual -ne $expected) {
+        Remove-Item $archive -Force
+        throw "Контрольная сумма помощника не сошлась: ожидалась $expected, получена $actual. Файл удалён."
+    }
+
+    Set-Content -LiteralPath $checked -Value $actual -Encoding ascii
 }
 
 $unpacked = Join-Path $cache 'unpacked'

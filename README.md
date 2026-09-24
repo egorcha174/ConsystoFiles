@@ -1,10 +1,12 @@
 # Consysto Files
 
-A file manager for Windows 11 — a fork of [Files](https://github.com/files-community/Files) with the things a mechanical designer keeps needing: CAD drawing previews, custom collections, a terminal tab, torrents and folder synchronisation.
+A file manager for Windows 11 that shows what is inside your files — CAD models and drawings, Illustrator and CorelDRAW artwork, e-books, music and photos — without the programs that made them. On top of that: collections over your folders, a terminal tab, a built-in torrent client, folder backups and a proper two-pane mode for those who grew up on Total Commander.
 
-The project is free and open. This is an early version: it works, but rough edges are still there, and reports about them are welcome.
+**It is built on [Files](https://github.com/files-community/Files) by Files Community.** I chose Files because it already is a good modern file manager — tabs, panes, a preview pane, a clean Windows 11 interface. Everything listed under "What is added" below is my work on top of it; the rest belongs to the Files authors.
 
-[**Download a ready build**](https://github.com/egorcha174/ConsystoFiles/releases) · Русская версия — [README.md](README.md)
+I am a mechanical designer, and this project started from what my own work kept needing. The program is free and open. This is an early version: it works, but rough edges are still there, and reports about them are welcome.
+
+[**Download a ready build**](https://github.com/egorcha174/ConsystoFiles/releases) · Русская версия — [README.ru.md](README.ru.md)
 
 ![A folder of SolidWorks, Fusion and Siemens NX parts, each shown as a model](docs/screenshots/cad-formats.png)
 
@@ -18,6 +20,10 @@ The project is free and open. This is an early version: it works, but rough edge
 - **Inventor** — parts, assemblies, drawings, presentations;
 - **SolidWorks, KOMPAS-3D, Autodesk Fusion, Siemens NX, CATIA, Rhino, FreeCAD** — the part appears as a model that can be turned with the mouse; where the format is closed and the geometry cannot be reached, the picture the program itself saved inside the file is shown instead;
 - **STEP and IGES** — exchange formats, tessellated by the Open CASCADE engine.
+
+**An Inventor assembly opens like a folder.** Inside are the parts and subassemblies it uses; the parts stay ordinary files on disk, and references that cannot be found are shown as missing.
+
+**Artwork.** Illustrator (`.ai`, saved PDF-compatible, which is the default) and CorelDRAW (`.cdr`, old and new versions) are shown by the picture stored inside the file. Neither program is started, and nothing inside the file is run.
 
 Columns carry the properties that matter: part code, material, mass, and the version of the program the file was last saved in. The same properties can be filtered on.
 
@@ -33,7 +39,7 @@ Columns carry the properties that matter: part code, material, mass, and the ver
 
 **Control from other programs.** The window can be driven by commands from outside: open a folder in a chosen pane, split the window into two panes, open the terminal or the downloads, make a collection or a backup plan, start a download. It is off by default and is switched on under Settings → Advanced. See the [description of the control channel](build/consysto/api/README.md).
 
-**Two panes.** A header above each pane with drives and free space, swapping the panes, moving through folders in step, and comparing the two open folders.
+**Two panes.** Files already has two panes; here they get a header with drives and free space, swapping sides, moving through folders in step, copying or moving straight to the other pane, and comparing the two open folders.
 
 ## The portable build
 
