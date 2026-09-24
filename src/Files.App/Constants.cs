@@ -182,7 +182,7 @@ namespace Files.App
 			// Consysto fork: where the author writes about this program and the work behind it.
 			// The same posts go to both channels, because not everyone has both
 			public const string ConsystoTelegramUrl = @"https://t.me/print3d_lasercut";
-			public const string ConsystoMaxUrl = @"https://max.ru/join/1FoA1EkO0eTPcZT3Bnt8yhtqZrIjUYruLxTfswLRrsM";
+			public const string ConsystoMaxUrl = @"https://max.ru/channel_designerday";
 			// A blog with a paid tier; the program itself stays free on the releases page above
 			public const string ConsystoBoostyUrl = @"https://boosty.to/egorcha";
 			public const string ConsystoBoostyDonateUrl = @"https://boosty.to/egorcha/donate";
