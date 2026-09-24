@@ -4732,6 +4732,24 @@
   <data name="ConsystoSupportProject" xml:space="preserve">
     <value>Поблагодарить автора</value>
   </data>
+  <data name="ConsystoAuthorLinks" xml:space="preserve">
+    <value>Автор и его каналы</value>
+  </data>
+  <data name="ConsystoAuthorLinksDescription" xml:space="preserve">
+    <value>Где я пишу об этой программе и о работе, из которой она выросла</value>
+  </data>
+  <data name="ConsystoChannelTelegram" xml:space="preserve">
+    <value>Telegram: «3D-печать и лазерная резка»</value>
+  </data>
+  <data name="ConsystoChannelMax" xml:space="preserve">
+    <value>MAX: «Будни конструктора»</value>
+  </data>
+  <data name="ConsystoBoosty" xml:space="preserve">
+    <value>Boosty: блог и поддержка</value>
+  </data>
+  <data name="ConsystoBoostyDescription" xml:space="preserve">
+    <value>Там же можно скачать сборку за донат. Бесплатно она всегда есть на GitHub</value>
+  </data>
   <data name="ConsystoWindowMinimize" xml:space="preserve">
     <value>Свернуть</value>
   </data>

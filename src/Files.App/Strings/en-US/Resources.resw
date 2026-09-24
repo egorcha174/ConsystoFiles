@@ -4738,6 +4738,24 @@
   <data name="ConsystoSupportProject" xml:space="preserve">
     <value>Thank the author</value>
   </data>
+  <data name="ConsystoAuthorLinks" xml:space="preserve">
+    <value>The author and his channels</value>
+  </data>
+  <data name="ConsystoAuthorLinksDescription" xml:space="preserve">
+    <value>Where I write about this program and the work it grew out of</value>
+  </data>
+  <data name="ConsystoChannelTelegram" xml:space="preserve">
+    <value>Telegram: 3D printing and laser cutting</value>
+  </data>
+  <data name="ConsystoChannelMax" xml:space="preserve">
+    <value>MAX: A designer’s working days</value>
+  </data>
+  <data name="ConsystoBoosty" xml:space="preserve">
+    <value>Boosty: blog and support</value>
+  </data>
+  <data name="ConsystoBoostyDescription" xml:space="preserve">
+    <value>A build can be downloaded there for a donation. It is always free on GitHub</value>
+  </data>
   <data name="ConsystoWindowMinimize" xml:space="preserve">
     <value>Minimize</value>
   </data>

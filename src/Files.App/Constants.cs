@@ -1,4 +1,4 @@
-// Copyright (c) Files Community
+﻿// Copyright (c) Files Community
 // Licensed under the MIT License.
 
 using Windows.ApplicationModel;
@@ -179,6 +179,12 @@ namespace Files.App
 			// Consysto fork: a thank-you goes to the person who made this build, not to the upstream project.
 			// GitHub Sponsors does not work from Russia, so this is a Russian payment page
 			public const string SupportUsUrl = @"https://pay.cloudtips.ru/p/c83072e9";
+			// Consysto fork: where the author writes about this program and the work behind it.
+			// The same posts go to both channels, because not everyone has both
+			public const string ConsystoTelegramUrl = @"https://t.me/print3d_lasercut";
+			public const string ConsystoMaxUrl = @"https://max.ru/join/1FoA1EkO0eTPcZT3Bnt8yhtqZrIjUYruLxTfswLRrsM";
+			// A blog with a paid tier; the program itself stays free on the releases page above
+			public const string ConsystoBoostyUrl = @"https://boosty.to/egorcha";
 			public const string CrowdinUrl = @"https://crowdin.com/project/files-app";
 			public static readonly string ReleaseNotesUrl = @"https://github.com/egorcha174/ConsystoFiles/releases";
 		}

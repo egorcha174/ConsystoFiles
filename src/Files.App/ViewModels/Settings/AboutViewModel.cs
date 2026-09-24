@@ -1,4 +1,4 @@
-// Copyright (c) Files Community
+﻿// Copyright (c) Files Community
 // Licensed under the MIT License.
 
 using Microsoft.Extensions.Logging;
@@ -40,6 +40,10 @@ namespace Files.App.ViewModels.Settings
 		public ICommand CopyWindowsVersionCommand { get; }
 		public ICommand CopyUserIDCommand { get; }
 		public ICommand SupportUsCommand { get; }
+		/// <summary>Consysto fork: the author's own channels and blog.</summary>
+		public ICommand OpenTelegramCommand { get; }
+		public ICommand OpenMaxCommand { get; }
+		public ICommand OpenBoostyCommand { get; }
 		public ICommand OpenLogLocationCommand { get; }
 		public ICommand OpenDocumentationCommand { get; }
 		public ICommand OpenDiscordCommand { get; }
@@ -88,6 +92,9 @@ namespace Files.App.ViewModels.Settings
 			CopyWindowsVersionCommand = new RelayCommand(CopyWindowsVersion);
 			CopyUserIDCommand = new RelayCommand(CopyUserID);
 			SupportUsCommand = new AsyncRelayCommand(SupportUs);
+			OpenTelegramCommand = new AsyncRelayCommand(OpenTelegram);
+			OpenMaxCommand = new AsyncRelayCommand(OpenMax);
+			OpenBoostyCommand = new AsyncRelayCommand(OpenBoosty);
 			OpenDocumentationCommand = new AsyncRelayCommand(DoOpenDocumentation);
 			OpenDiscordCommand = new AsyncRelayCommand(DoOpenDiscord);
 			SubmitFeatureRequestCommand = new AsyncRelayCommand(DoSubmitFeatureRequest);
@@ -205,6 +212,21 @@ namespace Files.App.ViewModels.Settings
 		public Task SupportUs()
 		{
 			return Launcher.LaunchUriAsync(new Uri(Constants.ExternalUrl.SupportUsUrl)).AsTask();
+		}
+
+		public Task OpenTelegram()
+		{
+			return Launcher.LaunchUriAsync(new Uri(Constants.ExternalUrl.ConsystoTelegramUrl)).AsTask();
+		}
+
+		public Task OpenMax()
+		{
+			return Launcher.LaunchUriAsync(new Uri(Constants.ExternalUrl.ConsystoMaxUrl)).AsTask();
+		}
+
+		public Task OpenBoosty()
+		{
+			return Launcher.LaunchUriAsync(new Uri(Constants.ExternalUrl.ConsystoBoostyUrl)).AsTask();
 		}
 
 		public string GetAppVersion()

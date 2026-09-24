@@ -62,6 +62,45 @@
 				</wctcontrols:SettingsCard.ActionIcon>
 			</wctcontrols:SettingsCard>
 
+			<!--  Consysto fork: where the author writes about this program  -->
+			<wctcontrols:SettingsExpander HorizontalAlignment="Stretch" Description="{helpers:ResourceString Name=ConsystoAuthorLinksDescription}" Header="{helpers:ResourceString Name=ConsystoAuthorLinks}">
+				<wctcontrols:SettingsExpander.HeaderIcon>
+					<FontIcon Glyph="&#xE8BD;" />
+				</wctcontrols:SettingsExpander.HeaderIcon>
+				<wctcontrols:SettingsExpander.Items>
+					<wctcontrols:SettingsCard
+						HorizontalAlignment="Stretch"
+						Command="{x:Bind ViewModel.OpenTelegramCommand}"
+						Header="{helpers:ResourceString Name=ConsystoChannelTelegram}"
+						IsClickEnabled="True">
+						<wctcontrols:SettingsCard.ActionIcon>
+							<FontIcon Glyph="&#xE8A7;" />
+						</wctcontrols:SettingsCard.ActionIcon>
+					</wctcontrols:SettingsCard>
+
+					<wctcontrols:SettingsCard
+						HorizontalAlignment="Stretch"
+						Command="{x:Bind ViewModel.OpenMaxCommand}"
+						Header="{helpers:ResourceString Name=ConsystoChannelMax}"
+						IsClickEnabled="True">
+						<wctcontrols:SettingsCard.ActionIcon>
+							<FontIcon Glyph="&#xE8A7;" />
+						</wctcontrols:SettingsCard.ActionIcon>
+					</wctcontrols:SettingsCard>
+
+					<wctcontrols:SettingsCard
+						HorizontalAlignment="Stretch"
+						Command="{x:Bind ViewModel.OpenBoostyCommand}"
+						Description="{helpers:ResourceString Name=ConsystoBoostyDescription}"
+						Header="{helpers:ResourceString Name=ConsystoBoosty}"
+						IsClickEnabled="True">
+						<wctcontrols:SettingsCard.ActionIcon>
+							<FontIcon Glyph="&#xE8A7;" />
+						</wctcontrols:SettingsCard.ActionIcon>
+					</wctcontrols:SettingsCard>
+				</wctcontrols:SettingsExpander.Items>
+			</wctcontrols:SettingsExpander>
+
 
 			<!--  Help and support  -->
 			<TextBlock
