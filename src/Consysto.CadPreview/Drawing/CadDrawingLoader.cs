@@ -1,4 +1,4 @@
-using ACadSharp;
+﻿using ACadSharp;
 using ACadSharp.Entities;
 using ACadSharp.IO;
 using ACadSharp.Tables;
@@ -116,7 +116,7 @@ internal sealed class EntityFlattener(Drawing2D drawing)
                 break;
 
             case Spline spline:
-                if (spline.TryPolygonalVertexes(Math.Max(64, spline.ControlPoints.Count * 8), out var splinePoints))
+                if (spline.TryPolygonalVertexes(SplineSegments(spline.ControlPoints.Count), out var splinePoints))
                     AddPolyline(color, layerName, ToPoints(splinePoints), spline.IsClosed);
                 else
                     Skip("Spline(invalid)");
@@ -205,6 +205,17 @@ internal sealed class EntityFlattener(Drawing2D drawing)
             return layer is null ? Rgb.Black : new Rgb(layer.Color.R, layer.Color.G, layer.Color.B);
         return new Rgb(color.R, color.G, color.B);
     }
+
+    /// <summary>
+    /// How finely a spline is divided. Eight points per control point suits ordinary curves, but the cost of each point
+    /// grows with the number of control points, so on a heavy curve the two multiply: a drawing from a laser shop had
+    /// a spline of 13 024 control points, and dividing that one curve alone took over three minutes.
+    ///
+    /// Hence the ceiling. Five hundred points describe any curve far beyond what a preview a few hundred pixels across
+    /// can show, and the same curve is then divided in under a second.
+    /// </summary>
+    private static int SplineSegments(int controlPoints) =>
+        Math.Clamp(controlPoints * 8, 64, 512);
 
     private static int SegmentsFor(double sweep) =>
         Math.Max(8, (int)Math.Ceiling(FullCircleSegments * Math.Abs(sweep) / (2 * Math.PI)));
