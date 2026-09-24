@@ -42,6 +42,12 @@ public static class CadDrawingLoader
         foreach (var entity in entities)
             flattener.Add(entity, Rgb.Black, 0);
 
+        // Drawings of the old kind come back parsed but empty — every vertex at the origin. Nothing was drawn, so the
+        // text of the file is read directly rather than showing the user a blank pane. A file the main reader handled
+        // never reaches here.
+        if (drawing.Primitives.Count == 0 && Path.GetExtension(path).Equals(".dxf", StringComparison.OrdinalIgnoreCase))
+            LegacyDxfReader.TryRead(path, drawing);
+
         drawing.RecalculateBounds();
         return drawing;
     }
@@ -225,7 +231,8 @@ internal sealed class EntityFlattener(Drawing2D drawing)
     private static Point2[] ToPoints(IEnumerable<XYZ> points) => points.Select(ToPoint).ToArray();
 
     // DXF bulge = tan(included angle / 4); positive means counter-clockwise from this vertex to the next.
-    private static Point2[] BulgePoints(List<(double X, double Y, double Bulge)> vertices, bool closed)
+    // Shared with the reader of old drawings, which meets the same curvature under the same code.
+    internal static Point2[] BulgePoints(List<(double X, double Y, double Bulge)> vertices, bool closed)
     {
         var result = new List<Point2>(vertices.Count * 2);
         for (int i = 0; i < vertices.Count; i++)
