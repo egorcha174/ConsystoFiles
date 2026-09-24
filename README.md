@@ -1,108 +1,108 @@
 # Consysto Files
 
-Файловый менеджер для Windows 11 — форк [Files](https://github.com/files-community/Files) с тем, чего мне не хватало в работе конструктора: просмотр чертежей, свои коллекции, встроенный терминал, торренты и синхронизация папок.
+A file manager for Windows 11 — a fork of [Files](https://github.com/files-community/Files) with the things a mechanical designer keeps needing: CAD drawing previews, custom collections, a terminal tab, torrents and folder synchronisation.
 
-Проект открытый и бесплатный. Сейчас это ранняя версия: она работает, но встречаются шероховатости, и я буду рад сообщениям о них.
+The project is free and open. This is an early version: it works, but rough edges are still there, and reports about them are welcome.
 
-[**Скачать готовую сборку**](https://github.com/egorcha174/ConsystoFiles/releases) · English version — [README.en.md](README.en.md)
+[**Download a ready build**](https://github.com/egorcha174/ConsystoFiles/releases) · Русская версия — [README.md](README.md)
 
-![Папка с деталями SolidWorks, Fusion и Siemens NX: каждая показана моделью](docs/screenshots/cad-formats.png)
+![A folder of SolidWorks, Fusion and Siemens NX parts, each shown as a model](docs/screenshots/cad-formats.png)
 
-*Папка с деталями из разных CAD-систем. Ни одна из них в системе не установлена.*
+*A folder of parts from several CAD systems. None of those systems is installed.*
 
-## Что добавлено к Files
+## What is added to Files
 
-**Чертежи и модели.** Просмотр прямо в панели, без запуска CAD и без установленных CAD-систем:
+**Drawings and models.** Shown in the preview pane without starting a CAD system, and without having one installed:
 
-- **DWG и DXF** — рисуется сам чертёж, контуры и линии;
-- **Inventor** — детали, сборки, чертежи, презентации;
-- **SolidWorks, КОМПАС-3D, Autodesk Fusion, Siemens NX, CATIA, Rhino, FreeCAD** — деталь видно моделью, её можно вращать мышью; где формат закрыт и геометрию не достать, показывается картинка, сохранённая внутри файла самой программой;
-- **STEP и IGES** — обменные форматы, разбиваются на треугольники движком Open CASCADE.
+- **DWG and DXF** — the drawing itself is redrawn, outlines and lines;
+- **Inventor** — parts, assemblies, drawings, presentations;
+- **SolidWorks, KOMPAS-3D, Autodesk Fusion, Siemens NX, CATIA, Rhino, FreeCAD** — the part appears as a model that can be turned with the mouse; where the format is closed and the geometry cannot be reached, the picture the program itself saved inside the file is shown instead;
+- **STEP and IGES** — exchange formats, tessellated by the Open CASCADE engine.
 
-Колонки со свойствами: обозначение, материал, масса, версия программы, в которой сохранён файл. Фильтры по этим свойствам.
+Columns carry the properties that matter: part code, material, mass, and the version of the program the file was last saved in. The same properties can be filtered on.
 
-**Коллекции.** Свои библиотеки поверх папок — книги, изображения, музыка, чертежи. Файлы остаются на месте, собирается только указатель. Видно ход индексации и то, какая папка обрабатывается сейчас. Копии находятся сравнением по пробам, а не по одному имени.
+**Collections.** Libraries built on top of folders — books, pictures, music, drawings. Files stay where they are; only an index is built. Indexing shows its progress and the folder it is working through. Duplicates are found by sampling file contents, not by name alone.
 
-**Книги.** Обложки и сведения из FB2, EPUB, PDF и DjVu. Клиент OPDS для чужих каталогов, и раздача своей коллекции по OPDS — с телефона её открывает любая читалка.
+**Books.** Covers and details from FB2, EPUB, PDF and DjVu. An OPDS client for other people's catalogues, and an OPDS server for your own collection, which any reader app on a phone can open.
 
-**Терминал во вкладке.** Настоящая консоль Windows внутри окна, рядом с папками.
+**A terminal in a tab.** A real Windows console inside the window, next to the folders.
 
-**Торренты.** Закачка внутри программы, отдельный раздел со списком, фильтрами, файлами, пирами и трекерами. Магнет-ссылки и `.torrent` можно открывать сразу в ней.
+**Torrents.** Downloads run inside the program, with their own section: a list, filters, files, peers and trackers. Magnet links and `.torrent` files can be opened straight into it.
 
-**Синхронизация и резервные копии.** Сравнение двух папок, копирование различий, планы резервного копирования с предпросмотром — что именно будет скопировано и удалено.
+**Synchronisation and backups.** Comparison of two folders, copying of the differences, and backup plans with a preview of exactly what will be copied and what will be deleted.
 
-**Управление из других программ.** Окно можно вести командами снаружи: открыть папку в нужной панели, развернуть окно на две панели, открыть терминал или загрузки, завести коллекцию или план резервной копии, начать закачку. По умолчанию выключено, включается в «Настройки → Дополнительно». Подробности — в [описании канала управления](build/consysto/api/README.md).
+**Control from other programs.** The window can be driven by commands from outside: open a folder in a chosen pane, split the window into two panes, open the terminal or the downloads, make a collection or a backup plan, start a download. It is off by default and is switched on under Settings → Advanced. See the [description of the control channel](build/consysto/api/README.md).
 
-**Две панели.** Шапка над каждой панелью с дисками и свободным местом, обмен панелей местами, синхронное перемещение по папкам, сравнение открытых папок.
+**Two panes.** A header above each pane with drives and free space, swapping the panes, moving through folders in step, and comparing the two open folders.
 
-## Портативная версия
+## The portable build
 
-Распакуйте архив в любую папку и запустите `Files.exe`. Установка не нужна, права администратора не нужны.
+Unpack the archive anywhere and run `Files.exe`. No installation, no administrator rights.
 
-Все данные — настройки, указатели коллекций, значки — лежат в папке `data` рядом с программой. Программа не пишет ни в реестр Windows, ни в ваш профиль: удалили папку — не осталось ничего.
+Everything the program keeps — settings, collection indexes, thumbnails — lives in a `data` folder next to it. Nothing is written to the Windows registry or to your profile: delete the folder and nothing of it remains.
 
-Что должно быть в системе: Windows 11 (или Windows 10 версии 1809 и новее). Ничего доустанавливать не нужно — все библиотеки лежат в папке программы. Исключение одно: терминалу нужен компонент WebView2, в Windows 11 он есть всегда, в Windows 10 может отсутствовать.
+What the system needs: Windows 11, or Windows 10 version 1809 or newer. Nothing has to be installed alongside; every library ships in the folder. The one exception is the terminal, which needs the WebView2 component: Windows 11 always has it, Windows 10 may not.
 
-Чего в портативной версии нет: замены Проводника по Win+E, уведомлений Windows и обновления через магазин. Обновление — заменой папки; папку `data` при этом сохраните, в ней ваши настройки.
+What the portable build does not do: replace File Explorer on Win+E, show Windows notifications, or update itself through the Store. Updating means replacing the folder — keep your `data` folder, your settings are in it.
 
-## Сборка из исходников
+## Building from source
 
-Нужны Visual Studio 2022 или новее с рабочей нагрузкой разработки для Windows и .NET 10 SDK.
+Visual Studio 2022 or newer with the Windows development workload, and the .NET 10 SDK.
 
 ```powershell
 build\consysto\Build-ConsystoPortable.ps1
 ```
 
-Скрипт собирает портативную версию и складывает папку и `.zip` в `artifacts\ConsystoFiles`. Для установочного пакета есть `build\consysto\Build-ConsystoFiles.ps1`, ему нужен сертификат подписи.
+The script builds the portable version and puts the folder and a `.zip` into `artifacts\ConsystoFiles`. For an installable package there is `build\consysto\Build-ConsystoFiles.ps1`, which needs a signing certificate.
 
-### Демонстрационный режим
+### The demonstration build
 
-Отдельным ключом сборки (`-p:ConsystoDemo=true`) собирается вариант, в котором названия
-дисков и имя компьютера заменяются на условные — «Система (C:)», «Работа (D:)»,
-«Архив (Z:)». Больше он не меняет ничего: файлы, папки и свойства остаются настоящими.
+A separate build switch (`-p:ConsystoDemo=true`) produces a variant where the names of the
+drives and of the computer are replaced by plain ones — "System (C:)", "Work (D:)",
+"Archive (Z:)". Nothing else changes: the files, the folders and their properties stay real.
 
-Это нужно для снимков экрана и показа программы: видно, как она работает с реальными
-файлами, но не видно, как названы диски у владельца. В обычные сборки этот код
-не попадает.
+This is meant for screenshots and for showing the program: one can see how it works with
+real files without seeing how the owner's drives are named. The code is left out of ordinary
+builds.
 
-## Как это выглядит
+## What it looks like
 
-**Просмотр модели.** Деталь SolidWorks открыта настоящей геометрией — её можно повернуть и посмотреть с другой стороны.
+**Model preview.** A SolidWorks part opened as real geometry — it can be turned and looked at from the other side.
 
-![Панель просмотра с деталью SolidWorks](docs/screenshots/cad-preview.png)
+![Preview pane with a SolidWorks part](docs/screenshots/cad-preview.png)
 
-**Чертежи под раскрой.** Развёртки DXF видно прямо в папке, без открытия каждой.
+**Drawings for cutting.** DXF flat patterns are visible in the folder itself, without opening each one.
 
-![Папка с развёртками DXF](docs/screenshots/drawings-dxf.png)
+![A folder of DXF flat patterns](docs/screenshots/drawings-dxf.png)
 
-**Коллекция чертежей.** Указатель поверх нескольких папок: 543 чертежа с картинками, материалами и фильтрами. Файлы остаются на месте.
+**A collection of drawings.** An index over several folders: 543 drawings with previews, materials and filters. The files stay where they are.
 
-![Коллекция из 543 чертежей](docs/screenshots/collection.png)
+![A collection of 543 drawings](docs/screenshots/collection.png)
 
-**Две панели.** Шапка с дисками над каждой, обмен местами, синхронное перемещение.
+**Two panes.** A header with drives above each one, swapping sides, moving through folders together.
 
-![Две панели рядом](docs/screenshots/two-panes.png)
+![Two panes side by side](docs/screenshots/two-panes.png)
 
-**Терминал во вкладке.** Настоящая консоль рядом с папками.
+**A terminal tab.** A real console next to the folders.
 
-![Терминал во вкладке](docs/screenshots/terminal.png)
+![A terminal in a tab](docs/screenshots/terminal.png)
 
-## Лицензии и благодарности
+## Licences and credits
 
-Основа — [Files](https://github.com/files-community/Files) от Files Community, лицензия MPL-2.0 (см. `LICENSE-MPL`); отдельные части — под MIT (`LICENSE-MIT`). Мои изменения выходят под теми же лицензиями.
+The foundation is [Files](https://github.com/files-community/Files) by Files Community, under MPL-2.0 (see `LICENSE-MPL`); some parts are under MIT (`LICENSE-MIT`). My changes are released under the same licences.
 
-Проект не связан с Files Community и не поддерживается ими. За все шероховатости этой сборки отвечаю я, а не они. Название и значок этого форка — свои; имя и логотип Files не используются.
+This project is not affiliated with Files Community and is not supported by them. Every rough edge in this build is mine, not theirs. The name and the icon of this fork are its own; the Files name and logo are not used.
 
-Спасибо авторам Files и библиотек, на которых всё держится: ACadSharp, MonoTorrent, OpenMcdf, Win2D, CommunityToolkit.
+Thanks to the authors of Files and of the libraries everything rests on: ACadSharp, MonoTorrent, OpenMcdf, Win2D, CommunityToolkit.
 
-Геометрию деталей SolidWorks читает [cadmpeg](https://github.com/cadmpeg/cadmpeg) под лицензией Apache-2.0. Он лежит отдельной программой в папке `CadHelpers` рядом с Files и запускается только на время чтения файла; его лицензия — там же.
+The geometry of SolidWorks parts is read by [cadmpeg](https://github.com/cadmpeg/cadmpeg) under the Apache-2.0 licence. It sits as a separate program in the `CadHelpers` folder next to Files and runs only while a file is being read; its licence is there too.
 
-## Поблагодарить
+## Saying thank you
 
-Программа бесплатная и останется такой. Если она сберегла вам время и хочется сказать спасибо — [страница для этого](https://pay.cloudtips.ru/p/c83072e9). Картой или через СБП, регистрация не нужна.
+The program is free and will stay that way. If it saved you time and you would like to say thanks, there is [a page for that](https://pay.cloudtips.ru/p/c83072e9). It takes Russian cards and transfers; no account needed.
 
-Привычной для открытых проектов кнопки GitHub Sponsors тут нет и не будет: из России она не работает.
+There is no GitHub Sponsors button and there will not be one: it does not work from Russia. Cards issued outside Russia are not accepted by the payment page either, so from abroad the kind thing is a bug report rather than money.
 
-## Обратная связь
+## Feedback
 
-Нашли ошибку — напишите в разделе Issues. Полезно приложить `data\Local\debug.log` или отчёт, который кладёт на рабочий стол кнопка «Настройки» → «О программе» → «Сохранить отчёт об ошибке».
+Found a bug — please open an issue. It helps a lot to attach `data\Local\debug.log`, or, in the installed version, the report that Settings → About → "Save an error report" puts on your desktop.

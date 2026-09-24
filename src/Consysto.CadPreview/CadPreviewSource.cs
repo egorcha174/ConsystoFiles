@@ -25,12 +25,24 @@ public sealed class CadPreviewContent
     public byte[]? Image { get; init; }
 
     /// <summary>
-    /// A document that is a PDF inside and whose first page is the picture — an Adobe Illustrator file saved the usual
-    /// way. Drawing a page needs the engine of the host, so the path is passed on rather than the picture itself.
+    /// A file the host has to draw itself, because drawing it needs an engine of the operating system: the first page
+    /// of a PDF-shaped document, or a vector picture. The path is passed on rather than a picture.
     /// </summary>
-    public string? PdfPath { get; init; }
+    public HostDrawn? Drawn { get; init; }
 
-    public bool IsEmpty => Drawing is null && Mesh is null && Image is null && PdfPath is null;
+    public bool IsEmpty => Drawing is null && Mesh is null && Image is null && Drawn is null;
+}
+
+/// <summary>What the host is asked to draw, and from which file.</summary>
+public sealed record HostDrawn(HostDrawnKind Kind, string Path);
+
+public enum HostDrawnKind
+{
+    /// <summary>The first page of a document that is a PDF inside — an Adobe Illustrator file saved the usual way.</summary>
+    PdfPage,
+
+    /// <summary>A vector picture in SVG.</summary>
+    Svg,
 }
 
 public static class CadPreviewSource
@@ -47,6 +59,7 @@ public static class CadPreviewSource
                 || CadMeshSource.IsSupported(extension)
                 || KompasPreviewReader.IsSupported(extension)
                 || ArtworkPreviewReader.IsSupported(extension)
+                || extension.Equals(".svg", StringComparison.OrdinalIgnoreCase)
                 || FusionPreviewReader.IsSupported(extension)
                 || StepMeshSource.IsSupported(extension));
 
@@ -100,9 +113,12 @@ public static class CadPreviewSource
                     return new CadPreviewContent { Image = FusionPreviewReader.TryRead(path) };
 
                 // Illustrator and CorelDRAW: an .ai is a PDF to be drawn, a .cdr carries a finished picture
+                if (extension == ".svg")
+                    return new CadPreviewContent { Drawn = new HostDrawn(HostDrawnKind.Svg, path) };
+
                 if (ArtworkPreviewReader.IsSupported(extension))
                     return ArtworkPreviewReader.IsPdfInside(path)
-                        ? new CadPreviewContent { PdfPath = path }
+                        ? new CadPreviewContent { Drawn = new HostDrawn(HostDrawnKind.PdfPage, path) }
                         : new CadPreviewContent { Image = ArtworkPreviewReader.TryRead(path) };
 
                 return InventorPreviewReader.IsSupported(extension)

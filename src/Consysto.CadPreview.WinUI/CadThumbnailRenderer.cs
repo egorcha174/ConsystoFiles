@@ -2,6 +2,7 @@ using System.Numerics;
 using Consysto.CadPreview.Drawing;
 using Consysto.CadPreview.Mesh;
 using Microsoft.Graphics.Canvas;
+using Microsoft.Graphics.Canvas.Svg;
 using Microsoft.UI;
 using Windows.Foundation;
 using Windows.Data.Pdf;
@@ -73,6 +74,34 @@ public static class CadThumbnailRenderer
         {
             session.Clear(Colors.Transparent);
             session.DrawImage(bitmap, new Rect((size - width) / 2, (size - height) / 2, width, height), bitmap.Bounds, 1f, CanvasImageInterpolation.HighQualityCubic);
+        }
+
+        return await EncodePngAsync(target);
+    }
+
+    /// <summary>
+    /// A vector picture, drawn at the asked size. The engine of the system understands the common part of SVG —
+    /// shapes, paths, fills, strokes — which is what a drawing or a logo is made of. Effects and text laid out by
+    /// style sheets may come out plainer than in a browser; a picture that cannot be read at all returns nothing.
+    /// </summary>
+    public static async Task<byte[]?> RenderSvgAsync(string path, int size)
+    {
+        if (size < 8)
+            return null;
+
+        var device = CanvasDevice.GetSharedDevice();
+        if (!CanvasSvgDocument.IsSupported(device))
+            return null;
+
+        var markup = await File.ReadAllTextAsync(path);
+        using var document = CanvasSvgDocument.LoadFromXml(device, markup);
+
+        using var target = new CanvasRenderTarget(device, size, size, 96);
+        using (var session = target.CreateDrawingSession())
+        {
+            session.Clear(Colors.Transparent);
+            // A picture without a size of its own is fitted to the square it is asked for
+            session.DrawSvg(document, new Size(size, size));
         }
 
         return await EncodePngAsync(target);

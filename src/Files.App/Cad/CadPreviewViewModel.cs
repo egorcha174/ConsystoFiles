@@ -92,16 +92,23 @@ namespace Files.App.Cad
 			Mesh = content.Mesh;
 			await LoadReferencesAsync();
 			var details = await LoadPropertiesAsync();
-			// An Illustrator document is a PDF inside: its first page is drawn here and then shown like any other picture
-			if (content.PdfPath is { } pdf)
+			// Files the system draws itself — a page of an Illustrator document, a vector picture — are drawn here and
+			// then shown like any other picture
+			if (content.Drawn is { } drawn)
 			{
 				try
 				{
-					content = new CadPreviewContent { Image = await CadThumbnailRenderer.RenderPdfPageAsync(pdf, PageSize) };
+					var picture = drawn.Kind switch
+					{
+						HostDrawnKind.PdfPage => await CadThumbnailRenderer.RenderPdfPageAsync(drawn.Path, PageSize),
+						HostDrawnKind.Svg => await CadThumbnailRenderer.RenderSvgAsync(drawn.Path, PageSize),
+						_ => null,
+					};
+					content = new CadPreviewContent { Image = picture };
 				}
 				catch (Exception ex)
 				{
-					App.Logger.LogWarning(ex, "The first page of the PDF-shaped document could not be drawn");
+					App.Logger.LogWarning(ex, "The file could not be drawn by the engine of the system");
 				}
 			}
 
