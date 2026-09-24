@@ -105,9 +105,12 @@ The geometry of SolidWorks parts is read by [cadmpeg](https://github.com/cadmpeg
 
 ## Saying thank you
 
-The program is free and will stay that way. If it saved you time and you would like to say thanks, there is [a page for that](https://pay.cloudtips.ru/p/c83072e9). It takes Russian cards and transfers; no account needed.
+The program is free and will stay that way. If it saved you time and you would like to say thanks:
 
-There is no GitHub Sponsors button and there will not be one: it does not work from Russia. Cards issued outside Russia are not accepted by the payment page either, so from abroad the kind thing is a bug report rather than money.
+- [CloudTips](https://pay.cloudtips.ru/p/c83072e9) — Russian cards and transfers, no account needed.
+- [Boosty](https://boosty.to/egorcha/donate)
+
+There is no GitHub Sponsors button and there will not be one: it does not work from Russia. Neither page accepts cards issued outside Russia, so from abroad the kind thing is a bug report rather than money.
 
 ## Feedback
 

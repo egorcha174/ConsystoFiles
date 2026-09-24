@@ -4756,6 +4756,18 @@
   <data name="ConsystoBoostyDescription" xml:space="preserve">
     <value>A build can be downloaded there for a donation. It is always free on GitHub</value>
   </data>
+  <data name="ConsystoSupportProjectDescription" xml:space="preserve">
+    <value>The program is free and will stay that way. This is for when you would like to say thanks</value>
+  </data>
+  <data name="ConsystoCloudTips" xml:space="preserve">
+    <value>CloudTips</value>
+  </data>
+  <data name="ConsystoCloudTipsDescription" xml:space="preserve">
+    <value>Russian cards and transfers, no account needed</value>
+  </data>
+  <data name="ConsystoBoostyDonate" xml:space="preserve">
+    <value>Boosty: one-off transfer</value>
+  </data>
   <data name="ConsystoWindowMinimize" xml:space="preserve">
     <value>Minimize</value>
   </data>

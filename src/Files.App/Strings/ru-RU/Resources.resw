@@ -4750,6 +4750,18 @@
   <data name="ConsystoBoostyDescription" xml:space="preserve">
     <value>Там же можно скачать сборку за донат. Бесплатно она всегда есть на GitHub</value>
   </data>
+  <data name="ConsystoSupportProjectDescription" xml:space="preserve">
+    <value>Программа бесплатная и останется такой. Это на случай, если хочется сказать спасибо</value>
+  </data>
+  <data name="ConsystoCloudTips" xml:space="preserve">
+    <value>CloudTips</value>
+  </data>
+  <data name="ConsystoCloudTipsDescription" xml:space="preserve">
+    <value>Картой или через СБП, регистрация не нужна</value>
+  </data>
+  <data name="ConsystoBoostyDonate" xml:space="preserve">
+    <value>Boosty: разовый перевод</value>
+  </data>
   <data name="ConsystoWindowMinimize" xml:space="preserve">
     <value>Свернуть</value>
   </data>

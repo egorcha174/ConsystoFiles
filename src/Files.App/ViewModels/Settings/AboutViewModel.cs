@@ -44,6 +44,7 @@ namespace Files.App.ViewModels.Settings
 		public ICommand OpenTelegramCommand { get; }
 		public ICommand OpenMaxCommand { get; }
 		public ICommand OpenBoostyCommand { get; }
+		public ICommand OpenBoostyDonateCommand { get; }
 		public ICommand OpenLogLocationCommand { get; }
 		public ICommand OpenDocumentationCommand { get; }
 		public ICommand OpenDiscordCommand { get; }
@@ -95,6 +96,7 @@ namespace Files.App.ViewModels.Settings
 			OpenTelegramCommand = new AsyncRelayCommand(OpenTelegram);
 			OpenMaxCommand = new AsyncRelayCommand(OpenMax);
 			OpenBoostyCommand = new AsyncRelayCommand(OpenBoosty);
+			OpenBoostyDonateCommand = new AsyncRelayCommand(OpenBoostyDonate);
 			OpenDocumentationCommand = new AsyncRelayCommand(DoOpenDocumentation);
 			OpenDiscordCommand = new AsyncRelayCommand(DoOpenDiscord);
 			SubmitFeatureRequestCommand = new AsyncRelayCommand(DoSubmitFeatureRequest);
@@ -227,6 +229,11 @@ namespace Files.App.ViewModels.Settings
 		public Task OpenBoosty()
 		{
 			return Launcher.LaunchUriAsync(new Uri(Constants.ExternalUrl.ConsystoBoostyUrl)).AsTask();
+		}
+
+		public Task OpenBoostyDonate()
+		{
+			return Launcher.LaunchUriAsync(new Uri(Constants.ExternalUrl.ConsystoBoostyDonateUrl)).AsTask();
 		}
 
 		public string GetAppVersion()

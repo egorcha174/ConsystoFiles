@@ -185,6 +185,7 @@ namespace Files.App
 			public const string ConsystoMaxUrl = @"https://max.ru/join/1FoA1EkO0eTPcZT3Bnt8yhtqZrIjUYruLxTfswLRrsM";
 			// A blog with a paid tier; the program itself stays free on the releases page above
 			public const string ConsystoBoostyUrl = @"https://boosty.to/egorcha";
+			public const string ConsystoBoostyDonateUrl = @"https://boosty.to/egorcha/donate";
 			public const string CrowdinUrl = @"https://crowdin.com/project/files-app";
 			public static readonly string ReleaseNotesUrl = @"https://github.com/egorcha174/ConsystoFiles/releases";
 		}

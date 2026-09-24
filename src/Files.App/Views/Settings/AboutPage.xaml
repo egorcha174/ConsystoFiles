@@ -47,20 +47,38 @@
 				</Button>
 			</wctcontrols:SettingsCard>
 
-			<!--  Consysto fork: opens a Russian payment page; GitHub Sponsors does not work from Russia  -->
-			<wctcontrols:SettingsCard
+			<!--  Consysto fork: Russian payment pages; GitHub Sponsors does not work from Russia  -->
+			<wctcontrols:SettingsExpander
 				x:Name="SponsorCard"
-				Command="{x:Bind ViewModel.SupportUsCommand}"
-				Header="{helpers:ResourceString Name=ConsystoSupportProject}"
-				IsClickEnabled="True">
-				<wctcontrols:SettingsCard.HeaderIcon>
+				HorizontalAlignment="Stretch"
+				Description="{helpers:ResourceString Name=ConsystoSupportProjectDescription}"
+				Header="{helpers:ResourceString Name=ConsystoSupportProject}">
+				<wctcontrols:SettingsExpander.HeaderIcon>
 					<FontIcon Glyph="&#xEB51;" />
-				</wctcontrols:SettingsCard.HeaderIcon>
+				</wctcontrols:SettingsExpander.HeaderIcon>
+				<wctcontrols:SettingsExpander.Items>
+					<wctcontrols:SettingsCard
+						HorizontalAlignment="Stretch"
+						Command="{x:Bind ViewModel.SupportUsCommand}"
+						Description="{helpers:ResourceString Name=ConsystoCloudTipsDescription}"
+						Header="{helpers:ResourceString Name=ConsystoCloudTips}"
+						IsClickEnabled="True">
+						<wctcontrols:SettingsCard.ActionIcon>
+							<FontIcon Glyph="&#xE8A7;" />
+						</wctcontrols:SettingsCard.ActionIcon>
+					</wctcontrols:SettingsCard>
 
-				<wctcontrols:SettingsCard.ActionIcon>
-					<FontIcon Glyph="&#xE8A7;" />
-				</wctcontrols:SettingsCard.ActionIcon>
-			</wctcontrols:SettingsCard>
+					<wctcontrols:SettingsCard
+						HorizontalAlignment="Stretch"
+						Command="{x:Bind ViewModel.OpenBoostyDonateCommand}"
+						Header="{helpers:ResourceString Name=ConsystoBoostyDonate}"
+						IsClickEnabled="True">
+						<wctcontrols:SettingsCard.ActionIcon>
+							<FontIcon Glyph="&#xE8A7;" />
+						</wctcontrols:SettingsCard.ActionIcon>
+					</wctcontrols:SettingsCard>
+				</wctcontrols:SettingsExpander.Items>
+			</wctcontrols:SettingsExpander>
 
 			<!--  Consysto fork: where the author writes about this program  -->
 			<wctcontrols:SettingsExpander HorizontalAlignment="Stretch" Description="{helpers:ResourceString Name=ConsystoAuthorLinksDescription}" Header="{helpers:ResourceString Name=ConsystoAuthorLinks}">
