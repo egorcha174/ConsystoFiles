@@ -76,7 +76,9 @@ Part number, material, mass, and the exact version of the CAD program the file w
 
 **Limitation.** Old-style Illustrator files (PostScript-based, not PDF-compatible) aren't read — there's no PDF inside them to draw. Plain EPS is not supported yet: every EPS file tested (five, including public samples) turned out to carry no embedded picture at all, and nothing was written against files that couldn't be verified against.
 
-**Evidence.** Tested against a reader's own Illustrator file, two CorelDRAW documents from different eras, and a public Corel sample file.
+**Evidence.** Tested against a reader's own Illustrator file, two CorelDRAW documents from different eras, and a public Corel sample file. The screenshot below shows an Illustrator file and [Corel's own official tutorial sample](https://product.corel.com/en/draw/10/Tutorials/Rave/html_docs/htmlpics/CoffeeShop.cdr), both open in the folder with no CorelDRAW or Illustrator installed on this machine.
+
+![An .ai and a .cdr file shown as thumbnails in a folder](screenshots/en/12-artwork-folder.png)
 
 ## Collections
 
@@ -147,8 +149,6 @@ Files already has two panes; this fork adds what Total Commander and Norton Comm
 ## Quick preview
 
 Press Space (or F3) on a selected file to see it full-size in an overlay, without opening a tab or a separate app — the same slot other file managers use for Quick Look-style previews.
-
-**Limitation.** The preview is currently offset slightly to the right in the overlay window; a cosmetic issue being fixed.
 
 ![A DXF drawing shown in the quick-preview overlay](screenshots/en/06-quick-preview.png)
 
