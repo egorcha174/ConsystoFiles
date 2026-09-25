@@ -15,13 +15,24 @@
 
 .PARAMETER SkipArchive
     Не упаковывать в .zip, оставить только папку (быстрее при проверках).
+
+.PARAMETER Demo
+    Демонстрационная сборка для скриншотов: имена дисков и компьютера условные (ключ ConsystoDemo).
+    Кладётся в ConsystoFiles-demo_<версия>, собирается в своей временной папке и не раздаётся.
 #>
 param(
     [string]$Version,
-    [string]$StagingDirectory = (Join-Path $env:TEMP 'ConsystoFilesPortableBuild'),
+    [string]$StagingDirectory,
     [string]$OutputDirectory,
-    [switch]$SkipArchive
+    [switch]$SkipArchive,
+    [switch]$Demo
 )
+
+if (-not $StagingDirectory) {
+    $StagingDirectory = Join-Path $env:TEMP $(if ($Demo) { 'ConsystoFilesDemoBuild' } else { 'ConsystoFilesPortableBuild' })
+}
+$demoFlag = if ($Demo) { 'true' } else { 'false' }
+$releaseKind = if ($Demo) { 'demo' } else { 'portable' }
 
 $ErrorActionPreference = 'Stop'
 $filesRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
@@ -84,7 +95,7 @@ if (Test-Path -LiteralPath $build) { Remove-Item -LiteralPath $build -Recurse -F
 New-Item -ItemType Directory -Force -Path $build | Out-Null
 
 & $msbuild (Join-Path $stageFiles 'src\Files.App\Files.App.csproj') `
-    -restore -t:Build -p:Platform=x64 -p:Configuration=Release -p:ConsystoPortable=true `
+    -restore -t:Build -p:Platform=x64 -p:Configuration=Release -p:ConsystoPortable=true "-p:ConsystoDemo=$demoFlag" `
     "-p:OutDir=$build\" -p:RestorePackagesConfig=true `
     "-p:Version=$Version" "-p:AssemblyVersion=$Version" "-p:FileVersion=$Version" `
     -v:minimal -nologo
@@ -98,7 +109,7 @@ $data = Join-Path $build 'data'
 if (Test-Path -LiteralPath $data) { Remove-Item -LiteralPath $data -Recurse -Force }
 
 # 4. Папка для раздачи
-$release = Join-Path $OutputDirectory "ConsystoFiles-portable_$Version"
+$release = Join-Path $OutputDirectory "ConsystoFiles-${releaseKind}_$Version"
 if (Test-Path -LiteralPath $release) { Remove-Item -LiteralPath $release -Recurse -Force }
 New-Item -ItemType Directory -Force -Path (Split-Path $release -Parent) | Out-Null
 robocopy $build $release /MIR /NFL /NDL /NJH /NJS /NP | Out-Null

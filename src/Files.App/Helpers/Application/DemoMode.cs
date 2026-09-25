@@ -1,5 +1,7 @@
 // Consysto fork: a build for screenshots. Never shipped: it is turned on by -p:ConsystoDemo=true and by nothing else.
 
+using System.Globalization;
+
 namespace Files.App.Helpers
 {
 	/// <summary>
@@ -17,7 +19,7 @@ namespace Files.App.Helpers
 		public const bool IsOn = false;
 #endif
 
-		private static readonly Dictionary<char, string> DriveNames = new()
+		private static readonly Dictionary<char, string> DriveNamesRussian = new()
 		{
 			['C'] = "Система",
 			['D'] = "Работа",
@@ -26,6 +28,32 @@ namespace Files.App.Helpers
 			['G'] = "Флешка",
 			['Z'] = "Архив",
 		};
+
+		// Pictures for readers abroad are taken with the English interface, and Russian disk names would stand out there
+		private static readonly Dictionary<char, string> DriveNamesEnglish = new()
+		{
+			['C'] = "System",
+			['D'] = "Work",
+			['E'] = "DVD Drive",
+			['F'] = "USB Drive",
+			['G'] = "USB Drive",
+			['Z'] = "Archive",
+		};
+
+		private static bool IsRussian
+		{
+			get
+			{
+				var language = Microsoft.Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride;
+				if (string.IsNullOrEmpty(language))
+					language = CultureInfo.CurrentUICulture.Name;
+
+				return language.StartsWith("ru", StringComparison.OrdinalIgnoreCase);
+			}
+		}
+
+		private static Dictionary<char, string> DriveNames
+			=> IsRussian ? DriveNamesRussian : DriveNamesEnglish;
 
 		/// <summary>The name of a disk as the picture should show it.</summary>
 		public static string DriveText(string text, string path)
@@ -47,6 +75,6 @@ namespace Files.App.Helpers
 
 		/// <summary>The name of the computer as the picture should show it.</summary>
 		public static string ComputerName(string name)
-			=> IsOn ? "КОМПЬЮТЕР" : name;
+			=> IsOn ? (IsRussian ? "КОМПЬЮТЕР" : "WORKSTATION") : name;
 	}
 }
