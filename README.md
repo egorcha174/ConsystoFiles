@@ -6,7 +6,7 @@ A file manager for Windows 11 that shows what is inside your files — CAD model
 
 I am a mechanical designer, and this project started from what my own work kept needing. The program is free and open. This is an early version: it works, but rough edges are still there, and reports about them are welcome.
 
-[**Download a ready build**](https://github.com/egorcha174/ConsystoFiles/releases) · Русская версия — [README.ru.md](README.ru.md)
+[**Download a ready build**](https://github.com/egorcha174/ConsystoFiles/releases) · [**Full review, scenario by scenario**](docs/review.en.md) · Русская версия — [README.ru.md](README.ru.md)
 
 ![A folder of SolidWorks, Fusion and Siemens NX parts, each shown as a model](docs/screenshots/cad-formats.png)
 
