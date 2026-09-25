@@ -39,6 +39,8 @@ Columns carry the properties that matter: part code, material, mass, and the ver
 
 **Control from other programs.** The window can be driven by commands from outside: open a folder in a chosen pane, split the window into two panes, open the terminal or the downloads, make a collection or a backup plan, start a download. It is off by default and is switched on under Settings → Advanced. See the [description of the control channel](build/consysto/api/README.md).
 
+**Two looks.** By default the window is dressed like the macOS Finder: round window buttons on the left, Safari-style tabs, striped rows. Settings → Appearance → Visual style switches it to the ordinary Windows 11 look: caption buttons on the right, stock tabs, system colours. The change takes effect after a restart, and a Restart button appears right there.
+
 **Two panes.** Files already has two panes; here they get a header with drives and free space, swapping sides, moving through folders in step, copying or moving straight to the other pane, and comparing the two open folders.
 
 ## The portable build

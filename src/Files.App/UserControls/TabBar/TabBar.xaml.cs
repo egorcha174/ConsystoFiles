@@ -1,4 +1,4 @@
-// Copyright (c) Files Community
+﻿// Copyright (c) Files Community
 // Licensed under the MIT License.
 
 using CommunityToolkit.WinUI;
@@ -64,6 +64,25 @@ namespace Files.App.UserControls.TabBar
 		public TabBar()
 		{
 			InitializeComponent();
+
+			// Consysto fork: the Windows 11 look has no Safari track behind the tabs
+			if (!Files.App.Controls.VisualStyle.IsMac)
+			{
+				TitlebarArea.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent);
+				TitlebarArea.CornerRadius = new(0);
+				TitlebarArea.Padding = new(0);
+				TitlebarArea.Margin = new(0, 0, 8, 0);
+
+				// The Safari strip's padding and small close button, set in TabBar.xaml, would also shrink the stock tab
+				foreach (var key in new[] { "TabViewHeaderPadding", "TabViewItemHeaderCloseButtonWidth", "TabViewItemHeaderCloseButtonHeight", "TabViewItemHeaderCloseFontSize" })
+					Resources.Remove(key);
+
+				// The item template asks for TabBarItemStyle when each tab is created; a local entry under that key wins over
+				// the Safari style in the merged dictionary. Restyling a tab once it is loaded fails: its icon already sits
+				// in the old template.
+				if (Resources.TryGetValue("TabBarItemStyleWindows", out var windowsTabStyle))
+					Resources["TabBarItemStyle"] = windowsTabStyle;
+			}
 
 			tabHoverTimer.Interval = TimeSpan.FromMilliseconds(Constants.DragAndDrop.HoverToOpenTimespan);
 			tabHoverTimer.Tick += TabHoverSelected;

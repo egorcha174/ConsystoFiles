@@ -102,6 +102,27 @@
 					SelectedIndex="{x:Bind ViewModel.SelectedThemeIndex, Mode=TwoWay}" />
 			</wctcontrols:SettingsCard>
 
+			<!--  Consysto fork: macOS or Windows 11 look  -->
+			<wctcontrols:SettingsCard Description="{helpers:ResourceString Name=ConsystoVisualStyleDescription}" Header="{helpers:ResourceString Name=ConsystoVisualStyle}">
+				<wctcontrols:SettingsCard.HeaderIcon>
+					<FontIcon Glyph="&#xE771;" />
+				</wctcontrols:SettingsCard.HeaderIcon>
+				<StackPanel Orientation="Horizontal" Spacing="8">
+					<Button
+						Command="{x:Bind ViewModel.RestartForVisualStyleCommand}"
+						Content="{helpers:ResourceString Name=ConsystoRestartNow}"
+						Style="{ThemeResource AccentButtonStyle}"
+						Visibility="{x:Bind ViewModel.IsVisualStyleRestartPending, Mode=OneWay}" />
+					<ComboBox
+						MinWidth="140"
+						AutomationProperties.Name="{helpers:ResourceString Name=ConsystoVisualStyle}"
+						SelectedIndex="{x:Bind ViewModel.SelectedVisualStyleIndex, Mode=TwoWay}">
+						<ComboBoxItem Content="{helpers:ResourceString Name=ConsystoVisualStyleMac}" />
+						<ComboBoxItem Content="{helpers:ResourceString Name=ConsystoVisualStyleWindows}" />
+					</ComboBox>
+				</StackPanel>
+			</wctcontrols:SettingsCard>
+
 			<!--  Backdrop Material  -->
 			<wctcontrols:SettingsCard Header="{helpers:ResourceString Name=BackdropMaterial}">
 				<wctcontrols:SettingsCard.HeaderIcon>

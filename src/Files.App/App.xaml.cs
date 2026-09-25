@@ -73,6 +73,9 @@ namespace Files.App
 		{
 			UiDispatcher = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
 
+			// Consysto fork: macOS or Windows 11 look, before the main window reads any of it
+			Files.App.MacStyle.VisualStyleSettings.ApplyAtStartup(this);
+
 			// Constructed on the UI thread: the ctor subscribes the UI-thread-only Clipboard.ContentChanged
 			AppModel = new AppModel();
 

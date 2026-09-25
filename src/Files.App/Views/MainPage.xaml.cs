@@ -73,6 +73,20 @@ namespace Files.App.Views
 
 			ApplySidebarWidthState();
 
+			// Consysto fork: the Windows 11 look shows the system caption buttons instead of the traffic lights
+			if (!VisualStyle.IsMac)
+			{
+				WindowButtons.Visibility = Visibility.Collapsed;
+
+				// Nothing sits above the sidebar then, so the toolbar row starts at the window edge as in File Explorer, and
+				// the window commands follow the toolbar instead of waiting at the caption buttons
+				Grid.SetColumn(TitleBarToolbarRow, 0);
+				Grid.SetColumnSpan(TitleBarToolbarRow, 2);
+				TitleBarToolbarRow.Margin = new(12, 0, 8, 0);
+				TitleBarToolbarRow.ColumnDefinitions[0].Width = new GridLength(1, GridUnitType.Star);
+				TitleBarToolbarRow.ColumnDefinitions[1].Width = GridLength.Auto;
+			}
+
 			TitleBarDragSurface.SizeChanged += TitleBarElement_SizeChanged;
 			// Deferred: reordering a tab removes and re-inserts it, and hiding the strip in between (two tabs → one) kills the drag.
 			MainPageViewModel.AppInstances.CollectionChanged += (_, _) => DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, UpdateTabStripVisibility);
@@ -82,7 +96,8 @@ namespace Files.App.Views
 		// toolbar button takes over its "+".
 		private void UpdateTabStripVisibility()
 		{
-			var hasSeveralTabs = MainPageViewModel.AppInstances.Count > 1;
+			// The Windows 11 look keeps the strip in sight, as File Explorer does
+			var hasSeveralTabs = MainPageViewModel.AppInstances.Count > 1 || !VisualStyle.IsMac;
 			if (TabControl is not null)
 			{
 				// Never Collapsed: a collapsed TabBar is never loaded (no template, no Loaded, so a window that starts with
@@ -176,6 +191,7 @@ namespace Files.App.Views
 			AddPassthrough(WindowCommandButtons);
 
 			source.SetRegionRects(NonClientRegionKind.Passthrough, [.. passthrough]);
+			ReserveCaptionButtonsSpace(scaleFactor);
 			AttachTitleBarMessageMonitor();
 			return (int)TitleBarDragSurface.ActualHeight;
 
@@ -184,6 +200,20 @@ namespace Files.App.Views
 				if (element is { XamlRoot: not null, Visibility: Visibility.Visible, ActualWidth: > 0 })
 					passthrough.Add(getScaledRect(element, null));
 			}
+		}
+
+		// Consysto fork: in the Windows 11 look the system caption buttons sit at the end of the toolbar row, so the row
+		// stops short of them.
+		private void ReserveCaptionButtonsSpace(double scaleFactor)
+		{
+			if (VisualStyle.IsMac || scaleFactor <= 0)
+				return;
+
+			var titleBar = MainWindow.Instance.AppWindow.TitleBar;
+			var inset = (AppLanguageHelper.IsPreferredLanguageRtl ? titleBar.LeftInset : titleBar.RightInset) / scaleFactor;
+			var margin = new Thickness(12, 0, inset + 8, 0);
+			if (TitleBarToolbarRow.Margin != margin)
+				TitleBarToolbarRow.Margin = margin;
 		}
 
 		// Consysto fork: keeps the first page column (traffic lights, drag area) as wide as the sidebar pane.

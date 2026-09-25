@@ -5732,4 +5732,20 @@
   <data name="ConsystoApiKeyButton" xml:space="preserve">
     <value>Show the key file</value>
   </data>
+  <!-- Consysto fork: macOS / Windows 11 look -->
+  <data name="ConsystoVisualStyle" xml:space="preserve">
+    <value>Visual style</value>
+  </data>
+  <data name="ConsystoVisualStyleDescription" xml:space="preserve">
+    <value>Window buttons, tabs, selection and colors. Takes effect after a restart</value>
+  </data>
+  <data name="ConsystoVisualStyleMac" xml:space="preserve">
+    <value>macOS</value>
+  </data>
+  <data name="ConsystoVisualStyleWindows" xml:space="preserve">
+    <value>Windows 11</value>
+  </data>
+  <data name="ConsystoRestartNow" xml:space="preserve">
+    <value>Restart</value>
+  </data>
 </root>

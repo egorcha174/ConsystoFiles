@@ -5725,4 +5725,20 @@
   <data name="ConsystoApiKeyButton" xml:space="preserve">
     <value>Показать файл ключа</value>
   </data>
+  <!-- Consysto fork: macOS / Windows 11 look -->
+  <data name="ConsystoVisualStyle" xml:space="preserve">
+    <value>Стиль оформления</value>
+  </data>
+  <data name="ConsystoVisualStyleDescription" xml:space="preserve">
+    <value>Кнопки окна, вкладки, выделение и цвета. Применяется после перезапуска</value>
+  </data>
+  <data name="ConsystoVisualStyleMac" xml:space="preserve">
+    <value>macOS</value>
+  </data>
+  <data name="ConsystoVisualStyleWindows" xml:space="preserve">
+    <value>Windows 11</value>
+  </data>
+  <data name="ConsystoRestartNow" xml:space="preserve">
+    <value>Перезапустить</value>
+  </data>
 </root>

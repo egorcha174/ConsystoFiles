@@ -40,8 +40,11 @@ namespace Files.App
 			AppWindow.TitleBar.ButtonPressedBackgroundColor = Colors.Transparent;
 			AppWindow.TitleBar.ButtonHoverBackgroundColor = Colors.Transparent;
 
-			// Consysto fork: hide the system caption buttons; MacStyle.TrafficLights replaces them.
-			AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Collapsed;
+			// Consysto fork: hide the system caption buttons; MacStyle.TrafficLights replaces them. The Windows 11 look keeps
+			// them, tall enough for the toolbar row they sit in.
+			AppWindow.TitleBar.PreferredHeightOption = Files.App.Controls.VisualStyle.IsMac
+				? TitleBarHeightOption.Collapsed
+				: TitleBarHeightOption.Tall;
 
 			// Deferred: reads the .ico from disk
 			DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>

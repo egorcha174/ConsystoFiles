@@ -1,4 +1,4 @@
-// Copyright (c) Files Community
+﻿// Copyright (c) Files Community
 // Licensed under the MIT License.
 
 using CommunityToolkit.WinUI;
@@ -1287,7 +1287,7 @@ namespace Files.App.Views.Layouts
 			if (container.ContentTemplateRoot is not UserControl { Content: Microsoft.UI.Xaml.Controls.Panel row })
 				return;
 
-			if (index % 2 == 1)
+			if (index % 2 == 1 && Files.App.Controls.VisualStyle.IsMac)
 				row.Background = ActualTheme == Microsoft.UI.Xaml.ElementTheme.Dark ? _rowStripeDarkBrush : _rowStripeLightBrush;
 			else
 				row.ClearValue(Microsoft.UI.Xaml.Controls.Panel.BackgroundProperty);
@@ -1334,6 +1334,10 @@ namespace Files.App.Views.Layouts
 		private void UpdateEmptyRowStripes()
 		{
 			EmptyRowStripes.Children.Clear();
+
+			// The Windows 11 look has plain rows
+			if (!Files.App.Controls.VisualStyle.IsMac)
+				return;
 
 			var count = FileList.Items.Count;
 			if (count == 0 || CollectionViewSource.IsSourceGrouped || FileList.ActualHeight <= 0)

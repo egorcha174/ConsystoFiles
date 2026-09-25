@@ -1,4 +1,4 @@
-// Copyright (c) Files Community
+﻿// Copyright (c) Files Community
 // Licensed under the MIT License.
 
 using CommunityToolkit.WinUI.Helpers;
@@ -422,6 +422,35 @@ namespace Files.App.ViewModels.Settings
 		public bool IsAppEnvironmentDev
 		{
 			get => AppLifecycleHelper.AppEnvironment is AppEnvironment.Dev;
+		}
+
+		// Consysto fork: macOS or Windows 11 look. 0 is macOS, 1 is Windows 11; saved at once, applied on the next start.
+		public int SelectedVisualStyleIndex
+		{
+			get => Files.App.MacStyle.VisualStyleSettings.SavedIsMac ? 0 : 1;
+			set
+			{
+				if (value < 0 || value == SelectedVisualStyleIndex)
+					return;
+
+				Files.App.MacStyle.VisualStyleSettings.SavedIsMac = value == 0;
+				OnPropertyChanged();
+				OnPropertyChanged(nameof(IsVisualStyleRestartPending));
+			}
+		}
+
+		public bool IsVisualStyleRestartPending
+			=> Files.App.MacStyle.VisualStyleSettings.SavedIsMac != Files.App.Controls.VisualStyle.IsMac;
+
+		[RelayCommand]
+		private void RestartForVisualStyle()
+		{
+			// As the restart after a language change: the open tabs come back
+			UserSettingsService.AppSettingsService.RestoreTabsOnStartup = true;
+			AppLifecycleHelper.SaveSessionTabs();
+
+			// Returns only when the restart was refused; the window then stays open and the look changes on the next start
+			Microsoft.Windows.AppLifecycle.AppInstance.Restart("");
 		}
 	}
 }

@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation and Contributors.
+﻿// Copyright (c) Microsoft Corporation and Contributors.
 // Licensed under the MIT License.
 
 using CommunityToolkit.WinUI;
@@ -441,7 +441,9 @@ namespace Files.App.Controls
 		private void UpdateSelectionState()
 		{
 			// Containers re-bind constantly during fast scroll; play state changes without transitions so no implicit animations fire on each ItemsRepeater realization.
-			VisualStateManager.GoToState(this, ShouldShowSelectionIndicator() ? "Selected" : "Unselected", false);
+			var isSelected = ShouldShowSelectionIndicator();
+			VisualStateManager.GoToState(this, isSelected ? "Selected" : "Unselected", false);
+			VisualStateManager.GoToState(this, isSelected && !VisualStyle.IsMac ? "WindowsSelected" : "WindowsUnselected", false);
 			UpdatePointerState();
 		}
 
@@ -501,10 +503,11 @@ namespace Files.App.Controls
 			UpdateSelectionState();
 		}
 
-		// Consysto fork: top-level group rows (Pinned, Drives, ...) get the macOS section-heading look. Compact mode keeps the regular row because its icon is the only thing shown there.
+		// Consysto fork: top-level group rows (Pinned, Drives, ...) get the macOS section-heading look (macOS look only). Compact mode keeps the regular row because its icon is the only thing shown there.
 		internal void UpdateSectionHeaderState()
 		{
-			var isSectionHeader = Owner?.SupportsExpansion != false
+			var isSectionHeader = VisualStyle.IsMac
+				&& Owner?.SupportsExpansion != false
 				&& !IsInFlyout
 				&& DisplayMode != SidebarDisplayMode.Compact
 				&& NestingLevel == 0

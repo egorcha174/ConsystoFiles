@@ -396,6 +396,18 @@
 								</VisualState>
 							</VisualStateGroup>
 
+							<!--  Consysto fork: the Windows 11 look (VisualStyle.IsMac false) brings back the stock accent bar and card border
+								on the selected row. Chosen in SidebarItem.UpdateSelectionState; the macOS look never enters WindowsSelected.  -->
+							<VisualStateGroup x:Name="WindowsSelectionStates">
+								<VisualState x:Name="WindowsUnselected" />
+								<VisualState x:Name="WindowsSelected">
+									<VisualState.Setters>
+										<Setter Target="SelectionIndicator.Opacity" Value="1" />
+										<Setter Target="ElementGrid.BorderBrush" Value="{ThemeResource ButtonBorderBrush}" />
+									</VisualState.Setters>
+								</VisualState>
+							</VisualStateGroup>
+
 						</VisualStateManager.VisualStateGroups>
 					</Grid>
 				</ControlTemplate>

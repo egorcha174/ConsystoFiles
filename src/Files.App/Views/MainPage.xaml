@@ -149,6 +149,7 @@
 
 		<!--  Consysto fork: one toolbar row, navigation and address on the left, commands on the right.  -->
 		<Grid
+			x:Name="TitleBarToolbarRow"
 			Grid.Column="1"
 			Margin="0,0,8,0"
 			ColumnSpacing="8">
