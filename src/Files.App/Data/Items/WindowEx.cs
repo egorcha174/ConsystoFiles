@@ -365,8 +365,17 @@ namespace Files.App.Data.Items
 			if (args.WindowActivationState is not WindowActivationState.Deactivated)
 				_isClosing = false;
 
-			if (!_isClosing && SystemBackdrop is AppSystemBackdrop appSystemBackdrop)
-				appSystemBackdrop.SetInputActive(args.WindowActivationState is not WindowActivationState.Deactivated);
+			// Consysto fork: an activation can still arrive while the window is being torn down (the traffic-light close
+			// button calls Close() directly), and the reset above has then undone the closing flag. Reading the backdrop of a
+			// closed window throws, and an exception here ends the whole program.
+			try
+			{
+				if (!_isClosing && SystemBackdrop is AppSystemBackdrop appSystemBackdrop)
+					appSystemBackdrop.SetInputActive(args.WindowActivationState is not WindowActivationState.Deactivated);
+			}
+			catch (Exception ex) when (ex is COMException or ObjectDisposedException)
+			{
+			}
 		}
 
 		public void Dispose()
