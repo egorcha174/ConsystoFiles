@@ -163,26 +163,55 @@
 								Grid.Column="1"
 								Style="{StaticResource TorrentNumberCellStyle}"
 								Text="{x:Bind SizeText, Mode=OneWay}" />
-							<Grid Grid.Column="2" Margin="8,5">
+							<!--
+								Consysto fork: the percent used to sit centred on top of the bar, where the fill/track edge
+								cut straight through the digits at almost any progress short of empty or full. It reads
+								beside the bar instead — never overlapped by anything.
+							-->
+							<Grid
+								Grid.Column="2"
+								Margin="8,5"
+								ColumnSpacing="6">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="Auto" />
+								</Grid.ColumnDefinitions>
 								<ProgressBar
 									Height="18"
 									MinHeight="18"
+									VerticalAlignment="Center"
 									CornerRadius="3"
 									Maximum="1"
 									ShowError="{x:Bind IsError, Mode=OneWay}"
 									ShowPaused="{x:Bind IsPaused, Mode=OneWay}"
 									Value="{x:Bind Progress, Mode=OneWay}" />
 								<TextBlock
-									HorizontalAlignment="Center"
+									Grid.Column="1"
 									VerticalAlignment="Center"
 									FontSize="11"
 									Text="{x:Bind ProgressText, Mode=OneWay}" />
 							</Grid>
-							<TextBlock
+							<!--
+								Consysto fork: the status word stays the row's own (selection-adaptive) foreground — a
+								coloured word washed out against the blue selection highlight; the dot carries the colour
+								instead, and a dot losing contrast on selection costs nothing a word wouldn't.
+							-->
+							<StackPanel
 								Grid.Column="3"
-								Foreground="{x:Bind StateBrush, Mode=OneWay}"
-								Style="{StaticResource TorrentCellStyle}"
-								Text="{x:Bind StateText, Mode=OneWay}" />
+								Padding="8,0"
+								VerticalAlignment="Center"
+								Orientation="Horizontal"
+								Spacing="6">
+								<Ellipse
+									Width="8"
+									Height="8"
+									Fill="{x:Bind StateBrush, Mode=OneWay}" />
+								<TextBlock
+									VerticalAlignment="Center"
+									FontSize="12"
+									Text="{x:Bind StateText, Mode=OneWay}"
+									TextTrimming="CharacterEllipsis" />
+							</StackPanel>
 							<TextBlock
 								Grid.Column="4"
 								Style="{StaticResource TorrentNumberCellStyle}"

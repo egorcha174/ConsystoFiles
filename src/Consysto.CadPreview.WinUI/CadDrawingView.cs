@@ -22,6 +22,10 @@ public sealed partial class CadDrawingView : UserControl
     private float _scale = 1f;
     private Vector2 _origin;
     private bool _fitPending = true;
+    // Consysto fork: the quick-preview overlay grows the card open, and the canvas' first Draw can land mid-animation,
+    // fitting to a width narrower than the settled one — the drawing then sits off-centre for good, because SizeChanged
+    // only repaints. Re-fit on every size change until the person actually zooms or pans by hand.
+    private bool _autoFit = true;
     private bool _dragging;
     private Vector2 _lastPointer;
 
@@ -33,7 +37,12 @@ public sealed partial class CadDrawingView : UserControl
 
         _canvas.Draw += OnDraw;
         _canvas.CreateResources += (_, _) => ResetPainter();
-        _canvas.SizeChanged += (_, _) => _canvas.Invalidate();
+        _canvas.SizeChanged += (_, _) =>
+        {
+            if (_autoFit)
+                _fitPending = true;
+            _canvas.Invalidate();
+        };
 
         PointerWheelChanged += OnPointerWheelChanged;
         PointerPressed += OnPointerPressed;
@@ -58,6 +67,7 @@ public sealed partial class CadDrawingView : UserControl
         {
             _drawing = value;
             ResetPainter();
+            _autoFit = true;
             _fitPending = true;
             _canvas.Invalidate();
         }
@@ -65,6 +75,7 @@ public sealed partial class CadDrawingView : UserControl
 
     public void Fit()
     {
+        _autoFit = true;
         _fitPending = true;
         _canvas.Invalidate();
     }
@@ -109,6 +120,7 @@ public sealed partial class CadDrawingView : UserControl
         var cursor = new Vector2((float)point.Position.X, (float)point.Position.Y);
         _origin = cursor - (cursor - _origin) * factor;
         _scale *= factor;
+        _autoFit = false;
         _fitPending = false;
         _canvas.Invalidate();
         e.Handled = true;
@@ -135,6 +147,7 @@ public sealed partial class CadDrawingView : UserControl
         var current = new Vector2((float)position.X, (float)position.Y);
         _origin += current - _lastPointer;
         _lastPointer = current;
+        _autoFit = false;
         _fitPending = false;
         _canvas.Invalidate();
     }
