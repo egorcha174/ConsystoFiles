@@ -8,7 +8,7 @@
     их логотип защищён как знак, а лицензия MPL распространяется только на код. Отсылка к исходному проекту читается
     в том, что это тоже папка в стиле Fluent, а принадлежность к Consysto — в молнии и фиолетовом цвете панели.
 
-    Скрипт кладёт Logo.ico (16…256) и плитки Square44x44Logo / Square150x150Logo в наборы значков приложения.
+    Скрипт кладёт Logo.ico (16…256) и перерисовывает все PNG наборов значков приложения, кроме BadgeLogo.
 
 .PARAMETER Preview
     Дополнительно сохранить PNG 512 для просмотра глазами, не трогая наборы значков.
@@ -132,13 +132,26 @@ foreach ($set in 'Dev', 'Preview', 'Release') {
 
     Save-Ico (Join-Path $directory 'Logo.ico') @(16, 20, 24, 32, 40, 48, 64, 96, 128, 256)
 
-    foreach ($tile in @{ 'Square44x44Logo' = 44; 'Square150x150Logo' = 150; 'Small71x71Logo' = 71; 'Large310x310Logo' = 310 }.GetEnumerator()) {
-        foreach ($scale in 100, 125, 150, 200, 400) {
-            $pixels = [int][math]::Round($tile.Value * $scale / 100.0)
-            $bitmap = New-Icon $pixels
-            Save-Png $bitmap (Join-Path $directory "$($tile.Key).scale-$scale.png")
-            $bitmap.Dispose()
-        }
+    # Каждый PNG набора перерисовывается в свой же размер. Пуск, панель задач и проводник берут не плитки scale-*,
+    # а Square44x44Logo.targetsize-* (в том числе unplated), есть ещё StoreLogo, широкая плитка, заставка
+    # и наборы высокого контраста; перечислять имена — значит снова что-то пропустить. BadgeLogo — белый силуэт
+    # для экрана блокировки, его не трогаем.
+    Get-ChildItem -LiteralPath $directory -Recurse -File -Filter '*.png' | Where-Object { $_.Name -notlike 'BadgeLogo*' } | ForEach-Object {
+        $image = [Drawing.Image]::FromFile($_.FullName)
+        $width = $image.Width; $height = $image.Height
+        $image.Dispose()
+
+        $side = [math]::Min($width, $height)
+        # Широкая плитка и заставка: значок по центру, на прозрачном поле, чуть меньше высоты
+        if ($width -ne $height) { $side = [int][math]::Round($height * 0.8) }
+        $icon = New-Icon $side
+        $bitmap = New-Object Drawing.Bitmap($width, $height, [Drawing.Imaging.PixelFormat]::Format32bppArgb)
+        $g = [Drawing.Graphics]::FromImage($bitmap)
+        $g.Clear([Drawing.Color]::Transparent)
+        $g.DrawImage($icon, [int](($width - $side) / 2), [int](($height - $side) / 2), $side, $side)
+        $g.Dispose(); $icon.Dispose()
+        Save-Png $bitmap $_.FullName
+        $bitmap.Dispose()
     }
 
     Write-Host "Готово: $directory"
