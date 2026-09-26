@@ -5485,6 +5485,9 @@
   <data name="ConsystoCadVersion" xml:space="preserve">
     <value>Версия</value>
   </data>
+  <data name="ConsystoCadPrintTime" xml:space="preserve">
+    <value>????? ??????</value>
+  </data>
   <data name="ConsystoTorrentDefault" xml:space="preserve">
     <value>Качать торренты через Files</value>
   </data>
@@ -5752,5 +5755,44 @@
   </data>
   <data name="ConsystoCollectionClipboardFailed" xml:space="preserve">
     <value>Не удалось поместить файлы в буфер обмена</value>
+  </data>
+  <data name="ConsystoPrintSection" xml:space="preserve">
+    <value>Печать</value>
+  </data>
+  <data name="ConsystoPrintTime" xml:space="preserve">
+    <value>Время печати</value>
+  </data>
+  <data name="ConsystoPrintFilament" xml:space="preserve">
+    <value>Пластик</value>
+  </data>
+  <data name="ConsystoPrintLayerHeight" xml:space="preserve">
+    <value>Высота слоя</value>
+  </data>
+  <data name="ConsystoPrintLayers" xml:space="preserve">
+    <value>Слоёв</value>
+  </data>
+  <data name="ConsystoPrintNozzle" xml:space="preserve">
+    <value>Сопло</value>
+  </data>
+  <data name="ConsystoPrintPrinter" xml:space="preserve">
+    <value>Принтер</value>
+  </data>
+  <data name="ConsystoPrintSlicer" xml:space="preserve">
+    <value>Слайсер</value>
+  </data>
+  <data name="ConsystoPrintHoursMinutes" xml:space="preserve">
+    <value>{0} ч {1} мин</value>
+  </data>
+  <data name="ConsystoPrintMinutes" xml:space="preserve">
+    <value>{0} мин</value>
+  </data>
+  <data name="ConsystoPrintGrams" xml:space="preserve">
+    <value>{0} г</value>
+  </data>
+  <data name="ConsystoPrintMeters" xml:space="preserve">
+    <value>{0} м</value>
+  </data>
+  <data name="ConsystoPrintMillimeters" xml:space="preserve">
+    <value>{0} мм</value>
   </data>
 </root>

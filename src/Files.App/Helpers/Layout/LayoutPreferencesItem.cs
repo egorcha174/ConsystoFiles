@@ -56,6 +56,7 @@ namespace Files.App.Helpers
 			ColumnsViewModel.CadMaterialColumn.UserCollapsed = !UserSettingsService.LayoutSettingsService.ShowCadMaterialColumn;
 			ColumnsViewModel.CadMassColumn.UserCollapsed = !UserSettingsService.LayoutSettingsService.ShowCadMassColumn;
 			ColumnsViewModel.CadVersionColumn.UserCollapsed = !UserSettingsService.LayoutSettingsService.ShowCadVersionColumn;
+			ColumnsViewModel.CadPrintTimeColumn.UserCollapsed = !UserSettingsService.LayoutSettingsService.ShowCadPrintTimeColumn;
 			ColumnsViewModel.SizeColumn.UserCollapsed = !UserSettingsService.LayoutSettingsService.ShowSizeColumn;
 			ColumnsViewModel.GitStatusColumn.UserCollapsed = !UserSettingsService.LayoutSettingsService.ShowGitStatusColumn;
 			ColumnsViewModel.GitLastCommitDateColumn.UserCollapsed = !UserSettingsService.LayoutSettingsService.ShowGitLastCommitDateColumn;
@@ -79,6 +80,7 @@ namespace Files.App.Helpers
 			ColumnsViewModel.CadMaterialColumn.UserLengthPixels = UserSettingsService.LayoutSettingsService.CadMaterialColumnWidth;
 			ColumnsViewModel.CadMassColumn.UserLengthPixels = UserSettingsService.LayoutSettingsService.CadMassColumnWidth;
 			ColumnsViewModel.CadVersionColumn.UserLengthPixels = UserSettingsService.LayoutSettingsService.CadVersionColumnWidth;
+			ColumnsViewModel.CadPrintTimeColumn.UserLengthPixels = UserSettingsService.LayoutSettingsService.CadPrintTimeColumnWidth;
 			ColumnsViewModel.ColumnOrder = string.IsNullOrEmpty(UserSettingsService.LayoutSettingsService.DetailsColumnOrder) ? null : UserSettingsService.LayoutSettingsService.DetailsColumnOrder;
 			ColumnsViewModel.SizeColumn.UserLengthPixels = UserSettingsService.LayoutSettingsService.SizeColumnWidth;
 			ColumnsViewModel.GitStatusColumn.UserLengthPixels = UserSettingsService.LayoutSettingsService.GitStatusColumnWidth;

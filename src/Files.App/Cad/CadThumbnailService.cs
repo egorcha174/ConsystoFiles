@@ -1,4 +1,4 @@
-// Consysto fork: DWG/DXF thumbnails.
+﻿// Consysto fork: DWG/DXF thumbnails.
 
 using System.Security.Cryptography;
 using System.Text;
@@ -40,7 +40,8 @@ namespace Files.App.Cad
 			try
 			{
 				var file = new SystemIO.FileInfo(path);
-				if (!file.Exists || file.Length > MaximumFileBytes)
+				// A print job keeps its picture at the head, so a large one still gets a thumbnail
+				if (!file.Exists || file.Length > MaximumFileBytes && !Consysto.CadPreview.Print.GcodeReader.IsSupported(file.Extension))
 					return null;
 
 				var cachePath = SystemIO.Path.Combine(cacheDirectory.Value, CacheKey(file, size) + ".png");
@@ -50,7 +51,7 @@ namespace Files.App.Cad
 				await renderGate.WaitAsync();
 				try
 				{
-					var content = await Task.Run(() => CadPreviewSource.Load(path));
+					var content = await Task.Run(() => CadPreviewSource.LoadThumbnail(path, MaximumFileBytes));
 					byte[]? png = content switch
 					{
 						{ Drawing: { } drawing } => await CadThumbnailRenderer.RenderDrawingAsync(drawing, (int)size),

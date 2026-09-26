@@ -80,7 +80,7 @@ namespace Files.App.Cad
 			CadPreviewContent content;
 			try
 			{
-				content = await Task.Run(() => CadPreviewSource.Load(Item.ItemPath!), LoadCancelledTokenSource.Token);
+				content = await Task.Run(() => CadPreviewSource.Load(Item.ItemPath!, LoadCancelledTokenSource.Token), LoadCancelledTokenSource.Token);
 			}
 			catch (Exception ex) when (ex is not OperationCanceledException)
 			{
@@ -133,6 +133,9 @@ namespace Files.App.Cad
 		/// <summary>The iProperties of an Inventor document, shown above the file's own details.</summary>
 		private async Task<List<FileProperty>> LoadPropertiesAsync()
 		{
+			if (Consysto.CadPreview.Print.GcodeReader.IsPrintFile(Item.ItemPath))
+				return await LoadPrintPropertiesAsync();
+
 			if (!InventorPropertyReader.IsSupported(SystemIO.Path.GetExtension(Item.ItemPath)))
 				return [];
 
@@ -177,6 +180,39 @@ namespace Files.App.Cad
 			Properties = new ObservableCollection<CadPropertyRow>(details
 				.Where(detail => detail.SectionResource != "ConsystoIPropertiesPartsSection")
 				.Select(detail => new CadPropertyRow(detail.Name, detail.Value?.ToString() ?? string.Empty)));
+			return details;
+		}
+
+		/// <summary>What the slicer wrote about a print job: time, plastic, layer, nozzle, printer.</summary>
+		private async Task<List<FileProperty>> LoadPrintPropertiesAsync()
+		{
+			Consysto.CadPreview.Print.PrintInfo info;
+			try
+			{
+				info = await Task.Run(() => Consysto.CadPreview.Print.GcodeReader.Read(Item.ItemPath!), LoadCancelledTokenSource.Token);
+			}
+			catch (Exception ex) when (ex is not OperationCanceledException)
+			{
+				App.Logger.LogWarning(ex, "The print job could not be read");
+				return [];
+			}
+
+			var details = new List<FileProperty>();
+			void Add(string nameResource, string? value)
+			{
+				if (!string.IsNullOrEmpty(value))
+					details.Add(new FileProperty { NameResource = nameResource, SectionResource = "ConsystoPrintSection", Value = value });
+			}
+
+			Add("ConsystoPrintTime", info.PrintTime is { } time ? PrintFormat.Time(time) : null);
+			Add("ConsystoPrintFilament", PrintFormat.Filament(info));
+			Add("ConsystoPrintLayerHeight", info.LayerHeight is { } layer ? PrintFormat.Millimeters(layer) : null);
+			Add("ConsystoPrintLayers", info.Layers?.ToString(System.Globalization.CultureInfo.CurrentCulture));
+			Add("ConsystoPrintNozzle", info.NozzleDiameter is { } nozzle ? PrintFormat.Millimeters(nozzle) : null);
+			Add("ConsystoPrintPrinter", info.Printer);
+			Add("ConsystoPrintSlicer", info.Slicer);
+
+			Properties = new ObservableCollection<CadPropertyRow>(details.Select(detail => new CadPropertyRow(detail.Name, detail.Value?.ToString() ?? string.Empty)));
 			return details;
 		}
 

@@ -5492,6 +5492,9 @@
   <data name="ConsystoCadVersion" xml:space="preserve">
     <value>Version</value>
   </data>
+  <data name="ConsystoCadPrintTime" xml:space="preserve">
+    <value>Print time</value>
+  </data>
   <data name="ConsystoTorrentDefault" xml:space="preserve">
     <value>Download torrents with Files</value>
   </data>
@@ -5759,5 +5762,44 @@
   </data>
   <data name="ConsystoCollectionClipboardFailed" xml:space="preserve">
     <value>The files could not be put on the clipboard</value>
+  </data>
+  <data name="ConsystoPrintSection" xml:space="preserve">
+    <value>Print</value>
+  </data>
+  <data name="ConsystoPrintTime" xml:space="preserve">
+    <value>Print time</value>
+  </data>
+  <data name="ConsystoPrintFilament" xml:space="preserve">
+    <value>Filament</value>
+  </data>
+  <data name="ConsystoPrintLayerHeight" xml:space="preserve">
+    <value>Layer height</value>
+  </data>
+  <data name="ConsystoPrintLayers" xml:space="preserve">
+    <value>Layers</value>
+  </data>
+  <data name="ConsystoPrintNozzle" xml:space="preserve">
+    <value>Nozzle</value>
+  </data>
+  <data name="ConsystoPrintPrinter" xml:space="preserve">
+    <value>Printer</value>
+  </data>
+  <data name="ConsystoPrintSlicer" xml:space="preserve">
+    <value>Slicer</value>
+  </data>
+  <data name="ConsystoPrintHoursMinutes" xml:space="preserve">
+    <value>{0} h {1} min</value>
+  </data>
+  <data name="ConsystoPrintMinutes" xml:space="preserve">
+    <value>{0} min</value>
+  </data>
+  <data name="ConsystoPrintGrams" xml:space="preserve">
+    <value>{0} g</value>
+  </data>
+  <data name="ConsystoPrintMeters" xml:space="preserve">
+    <value>{0} m</value>
+  </data>
+  <data name="ConsystoPrintMillimeters" xml:space="preserve">
+    <value>{0} mm</value>
   </data>
 </root>

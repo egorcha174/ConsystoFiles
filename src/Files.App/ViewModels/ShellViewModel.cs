@@ -1,4 +1,4 @@
-// Copyright (c) Files Community
+﻿// Copyright (c) Files Community
 // Licensed under the MIT License.
 
 using Files.App.Services.SizeProvider;
@@ -195,6 +195,11 @@ namespace Files.App.ViewModels
 		public event EventHandler? HasCadItemsChanged;
 
 		public bool HasCadItems { get; private set; }
+
+		/// <summary>Among the documents: print jobs (their columns are time and plastic) and drawings or models (part number).</summary>
+		public bool HasPrintItems { get; private set; }
+
+		public bool HasDrawingItems { get; private set; }
 
 		public event EventHandler<List<ListedItem>>? OnSelectionRequestedEvent;
 
@@ -1240,6 +1245,12 @@ namespace Files.App.ViewModels
 				.Where(item => item.PrimaryItemAttribute == StorageItemTypes.File && !item.IsShortcut && Files.App.Cad.CadColumnsCache.IsSupported(item.ItemPath))
 				.ToList();
 
+			var printJobs = documents.Count(item => Consysto.CadPreview.Print.GcodeReader.IsPrintFile(item.ItemPath));
+			var kindsChanged = HasPrintItems != printJobs > 0 || HasDrawingItems != documents.Count > printJobs;
+			HasPrintItems = printJobs > 0;
+			HasDrawingItems = documents.Count > printJobs;
+			if (kindsChanged && HasCadItems == documents.Count > 0)
+				_ = dispatcherQueue.EnqueueOrInvokeAsync(() => HasCadItemsChanged?.Invoke(this, EventArgs.Empty));
 			SetHasCadItems(documents.Count > 0);
 			if (documents.Count == 0)
 				return;
@@ -1260,11 +1271,13 @@ namespace Files.App.ViewModels
 						item.CadMass = columns.Mass;
 						item.CadMassSortKey = columns.MassKilograms;
 						item.CadVersion = columns.Version;
+						item.CadPrintTime = columns.PrintTime;
+						item.CadPrintTimeSortKey = columns.PrintMinutes;
 					}, Microsoft.UI.Dispatching.DispatcherQueuePriority.Low);
 				});
 
 				// The folder was sorted before the values existed
-				if (!token.IsCancellationRequested && folderSettings.DirectorySortOption is SortOption.CadPartNumber or SortOption.CadMaterial or SortOption.CadMass or SortOption.CadVersion)
+				if (!token.IsCancellationRequested && folderSettings.DirectorySortOption is SortOption.CadPartNumber or SortOption.CadMaterial or SortOption.CadMass or SortOption.CadVersion or SortOption.CadPrintTime)
 				{
 					await OrderFilesAndFoldersAsync();
 					await ApplyFilesAndFoldersChangesAsync();

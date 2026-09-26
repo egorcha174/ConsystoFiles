@@ -331,6 +331,15 @@ namespace Files.App.Utils
 			get => cadVersion;
 			set => SetProperty(ref cadVersion, value);
 		}
+		private string? cadPrintTime;
+		public string? CadPrintTime
+		{
+			get => cadPrintTime;
+			set => SetProperty(ref cadPrintTime, value);
+		}
+
+		/// <summary>Print time in minutes, used for numeric sorting.</summary>
+		public double? CadPrintTimeSortKey { get; set; }
 
 		private string? fileSize;
 		public string? FileSize

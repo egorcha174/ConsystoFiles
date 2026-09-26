@@ -193,6 +193,7 @@ namespace Files.App.Views.Layouts
 			ColumnsViewModel.CadMaterialColumn.Update(FolderSettings.ColumnsViewModel.CadMaterialColumn);
 			ColumnsViewModel.CadMassColumn.Update(FolderSettings.ColumnsViewModel.CadMassColumn);
 			ColumnsViewModel.CadVersionColumn.Update(FolderSettings.ColumnsViewModel.CadVersionColumn);
+			ColumnsViewModel.CadPrintTimeColumn.Update(FolderSettings.ColumnsViewModel.CadPrintTimeColumn);
 			ColumnsViewModel.ColumnOrder = FolderSettings.ColumnsViewModel.ColumnOrder;
 				ColumnsViewModel.PathColumn.Update(FolderSettings.ColumnsViewModel.PathColumn);
 				ColumnsViewModel.OriginalPathColumn.Update(FolderSettings.ColumnsViewModel.OriginalPathColumn);
@@ -343,6 +344,9 @@ namespace Files.App.Views.Layouts
 						case nameof(ILayoutSettingsService.ShowCadVersionColumn):
 							ColumnsViewModel.CadVersionColumn.UserCollapsed = !settings.ShowCadVersionColumn;
 							break;
+						case nameof(ILayoutSettingsService.ShowCadPrintTimeColumn):
+							ColumnsViewModel.CadPrintTimeColumn.UserCollapsed = !settings.ShowCadPrintTimeColumn;
+							break;
 						case nameof(ILayoutSettingsService.ShowDateCreatedColumn):
 							ColumnsViewModel.DateCreatedColumn.UserCollapsed = !settings.ShowDateCreatedColumn;
 							break;
@@ -407,6 +411,7 @@ namespace Files.App.Views.Layouts
 			CadMaterialHeader.ColumnSortOption = folderSettings.DirectorySortOption == SortOption.CadMaterial ? folderSettings.DirectorySortDirection : null;
 			CadMassHeader.ColumnSortOption = folderSettings.DirectorySortOption == SortOption.CadMass ? folderSettings.DirectorySortDirection : null;
 			CadVersionHeader.ColumnSortOption = folderSettings.DirectorySortOption == SortOption.CadVersion ? folderSettings.DirectorySortDirection : null;
+			CadPrintTimeHeader.ColumnSortOption = folderSettings.DirectorySortOption == SortOption.CadPrintTime ? folderSettings.DirectorySortDirection : null;
 			TagHeader.ColumnSortOption = folderSettings.DirectorySortOption == SortOption.FileTag ? folderSettings.DirectorySortDirection : null;
 			PathHeader.ColumnSortOption = folderSettings.DirectorySortOption == SortOption.Path ? folderSettings.DirectorySortDirection : null;
 			OriginalPathHeader.ColumnSortOption = folderSettings.DirectorySortOption == SortOption.OriginalFolder ? folderSettings.DirectorySortDirection : null;
@@ -485,14 +490,22 @@ namespace Files.App.Views.Layouts
 
 		private void UpdateCadColumns()
 		{
-			var hasDocuments = ParentShellPageInstance?.ShellViewModel?.HasCadItems == true;
-			foreach (var column in new[] { ColumnsViewModel.CadPartNumberColumn, ColumnsViewModel.CadMaterialColumn, ColumnsViewModel.CadMassColumn, ColumnsViewModel.CadVersionColumn })
+			// Part number belongs to drawings and models, print time to print jobs; material, mass and version to both
+			var shell = ParentShellPageInstance?.ShellViewModel;
+			var hasDocuments = shell?.HasCadItems == true;
+			void Toggle(DetailsLayoutColumnItem column, bool visible)
 			{
-				if (hasDocuments)
+				if (visible)
 					column.Show();
 				else
 					column.Hide();
 			}
+
+			Toggle(ColumnsViewModel.CadPartNumberColumn, hasDocuments && shell!.HasDrawingItems);
+			Toggle(ColumnsViewModel.CadMaterialColumn, hasDocuments);
+			Toggle(ColumnsViewModel.CadMassColumn, hasDocuments);
+			Toggle(ColumnsViewModel.CadVersionColumn, hasDocuments);
+			Toggle(ColumnsViewModel.CadPrintTimeColumn, hasDocuments && shell!.HasPrintItems);
 		}
 
 		private void FolderSettings_LayoutModeChangeRequested(object? sender, LayoutModeEventArgs e)
@@ -903,6 +916,7 @@ namespace Files.App.Views.Layouts
 			ColumnsViewModel.CadMaterialColumn.UserLength = CadMaterialColumnDefinition.Width;
 			ColumnsViewModel.CadMassColumn.UserLength = CadMassColumnDefinition.Width;
 			ColumnsViewModel.CadVersionColumn.UserLength = CadVersionColumnDefinition.Width;
+			ColumnsViewModel.CadPrintTimeColumn.UserLength = CadPrintTimeColumnDefinition.Width;
 
 			// Git
 			ColumnsViewModel.GitStatusColumn.UserLength = GitStatusColumnDefinition.Width;
@@ -1028,18 +1042,19 @@ namespace Files.App.Views.Layouts
 				7 => FileList.Items.Cast<ListedItem>().Select(x => x.CadMaterial?.Length ?? 0).Max(), // Consysto fork: Inventor material column
 				8 => FileList.Items.Cast<ListedItem>().Select(x => x.CadMass?.Length ?? 0).Max(), // Consysto fork: Inventor mass column (the book and Inventor columns shift later indexes by five)
 				9 => FileList.Items.Cast<ListedItem>().Select(x => x.CadVersion?.Length ?? 0).Max(), // Consysto fork: program version column
-				11 => FileList.Items.Cast<ListedItem>().Select(x => (x as IGitItem)?.GitLastCommitDateHumanized?.Length ?? 0).Max(), // git
-				12 => FileList.Items.Cast<ListedItem>().Select(x => (x as IGitItem)?.GitLastCommitMessage?.Length ?? 0).Max(), // git
-				13 => FileList.Items.Cast<ListedItem>().Select(x => (x as IGitItem)?.GitLastCommitAuthor?.Length ?? 0).Max(), // git
-				14 => FileList.Items.Cast<ListedItem>().Select(x => (x as IGitItem)?.GitLastCommitSha?.Length ?? 0).Max(), // git
-				15 => FileList.Items.Cast<ListedItem>().Select(x => x.FileTagsUI?.Sum(x => x?.Name?.Length ?? 0) ?? 0).Max(), // file tag column
-				16 => FileList.Items.Cast<ListedItem>().Select(x => x.ItemPath?.Length ?? 0).Max(), // path column
-				17 => FileList.Items.Cast<ListedItem>().Select(x => (x as RecycleBinItem)?.ItemOriginalPath?.Length ?? 0).Max(), // original path column
-				18 => FileList.Items.Cast<ListedItem>().Select(x => (x as RecycleBinItem)?.ItemDateDeleted?.Length ?? 0).Max(), // date deleted column
-				19 => FileList.Items.Cast<ListedItem>().Select(x => x.ItemDateModified?.Length ?? 0).Max(), // date modified column
-				20 => FileList.Items.Cast<ListedItem>().Select(x => x.ItemDateCreated?.Length ?? 0).Max(), // date created column
-				21 => FileList.Items.Cast<ListedItem>().Select(x => x.ItemType?.Length ?? 0).Max(), // item type column
-				22 => FileList.Items.Cast<ListedItem>().Select(x => x.FileSize?.Length ?? 0).Max(), // item size column
+				10 => FileList.Items.Cast<ListedItem>().Select(x => x.CadPrintTime?.Length ?? 0).Max(), // Consysto fork: print time column
+				12 => FileList.Items.Cast<ListedItem>().Select(x => (x as IGitItem)?.GitLastCommitDateHumanized?.Length ?? 0).Max(), // git
+				13 => FileList.Items.Cast<ListedItem>().Select(x => (x as IGitItem)?.GitLastCommitMessage?.Length ?? 0).Max(), // git
+				14 => FileList.Items.Cast<ListedItem>().Select(x => (x as IGitItem)?.GitLastCommitAuthor?.Length ?? 0).Max(), // git
+				15 => FileList.Items.Cast<ListedItem>().Select(x => (x as IGitItem)?.GitLastCommitSha?.Length ?? 0).Max(), // git
+				16 => FileList.Items.Cast<ListedItem>().Select(x => x.FileTagsUI?.Sum(x => x?.Name?.Length ?? 0) ?? 0).Max(), // file tag column
+				17 => FileList.Items.Cast<ListedItem>().Select(x => x.ItemPath?.Length ?? 0).Max(), // path column
+				18 => FileList.Items.Cast<ListedItem>().Select(x => (x as RecycleBinItem)?.ItemOriginalPath?.Length ?? 0).Max(), // original path column
+				19 => FileList.Items.Cast<ListedItem>().Select(x => (x as RecycleBinItem)?.ItemDateDeleted?.Length ?? 0).Max(), // date deleted column
+				20 => FileList.Items.Cast<ListedItem>().Select(x => x.ItemDateModified?.Length ?? 0).Max(), // date modified column
+				21 => FileList.Items.Cast<ListedItem>().Select(x => x.ItemDateCreated?.Length ?? 0).Max(), // date created column
+				22 => FileList.Items.Cast<ListedItem>().Select(x => x.ItemType?.Length ?? 0).Max(), // item type column
+				23 => FileList.Items.Cast<ListedItem>().Select(x => x.FileSize?.Length ?? 0).Max(), // item size column
 				_ => 20 // cloud status column
 			};
 
@@ -1062,19 +1077,20 @@ namespace Files.App.Views.Layouts
 					7 => ColumnsViewModel.CadMaterialColumn,
 					8 => ColumnsViewModel.CadMassColumn,
 					9 => ColumnsViewModel.CadVersionColumn,
-					10 => ColumnsViewModel.GitStatusColumn,
-					11 => ColumnsViewModel.GitLastCommitDateColumn,
-					12 => ColumnsViewModel.GitLastCommitMessageColumn,
-					13 => ColumnsViewModel.GitCommitAuthorColumn,
-					14 => ColumnsViewModel.GitLastCommitShaColumn,
-					15 => ColumnsViewModel.TagColumn,
-					16 => ColumnsViewModel.PathColumn,
-					17 => ColumnsViewModel.OriginalPathColumn,
-					18 => ColumnsViewModel.DateDeletedColumn,
-					19 => ColumnsViewModel.DateModifiedColumn,
-					20 => ColumnsViewModel.DateCreatedColumn,
-					21 => ColumnsViewModel.ItemTypeColumn,
-					22 => ColumnsViewModel.SizeColumn,
+					10 => ColumnsViewModel.CadPrintTimeColumn,
+					11 => ColumnsViewModel.GitStatusColumn,
+					12 => ColumnsViewModel.GitLastCommitDateColumn,
+					13 => ColumnsViewModel.GitLastCommitMessageColumn,
+					14 => ColumnsViewModel.GitCommitAuthorColumn,
+					15 => ColumnsViewModel.GitLastCommitShaColumn,
+					16 => ColumnsViewModel.TagColumn,
+					17 => ColumnsViewModel.PathColumn,
+					18 => ColumnsViewModel.OriginalPathColumn,
+					19 => ColumnsViewModel.DateDeletedColumn,
+					20 => ColumnsViewModel.DateModifiedColumn,
+					21 => ColumnsViewModel.DateCreatedColumn,
+					22 => ColumnsViewModel.ItemTypeColumn,
+					23 => ColumnsViewModel.SizeColumn,
 					_ => ColumnsViewModel.StatusColumn
 				};
 
@@ -1170,20 +1186,21 @@ namespace Files.App.Views.Layouts
 				"ItemCadMaterialTextBlock" => 7,
 				"ItemCadMassTextBlock" => 8,
 				"ItemCadVersionTextBlock" => 9,
-				"ItemGitStatusTextBlock" => 10,
-				"ItemGitLastCommitDateTextBlock" => 11,
-				"ItemGitLastCommitMessageTextBlock" => 12,
-				"ItemGitCommitAuthorTextBlock" => 13,
-				"ItemGitLastCommitShaTextBlock" => 14,
-				"ItemTagGrid" => 15,
-				"ItemPathTextBlock" => 16,
-				"ItemOriginalPath" => 17,
-				"ItemDateDeleted" => 18,
-				"ItemDateModifiedTextBlock" => 19,
-				"ItemDateCreatedTextBlock" => 20,
-				"ItemTypeTextBlock" => 21,
-				"ItemSize" => 22,
-				"ItemStatus" => 23,
+				"ItemCadPrintTimeTextBlock" => 10,
+				"ItemGitStatusTextBlock" => 11,
+				"ItemGitLastCommitDateTextBlock" => 12,
+				"ItemGitLastCommitMessageTextBlock" => 13,
+				"ItemGitCommitAuthorTextBlock" => 14,
+				"ItemGitLastCommitShaTextBlock" => 15,
+				"ItemTagGrid" => 16,
+				"ItemPathTextBlock" => 17,
+				"ItemOriginalPath" => 18,
+				"ItemDateDeleted" => 19,
+				"ItemDateModifiedTextBlock" => 20,
+				"ItemDateCreatedTextBlock" => 21,
+				"ItemTypeTextBlock" => 22,
+				"ItemSize" => 23,
+				"ItemStatus" => 24,
 				_ => -1,
 			};
 

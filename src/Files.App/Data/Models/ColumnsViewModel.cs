@@ -22,6 +22,7 @@ namespace Files.App.Data.Models
 			nameof(CadMaterialColumn),
 			nameof(CadMassColumn),
 			nameof(CadVersionColumn),
+			nameof(CadPrintTimeColumn),
 			nameof(StatusColumn),
 			nameof(DateModifiedColumn),
 			nameof(PathColumn),
@@ -181,6 +182,17 @@ namespace Files.App.Data.Models
 			get => cadVersionColumn;
 			set => SetProperty(ref cadVersionColumn, value);
 		}
+		private DetailsLayoutColumnItem cadPrintTimeColumn = new()
+		{
+			UserLength = new GridLength(130, GridUnitType.Pixel),
+			NormalMaxLength = 500,
+			IsHidden = true,
+		};
+		public DetailsLayoutColumnItem CadPrintTimeColumn
+		{
+			get => cadPrintTimeColumn;
+			set => SetProperty(ref cadPrintTimeColumn, value);
+		}
 
 		// Consysto fork: user order of the columns after the name, as comma-separated property names; empty keeps the default order
 		private string? columnOrder;
@@ -275,6 +287,7 @@ namespace Files.App.Data.Models
 			CadMaterialColumn.Length.Value +
 			CadMassColumn.Length.Value +
 			CadVersionColumn.Length.Value +
+			CadPrintTimeColumn.Length.Value +
 			DateModifiedColumn.Length.Value +
 			PathColumn.Length.Value +
 			OriginalPathColumn.Length.Value +
@@ -307,6 +320,7 @@ namespace Files.App.Data.Models
 					model.CadMaterialColumn.Equals(CadMaterialColumn) &&
 					model.CadMassColumn.Equals(CadMassColumn) &&
 					model.CadVersionColumn.Equals(CadVersionColumn) &&
+					model.CadPrintTimeColumn.Equals(CadPrintTimeColumn) &&
 					string.Equals(model.ColumnOrder, ColumnOrder, StringComparison.Ordinal) &&
 					model.PathColumn.Equals(PathColumn) &&
 					model.OriginalPathColumn.Equals(OriginalPathColumn) &&
@@ -337,6 +351,7 @@ namespace Files.App.Data.Models
 			hashCode = (hashCode * 397) ^ CadMaterialColumn.GetHashCode();
 			hashCode = (hashCode * 397) ^ CadMassColumn.GetHashCode();
 			hashCode = (hashCode * 397) ^ CadVersionColumn.GetHashCode();
+			hashCode = (hashCode * 397) ^ CadPrintTimeColumn.GetHashCode();
 			hashCode = (hashCode * 397) ^ (ColumnOrder?.GetHashCode(StringComparison.Ordinal) ?? 0);
 			hashCode = (hashCode * 397) ^ PathColumn.GetHashCode();
 			hashCode = (hashCode * 397) ^ OriginalPathColumn.GetHashCode();

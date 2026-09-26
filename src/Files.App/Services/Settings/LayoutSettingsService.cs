@@ -208,6 +208,15 @@ namespace Files.App.Services.Settings
 					Set(value);
 			}
 		}
+		public double CadPrintTimeColumnWidth
+		{
+			get => Get(130d);
+			set
+			{
+				if (ShowCadPrintTimeColumn)
+					Set(value);
+			}
+		}
 
 		public double TypeColumnWidth
 		{
@@ -332,6 +341,11 @@ namespace Files.App.Services.Settings
 			set => Set(value);
 		}
 		public bool ShowCadVersionColumn
+		{
+			get => Get(true);
+			set => Set(value);
+		}
+		public bool ShowCadPrintTimeColumn
 		{
 			get => Get(true);
 			set => Set(value);

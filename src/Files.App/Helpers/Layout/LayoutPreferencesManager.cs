@@ -393,6 +393,7 @@ namespace Files.App.Helpers
 			UserSettingsService.LayoutSettingsService.ShowCadMaterialColumn = !columns.CadMaterialColumn.UserCollapsed;
 			UserSettingsService.LayoutSettingsService.ShowCadMassColumn = !columns.CadMassColumn.UserCollapsed;
 			UserSettingsService.LayoutSettingsService.ShowCadVersionColumn = !columns.CadVersionColumn.UserCollapsed;
+			UserSettingsService.LayoutSettingsService.ShowCadPrintTimeColumn = !columns.CadPrintTimeColumn.UserCollapsed;
 			UserSettingsService.LayoutSettingsService.ShowSizeColumn = !columns.SizeColumn.UserCollapsed;
 			UserSettingsService.LayoutSettingsService.ShowFileTagColumn = !columns.TagColumn.UserCollapsed;
 			UserSettingsService.LayoutSettingsService.ShowGitStatusColumn = !columns.GitStatusColumn.UserCollapsed;
@@ -416,6 +417,7 @@ namespace Files.App.Helpers
 			UserSettingsService.LayoutSettingsService.CadMaterialColumnWidth = columns.CadMaterialColumn.UserLengthPixels;
 			UserSettingsService.LayoutSettingsService.CadMassColumnWidth = columns.CadMassColumn.UserLengthPixels;
 			UserSettingsService.LayoutSettingsService.CadVersionColumnWidth = columns.CadVersionColumn.UserLengthPixels;
+			UserSettingsService.LayoutSettingsService.CadPrintTimeColumnWidth = columns.CadPrintTimeColumn.UserLengthPixels;
 			UserSettingsService.LayoutSettingsService.DetailsColumnOrder = columns.ColumnOrder ?? string.Empty;
 			UserSettingsService.LayoutSettingsService.SizeColumnWidth = columns.SizeColumn.UserLengthPixels;
 			UserSettingsService.LayoutSettingsService.TagColumnWidth = columns.TagColumn.UserLengthPixels;
@@ -518,6 +520,11 @@ namespace Files.App.Helpers
 				{
 					UserSettingsService.LayoutSettingsService.ShowCadVersionColumn = !preferencesItem.ColumnsViewModel.CadVersionColumn.UserCollapsed;
 					UserSettingsService.LayoutSettingsService.CadVersionColumnWidth = preferencesItem.ColumnsViewModel.CadVersionColumn.UserLengthPixels;
+				}
+				if (!preferencesItem.ColumnsViewModel.CadPrintTimeColumn.IsHidden)
+				{
+					UserSettingsService.LayoutSettingsService.ShowCadPrintTimeColumn = !preferencesItem.ColumnsViewModel.CadPrintTimeColumn.UserCollapsed;
+					UserSettingsService.LayoutSettingsService.CadPrintTimeColumnWidth = preferencesItem.ColumnsViewModel.CadPrintTimeColumn.UserLengthPixels;
 				}
 				if (!preferencesItem.ColumnsViewModel.SizeColumn.IsHidden)
 				{

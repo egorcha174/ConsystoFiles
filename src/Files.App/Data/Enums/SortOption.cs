@@ -100,6 +100,11 @@ namespace Files.App.Data.Enums
 		/// <summary>
 		/// Sort by the program version that wrote a drawing or model (Consysto fork, details view CAD columns).
 		/// </summary>
-		CadVersion = 16
+		CadVersion = 16,
+
+		/// <summary>
+		/// Sort by print time in minutes.
+		/// </summary>
+		CadPrintTime = 17
 	}
 }

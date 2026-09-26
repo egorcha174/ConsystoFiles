@@ -1,4 +1,4 @@
-// Consysto fork: part number, material, mass and program version of drawings and models for the details view columns.
+﻿// Consysto fork: part number, material, mass and program version of drawings and models for the details view columns.
 
 using System.Collections.Concurrent;
 using Consysto.CadPreview;
@@ -8,7 +8,8 @@ using Microsoft.Extensions.Logging;
 namespace Files.App.Cad
 {
 	/// <summary>The iProperties the details view shows and sorts by.</summary>
-	public sealed record CadColumns(string? PartNumber, string? Material, string? Mass, double? MassKilograms, string? Version);
+	/// <remarks>A print job fills the same columns: plastic as the material, its weight as the mass, the slicer as the version.</remarks>
+	public sealed record CadColumns(string? PartNumber, string? Material, string? Mass, double? MassKilograms, string? Version, string? PrintTime = null, double? PrintMinutes = null);
 
 	/// <summary>
 	/// Reads the iProperties of a document and remembers them by path, size and date, so returning to a folder or sorting it
@@ -19,7 +20,8 @@ namespace Files.App.Cad
 		private static readonly ConcurrentDictionary<string, CadColumns?> cache = new(StringComparer.OrdinalIgnoreCase);
 
 		public static bool IsSupported(string? path)
-			=> CadVersionReader.IsSupported(SystemIO.Path.GetExtension(path));
+			=> CadVersionReader.IsSupported(SystemIO.Path.GetExtension(path))
+				|| Consysto.CadPreview.Print.GcodeReader.IsPrintFile(path);
 
 		public static CadColumns? Read(string path)
 		{
@@ -40,6 +42,13 @@ namespace Files.App.Cad
 				return cached;
 
 			CadColumns? columns = null;
+			if (Consysto.CadPreview.Print.GcodeReader.IsPrintFile(file.FullName))
+			{
+				columns = ReadPrint(path);
+				cache[key] = columns;
+				return columns;
+			}
+
 			try
 			{
 				// Only Inventor documents carry iProperties; a DWG or DXF has just its format version
@@ -58,6 +67,30 @@ namespace Files.App.Cad
 
 			cache[key] = columns;
 			return columns;
+		}
+
+		private static CadColumns? ReadPrint(string path)
+		{
+			try
+			{
+				var info = Consysto.CadPreview.Print.GcodeReader.Read(path);
+				if (info.PrintTime is null && info.FilamentGrams is null && info.FilamentType is null && info.Slicer is null)
+					return null;
+
+				return new(
+					PartNumber: null,
+					Material: info.FilamentType,
+					Mass: info.FilamentGrams is { } grams ? PrintFormat.Grams(grams) : null,
+					MassKilograms: info.FilamentGrams / 1000,
+					Version: info.Slicer,
+					PrintTime: info.PrintTime is { } time ? PrintFormat.Time(time) : null,
+					PrintMinutes: info.PrintTime?.TotalMinutes);
+			}
+			catch (Exception ex)
+			{
+				App.Logger.LogDebug(ex, "Print job columns could not be read");
+				return null;
+			}
 		}
 	}
 }

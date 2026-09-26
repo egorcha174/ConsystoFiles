@@ -1,9 +1,10 @@
-using Consysto.CadPreview.Artwork;
+﻿using Consysto.CadPreview.Artwork;
 using Consysto.CadPreview.Drawing;
 using Consysto.CadPreview.Fusion;
 using Consysto.CadPreview.Inventor;
 using Consysto.CadPreview.Kompas;
 using Consysto.CadPreview.Mesh;
+using Consysto.CadPreview.Print;
 using Consysto.CadPreview.SolidWorks;
 using Consysto.CadPreview.Step;
 
@@ -61,13 +62,42 @@ public static class CadPreviewSource
                 || ArtworkPreviewReader.IsSupported(extension)
                 || extension.Equals(".svg", StringComparison.OrdinalIgnoreCase)
                 || FusionPreviewReader.IsSupported(extension)
-                || StepMeshSource.IsSupported(extension));
+                || StepMeshSource.IsSupported(extension)
+                || GcodeReader.IsSupported(extension));
 
-    public static CadPreviewContent Load(string path)
+    /// <summary>
+    /// For a thumbnail in a folder: a print job shows the picture its slicer stored, which is read from the head of the file,
+    /// and is drawn from its moves only when there is none and the file is not too large to go through.
+    /// </summary>
+    public static CadPreviewContent LoadThumbnail(string path, long maxDrawnBytes)
+    {
+        if (!GcodeReader.IsSupported(Path.GetExtension(path)))
+            return Load(path);
+
+        if (GcodeReader.Read(path).Thumbnail is { } picture)
+            return new CadPreviewContent { Image = picture };
+
+        return new FileInfo(path).Length <= maxDrawnBytes && GcodeToolpath.Load(path) is { } toolpath
+            ? new CadPreviewContent { Drawing = toolpath }
+            : new CadPreviewContent();
+    }
+
+    public static CadPreviewContent Load(string path, CancellationToken cancellation = default)
     {
         string extension = Path.GetExtension(path).ToLowerInvariant();
         switch (extension)
         {
+            // In the preview pane a print job is drawn from its moves, which can be zoomed into: the picture slicers
+            // store is small, often 140×110. The picture stays for jobs that cannot be drawn: binary G-code
+            case ".gcode":
+            case ".gco":
+            case ".g":
+            case ".gx":
+            case ".bgcode":
+                if (extension != ".bgcode" && GcodeToolpath.Load(path, cancellation) is { } toolpath)
+                    return new CadPreviewContent { Drawing = toolpath };
+                return new CadPreviewContent { Image = GcodeReader.Read(path).Thumbnail };
+
             case ".dxf":
             case ".dwg":
                 var drawing = CadDrawingLoader.Load(path);

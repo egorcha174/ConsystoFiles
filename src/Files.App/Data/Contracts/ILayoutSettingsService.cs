@@ -95,6 +95,10 @@ namespace Files.App.Data.Contracts
 		/// Gets or sets a value indicating whether or not the program version column should be visible in folders with Inventor documents (Consysto fork).
 		/// </summary>
 		bool ShowCadVersionColumn { get; set; }
+		/// <summary>
+		/// Gets or sets a value indicating whether or not the print time column should be visible in folders with Inventor documents (Consysto fork).
+		/// </summary>
+		bool ShowCadPrintTimeColumn { get; set; }
 
 		/// <summary>
 		/// Gets or sets the default order of the details view columns after the name, as comma-separated column names (Consysto fork).
@@ -231,6 +235,10 @@ namespace Files.App.Data.Contracts
 		/// Gets or sets a value indicating program version column's default width (Consysto fork).
 		/// </summary>
 		double CadVersionColumnWidth { get; set; }
+		/// <summary>
+		/// Gets or sets a value indicating print time column's default width (Consysto fork).
+		/// </summary>
+		double CadPrintTimeColumnWidth { get; set; }
 
 		/// <summary>
 		/// Gets or sets a value indicating date created column's default width

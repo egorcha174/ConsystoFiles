@@ -384,6 +384,12 @@
 										IsChecked="{x:Bind ColumnsViewModel.CadVersionColumn.UserCollapsed, Mode=TwoWay, Converter={StaticResource BoolNegationConverter}}"
 										Text="{helpers:ResourceString Name=ConsystoCadVersion}"
 										Visibility="{x:Bind ColumnsViewModel.CadVersionColumn.IsHidden, Mode=OneWay, Converter={StaticResource NegatedBoolToVisibilityConverter}}" />
+									<ToggleMenuFlyoutItem
+										x:Name="CadPrintTimeColumnVisibilityToggleMenuFlyoutItem"
+										Click="ToggleMenuFlyoutItem_Click"
+										IsChecked="{x:Bind ColumnsViewModel.CadPrintTimeColumn.UserCollapsed, Mode=TwoWay, Converter={StaticResource BoolNegationConverter}}"
+										Text="{helpers:ResourceString Name=ConsystoCadPrintTime}"
+										Visibility="{x:Bind ColumnsViewModel.CadPrintTimeColumn.IsHidden, Mode=OneWay, Converter={StaticResource NegatedBoolToVisibilityConverter}}" />
 
 									<!--  File Tag  -->
 									<ToggleMenuFlyoutItem
@@ -555,6 +561,14 @@
 									x:Name="CadVersionColumnDefinition"
 									Width="{x:Bind ColumnsViewModel.CadVersionColumn.Length, Mode=OneWay}"
 									MaxWidth="{x:Bind ColumnsViewModel.CadVersionColumn.MaxLength, Mode=OneWay}" />
+
+								<!--  (Divider)  -->
+								<ColumnDefinition Width="Auto" />
+								<!--  Consysto fork: print time  -->
+								<ColumnDefinition
+									x:Name="CadPrintTimeColumnDefinition"
+									Width="{x:Bind ColumnsViewModel.CadPrintTimeColumn.Length, Mode=OneWay}"
+									MaxWidth="{x:Bind ColumnsViewModel.CadPrintTimeColumn.MaxLength, Mode=OneWay}" />
 
 								<!--  (Divider)  -->
 								<ColumnDefinition Width="Auto" />
@@ -880,11 +894,32 @@
 								PreviewKeyUp="GridSplitter_PreviewKeyUp"
 								Style="{StaticResource HeaderGridSplitterStyle}"
 								Visibility="{x:Bind ColumnsViewModel.CadVersionColumn.Visibility, Mode=OneWay}" />
+							<!--  Consysto fork: print time  -->
+							<uc:DataGridHeader
+								x:Name="CadPrintTimeHeader"
+								Grid.Column="18"
+								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
+								CommandParameter="CadPrintTime"
+								Header="{helpers:ResourceString Name=ConsystoCadPrintTime}"
+								Visibility="{x:Bind ColumnsViewModel.CadPrintTimeColumn.Visibility, Mode=OneWay}" />
+
+							<!--  (Divider)  -->
+							<controls:GridSplitter
+								Grid.Column="19"
+								AutomationProperties.Name="CadPrintTimeColumnHeaderGridSplitter"
+								DoubleTapped="GridSplitter_DoubleTapped"
+								Loaded="GridSplitter_Loaded"
+								ManipulationCompleted="GridSplitter_ManipulationCompleted"
+								ManipulationDelta="GridSplitter_ManipulationDelta"
+								ManipulationStarted="GridSplitter_ManipulationStarted"
+								PreviewKeyUp="GridSplitter_PreviewKeyUp"
+								Style="{StaticResource HeaderGridSplitterStyle}"
+								Visibility="{x:Bind ColumnsViewModel.CadPrintTimeColumn.Visibility, Mode=OneWay}" />
 
 							<!--  Item Unmerged File Change Kind  -->
 							<uc:DataGridHeader
 								x:Name="GitStatusHeader"
-								Grid.Column="18"
+								Grid.Column="20"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="GitStatus"
 								Header="{helpers:ResourceString Name=GitStatus}"
@@ -892,7 +927,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="19"
+								Grid.Column="21"
 								AutomationProperties.Name="GitStatusColumnHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -906,7 +941,7 @@
 							<!--  Item Last Commit Date  -->
 							<uc:DataGridHeader
 								x:Name="GitLastCommitDateHeader"
-								Grid.Column="20"
+								Grid.Column="22"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="ItemLastCommitDate"
 								Header="{helpers:ResourceString Name=DateCommitted}"
@@ -914,7 +949,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="21"
+								Grid.Column="23"
 								AutomationProperties.Name="GitLastCommitDateHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -928,7 +963,7 @@
 							<!--  Item Last Commit Message  -->
 							<uc:DataGridHeader
 								x:Name="GitLastCommitMessageHeader"
-								Grid.Column="22"
+								Grid.Column="24"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="ItemLastCommitMessage"
 								Header="{helpers:ResourceString Name=CommitMessage}"
@@ -936,7 +971,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="23"
+								Grid.Column="25"
 								AutomationProperties.Name="GitLastCommitMessageHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -950,7 +985,7 @@
 							<!--  Item Last Commit Author  -->
 							<uc:DataGridHeader
 								x:Name="GitCommitAuthorHeader"
-								Grid.Column="24"
+								Grid.Column="26"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="ItemLastCommitAuthor"
 								Header="{helpers:ResourceString Name=Author}"
@@ -958,7 +993,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="25"
+								Grid.Column="27"
 								AutomationProperties.Name="GitCommitAuthorHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -972,7 +1007,7 @@
 							<!--  Item Last Commit SHA  -->
 							<uc:DataGridHeader
 								x:Name="GitLastCommitShaHeader"
-								Grid.Column="26"
+								Grid.Column="28"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="ItemLastCommitSha"
 								Header="{helpers:ResourceString Name=CommitSha}"
@@ -980,7 +1015,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="27"
+								Grid.Column="29"
 								AutomationProperties.Name="GitLastCommitShaHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -994,7 +1029,7 @@
 							<!--  Item Tags  -->
 							<uc:DataGridHeader
 								x:Name="TagHeader"
-								Grid.Column="28"
+								Grid.Column="30"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="FileTag"
 								Header="{helpers:ResourceString Name=Tag}"
@@ -1002,7 +1037,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="29"
+								Grid.Column="31"
 								AutomationProperties.Name="TagColumnHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -1016,7 +1051,7 @@
 							<!--  Item Path  -->
 							<uc:DataGridHeader
 								x:Name="PathHeader"
-								Grid.Column="30"
+								Grid.Column="32"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="Path"
 								Header="{helpers:ResourceString Name=Path}"
@@ -1024,7 +1059,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="31"
+								Grid.Column="33"
 								AutomationProperties.Name="PathColumnHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -1038,7 +1073,7 @@
 							<!--  Item Original Path  -->
 							<uc:DataGridHeader
 								x:Name="OriginalPathHeader"
-								Grid.Column="32"
+								Grid.Column="34"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="OriginalFolder"
 								Header="{helpers:ResourceString Name=OriginalPath}"
@@ -1046,7 +1081,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="33"
+								Grid.Column="35"
 								AutomationProperties.Name="OriginalPathColumnHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -1060,7 +1095,7 @@
 							<!--  Item Deleted Date  -->
 							<uc:DataGridHeader
 								x:Name="DateDeletedHeader"
-								Grid.Column="34"
+								Grid.Column="36"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="DateDeleted"
 								Header="{helpers:ResourceString Name=DateDeleted}"
@@ -1068,7 +1103,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="35"
+								Grid.Column="37"
 								AutomationProperties.Name="DateDeletedColumnHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -1082,7 +1117,7 @@
 							<!--  Item Modified Date  -->
 							<uc:DataGridHeader
 								x:Name="DateModifiedHeader"
-								Grid.Column="36"
+								Grid.Column="38"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="DateModified"
 								Header="{helpers:ResourceString Name=DateModifiedLowerCase}"
@@ -1090,7 +1125,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="37"
+								Grid.Column="39"
 								AutomationProperties.Name="DateModifiedColumnHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -1104,7 +1139,7 @@
 							<!--  Item Created Date  -->
 							<uc:DataGridHeader
 								x:Name="DateCreatedHeader"
-								Grid.Column="38"
+								Grid.Column="40"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="DateCreated"
 								Header="{helpers:ResourceString Name=DateCreated}"
@@ -1112,7 +1147,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="39"
+								Grid.Column="41"
 								AutomationProperties.Name="DateCreatedColumnHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -1126,7 +1161,7 @@
 							<!--  Item Type  -->
 							<uc:DataGridHeader
 								x:Name="FileTypeHeader"
-								Grid.Column="40"
+								Grid.Column="42"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="FileType"
 								Header="{helpers:ResourceString Name=Type}"
@@ -1134,7 +1169,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="41"
+								Grid.Column="43"
 								AutomationProperties.Name="ItemTypeColumnHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -1148,7 +1183,7 @@
 							<!--  Item Size  -->
 							<uc:DataGridHeader
 								x:Name="ItemSizeHeader"
-								Grid.Column="42"
+								Grid.Column="44"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
 								CommandParameter="Size"
 								Header="{helpers:ResourceString Name=Size}"
@@ -1156,7 +1191,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="43"
+								Grid.Column="45"
 								AutomationProperties.Name="SizeColumnHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -1170,7 +1205,7 @@
 							<!--  Item Sync Status Badge  -->
 							<uc:DataGridHeader
 								x:Name="SyncStatusHeader"
-								Grid.Column="44"
+								Grid.Column="46"
 								HorizontalAlignment="Stretch"
 								HorizontalContentAlignment="Left"
 								Command="{x:Bind UpdateSortOptionsCommand, Mode=OneWay}"
@@ -1180,7 +1215,7 @@
 
 							<!--  (Divider)  -->
 							<controls:GridSplitter
-								Grid.Column="45"
+								Grid.Column="47"
 								AutomationProperties.Name="StatusColumnHeaderGridSplitter"
 								DoubleTapped="GridSplitter_DoubleTapped"
 								Loaded="GridSplitter_Loaded"
@@ -1421,6 +1456,18 @@
 										Style="{StaticResource ColumnContentTextBlock}"
 										Text="{x:Bind CadVersion, Mode=OneWay}"
 										Visibility="{Binding Path=ColumnsViewModel.CadVersionColumn.Visibility, ElementName=PageRoot, Mode=OneWay}" />
+									<!--  Consysto fork: print time  -->
+									<TextBlock
+										x:Name="ItemCadPrintTimeTextBlock"
+										Width="{Binding Path=ColumnsViewModel.CadPrintTimeColumn.LengthIncludingGridSplitterPixels, ElementName=PageRoot, Mode=OneWay}"
+										Padding="10,0,0,0"
+										HorizontalAlignment="Stretch"
+										VerticalAlignment="Center"
+										DataContextChanged="TextBlock_DataContextChanged"
+										IsTextTrimmedChanged="TextBlock_IsTextTrimmedChanged"
+										Style="{StaticResource ColumnContentTextBlock}"
+										Text="{x:Bind CadPrintTime, Mode=OneWay}"
+										Visibility="{Binding Path=ColumnsViewModel.CadPrintTimeColumn.Visibility, ElementName=PageRoot, Mode=OneWay}" />
 
 									<!--  Item Git Status  -->
 									<Border

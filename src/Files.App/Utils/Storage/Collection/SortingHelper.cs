@@ -31,6 +31,7 @@ namespace Files.App.Utils.Storage
 				SortOption.CadMaterial => item => item.CadMaterial,
 				SortOption.CadMass => item => item.CadMassSortKey,
 				SortOption.CadVersion => item => item.CadVersion,
+				SortOption.CadPrintTime => item => item.CadPrintTimeSortKey,
 				_ => item => item.Name,
 			};
 		}
@@ -62,8 +63,8 @@ namespace Files.App.Utils.Storage
 							.ThenBy(x => string.IsNullOrEmpty(orderFunc(x) as string))
 							.ThenBy(orderFunc),
 
-					// Consysto fork: items without a mass go last
-					SortOption.CadMass => sortDirectoriesAlongsideFiles
+					// Consysto fork: items without a mass or print time go last
+					SortOption.CadMass or SortOption.CadPrintTime => sortDirectoriesAlongsideFiles
 						? filesAndFolders.OrderBy(x => orderFunc(x) is null).ThenBy(orderFunc)
 						: filesAndFolders.OrderBy(PrioritizeFilesOrFolders).ThenBy(x => orderFunc(x) is null).ThenBy(orderFunc),
 
@@ -88,7 +89,7 @@ namespace Files.App.Utils.Storage
 							.ThenBy(x => string.IsNullOrEmpty(orderFunc(x) as string))
 							.ThenByDescending(orderFunc),
 
-					SortOption.CadMass => sortDirectoriesAlongsideFiles
+					SortOption.CadMass or SortOption.CadPrintTime => sortDirectoriesAlongsideFiles
 						? filesAndFolders.OrderBy(x => orderFunc(x) is null).ThenByDescending(orderFunc)
 						: filesAndFolders.OrderBy(PrioritizeFilesOrFolders).ThenBy(x => orderFunc(x) is null).ThenByDescending(orderFunc),
 
