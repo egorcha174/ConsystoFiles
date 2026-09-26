@@ -5741,4 +5741,16 @@
   <data name="ConsystoRestartNow" xml:space="preserve">
     <value>Перезапустить</value>
   </data>
+  <data name="ConsystoCollectionDelete" xml:space="preserve">
+    <value>Удалить</value>
+  </data>
+  <data name="ConsystoCollectionSelected" xml:space="preserve">
+    <value>Выбрано: {0}</value>
+  </data>
+  <data name="ConsystoCollectionPickItem" xml:space="preserve">
+    <value>Выберите элемент — здесь появятся сведения о нём</value>
+  </data>
+  <data name="ConsystoCollectionClipboardFailed" xml:space="preserve">
+    <value>Не удалось поместить файлы в буфер обмена</value>
+  </data>
 </root>

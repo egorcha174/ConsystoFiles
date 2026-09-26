@@ -137,11 +137,12 @@
 					<ColumnDefinition Width="*" />
 					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="Auto" />
 				</Grid.ColumnDefinitions>
 
 				<Button
 					x:Name="ViewButton"
-					Grid.Column="3"
+					Grid.Column="4"
 					Height="32"
 					VerticalAlignment="Center"
 					Click="ViewButton_Click"
@@ -175,9 +176,43 @@
 						Visibility="Collapsed" />
 				</StackPanel>
 
+				<!--  What is selected and what can be done with it; the same commands are in the context menu and on the keys  -->
+				<StackPanel
+					x:Name="SelectionBar"
+					Grid.Column="2"
+					VerticalAlignment="Center"
+					Orientation="Horizontal"
+					Spacing="4"
+					Visibility="Collapsed">
+					<TextBlock
+						x:Name="SelectionText"
+						Margin="0,0,8,0"
+						VerticalAlignment="Center"
+						Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+						Style="{StaticResource CaptionTextBlockStyle}" />
+					<Button
+						x:Name="CopySelectedButton"
+						Height="32"
+						Click="CopySelectedButton_Click">
+						<FontIcon FontSize="14" Glyph="&#xE8C8;" />
+					</Button>
+					<Button
+						x:Name="CutSelectedButton"
+						Height="32"
+						Click="CutSelectedButton_Click">
+						<FontIcon FontSize="14" Glyph="&#xE8C6;" />
+					</Button>
+					<Button
+						x:Name="DeleteSelectedButton"
+						Height="32"
+						Click="DeleteSelectedButton_Click">
+						<FontIcon FontSize="14" Glyph="&#xE74D;" />
+					</Button>
+				</StackPanel>
+
 				<Button
 					x:Name="DeleteButton"
-					Grid.Column="2"
+					Grid.Column="3"
 					VerticalAlignment="Center"
 					Click="DeleteButton_Click"
 					IsEnabled="False"
@@ -190,13 +225,21 @@
 				Grid.Row="1"
 				Padding="0,0,12,16"
 				ContainerContentChanging="EntryList_ContainerContentChanging"
+				CanDragItems="True"
 				DoubleTapped="EntryList_DoubleTapped"
-				IsItemClickEnabled="True"
+				DragItemsStarting="List_DragItemsStarting"
 				ItemClick="EntryList_ItemClick"
-				SelectionMode="Single">
+				KeyDown="List_KeyDown"
+				RightTapped="List_RightTapped"
+				SelectionChanged="List_SelectionChanged"
+				SelectionMode="Extended">
 				<ListView.ItemTemplate>
 					<DataTemplate x:DataType="library:CollectionRowViewModel">
-						<StackPanel Padding="0,4">
+						<StackPanel
+							Padding="0,4"
+							Background="Transparent"
+							PointerEntered="Row_PointerEntered"
+							PointerExited="Row_PointerExited">
 							<Grid
 								Margin="0,12,0,4"
 								ColumnSpacing="12"
@@ -232,6 +275,13 @@
 									VerticalAlignment="Center"
 									IsChecked="{x:Bind IsChecked, Mode=TwoWay}"
 									Visibility="{x:Bind CheckBoxVisibility}" />
+								<CheckBox
+									Width="32"
+									MinWidth="0"
+									VerticalAlignment="Center"
+									Click="SelectBox_Click"
+									IsChecked="{x:Bind IsSelected, Mode=TwoWay}"
+									Visibility="{x:Bind SelectBoxVisibility, Mode=OneWay}" />
 
 								<Grid
 									Grid.Column="1"
@@ -299,10 +349,14 @@
 				Grid.Row="1"
 				Padding="12,0,12,16"
 				ContainerContentChanging="EntryList_ContainerContentChanging"
+				CanDragItems="True"
 				DoubleTapped="EntryList_DoubleTapped"
-				IsItemClickEnabled="True"
+				DragItemsStarting="List_DragItemsStarting"
 				ItemClick="EntryList_ItemClick"
-				SelectionMode="Single"
+				KeyDown="List_KeyDown"
+				RightTapped="List_RightTapped"
+				SelectionChanged="List_SelectionChanged"
+				SelectionMode="Extended"
 				Visibility="Collapsed">
 				<GridView.GroupStyle>
 					<GroupStyle>
@@ -317,6 +371,9 @@
 					<DataTemplate x:DataType="library:CollectionRowViewModel">
 						<StackPanel
 							Width="{x:Bind TileWidth}"
+							Background="Transparent"
+							PointerEntered="Row_PointerEntered"
+							PointerExited="Row_PointerExited"
 							AutomationProperties.Name="{x:Bind Title}"
 							Padding="0,0,0,4"
 							ToolTipService.ToolTip="{x:Bind Title}">
@@ -330,6 +387,20 @@
 									Foreground="{ThemeResource TextFillColorSecondaryBrush}"
 									Glyph="{x:Bind Glyph}"
 									Visibility="{x:Bind GlyphVisibility, Mode=OneWay}" />
+								<!--  Selection without keys: a tick in the corner adds the tile to the selection or takes it out  -->
+								<Border
+									Margin="6"
+									Padding="4,0,0,0"
+									HorizontalAlignment="Left"
+									VerticalAlignment="Top"
+									Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
+									CornerRadius="4"
+									Visibility="{x:Bind SelectBoxVisibility, Mode=OneWay}">
+									<CheckBox
+										MinWidth="0"
+										Click="SelectBox_Click"
+										IsChecked="{x:Bind IsSelected, Mode=TwoWay}" />
+								</Border>
 							</Grid>
 							<TextBlock
 								Margin="2,6,2,0"
@@ -379,6 +450,7 @@
 			</Grid.RowDefinitions>
 
 			<Button
+				x:Name="CloseDetailsButton"
 				Margin="8"
 				HorizontalAlignment="Right"
 				Background="Transparent"
@@ -387,7 +459,17 @@
 				<FontIcon FontSize="12" Glyph="&#xE711;" />
 			</Button>
 
-			<ScrollViewer Grid.Row="1">
+			<TextBlock
+				x:Name="DetailsEmpty"
+				Grid.Row="1"
+				Margin="24"
+				HorizontalAlignment="Center"
+				VerticalAlignment="Center"
+				Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+				TextAlignment="Center"
+				TextWrapping="Wrap" />
+
+			<ScrollViewer x:Name="DetailsContent" Grid.Row="1">
 				<StackPanel Padding="20,0,20,20" Spacing="8">
 					<Border HorizontalAlignment="Center" CornerRadius="6">
 						<Image

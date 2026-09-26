@@ -1,4 +1,4 @@
-// Consysto fork: one row of a collection page — an item, or an author, series or other group that leads to its items.
+﻿// Consysto fork: one row of a collection page — an item, or an author, series or other group that leads to its items.
 
 using Consysto.Collections;
 using Microsoft.Extensions.Logging;
@@ -14,6 +14,9 @@ namespace Files.App.Books.Library
 
 		private ImageSource? thumbnail;
 		private bool isChecked;
+		private bool isSelected;
+		private bool isHovered;
+		private bool isSelecting;
 		private bool thumbnailRequested;
 
 		public CollectionItem? Item { get; init; }
@@ -83,6 +86,42 @@ namespace Files.App.Books.Library
 		public double CoverHeight => Item is null ? 32 : 60;
 
 		public Visibility GlyphVisibility => thumbnail is null ? Visibility.Visible : Visibility.Collapsed;
+
+		/// <summary>Mirrors the list's selection, so the tick box of the row shows it and can change it.</summary>
+		public bool IsSelected
+		{
+			get => isSelected;
+			set
+			{
+				if (SetProperty(ref isSelected, value))
+					OnPropertyChanged(nameof(SelectBoxVisibility));
+			}
+		}
+
+		public bool IsHovered
+		{
+			get => isHovered;
+			set
+			{
+				if (SetProperty(ref isHovered, value))
+					OnPropertyChanged(nameof(SelectBoxVisibility));
+			}
+		}
+
+		/// <summary>Something on the page is selected: every item then shows its tick box, as in Explorer and Google Photos.</summary>
+		public bool IsSelecting
+		{
+			get => isSelecting;
+			set
+			{
+				if (SetProperty(ref isSelecting, value))
+					OnPropertyChanged(nameof(SelectBoxVisibility));
+			}
+		}
+
+		/// <summary>The selection tick box: on hover, on selected items and while anything is selected. Duplicates have their own marks.</summary>
+		public Visibility SelectBoxVisibility
+			=> Item is not null && Duplicates is null && (isSelected || isHovered || isSelecting) ? Visibility.Visible : Visibility.Collapsed;
 
 		public bool IsChecked
 		{

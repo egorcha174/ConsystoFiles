@@ -5748,4 +5748,16 @@
   <data name="ConsystoRestartNow" xml:space="preserve">
     <value>Restart</value>
   </data>
+  <data name="ConsystoCollectionDelete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="ConsystoCollectionSelected" xml:space="preserve">
+    <value>Selected: {0}</value>
+  </data>
+  <data name="ConsystoCollectionPickItem" xml:space="preserve">
+    <value>Select an item to see its details here</value>
+  </data>
+  <data name="ConsystoCollectionClipboardFailed" xml:space="preserve">
+    <value>The files could not be put on the clipboard</value>
+  </data>
 </root>

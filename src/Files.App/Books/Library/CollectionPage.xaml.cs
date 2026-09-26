@@ -1,4 +1,4 @@
-// Consysto fork: a collection page — its items by facet (author, series, genre...), search, details and duplicates.
+﻿// Consysto fork: a collection page — its items by facet (author, series, genre...), search, details and duplicates.
 
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -15,7 +15,9 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
+using Windows.System;
 
 namespace Files.App.Books.Library
 {
@@ -36,6 +38,7 @@ namespace Files.App.Books.Library
 		private readonly ObservableCollection<CollectionRowViewModel> rows = [];
 		private readonly Dictionary<string, TextBlock> sectionCounts = [];
 		private ICommandManager Commands { get; } = Ioc.Default.GetRequiredService<ICommandManager>();
+		private IUserSettingsService UserSettings { get; } = Ioc.Default.GetRequiredService<IUserSettingsService>();
 		private IShellPage? appInstance;
 		private string collectionPath = string.Empty;
 		private CollectionSettings? collection;
@@ -52,6 +55,10 @@ namespace Files.App.Books.Library
 			ToolTipService.SetToolTip(SettingsButton, Strings.ConsystoLibrarySettings.GetLocalizedResource());
 			OpenButton.Content = Strings.ConsystoLibraryOpen.GetLocalizedResource();
 			RevealButton.Content = Strings.ConsystoOpdsShowInFolder.GetLocalizedResource();
+			DetailsEmpty.Text = Strings.ConsystoCollectionPickItem.GetLocalizedResource();
+			ToolTipService.SetToolTip(CopySelectedButton, $"{Strings.Copy.GetLocalizedResource()} (Ctrl+C)");
+			ToolTipService.SetToolTip(CutSelectedButton, $"{Strings.Cut.GetLocalizedResource()} (Ctrl+X)");
+			ToolTipService.SetToolTip(DeleteSelectedButton, $"{Strings.ConsystoCollectionDelete.GetLocalizedResource()} (Delete)");
 		}
 
 		protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -76,6 +83,7 @@ namespace Files.App.Books.Library
 			CollectionManager.Instance.StateChanged += Manager_StateChanged;
 			CollectionManager.Instance.ScanProgressChanged += Manager_ScanProgressChanged;
 			OpdsCatalogManager.Instance.DataChanged += Catalogs_DataChanged;
+			UserSettings.OnSettingChangedEvent += UserSettings_OnSettingChangedEvent;
 			await UpdateShellAsync();
 			Refresh(force: true);
 		}
@@ -85,6 +93,7 @@ namespace Files.App.Books.Library
 			CollectionManager.Instance.StateChanged -= Manager_StateChanged;
 			CollectionManager.Instance.ScanProgressChanged -= Manager_ScanProgressChanged;
 			OpdsCatalogManager.Instance.DataChanged -= Catalogs_DataChanged;
+			UserSettings.OnSettingChangedEvent -= UserSettings_OnSettingChangedEvent;
 			base.OnNavigatedFrom(e);
 		}
 
@@ -339,6 +348,8 @@ namespace Files.App.Books.Library
 				.Select(row => row.Item!.Path)
 				.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
+			var selectedPaths = SelectedPaths();
+
 			foreach (var row in rows)
 				row.PropertyChanged -= Row_PropertyChanged;
 
@@ -375,10 +386,20 @@ namespace Files.App.Books.Library
 			EmptyText.Text = EmptyMessage(library, query);
 			EmptyText.Visibility = rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
+			// Groups (authors, albums...) open on a click; items are selected, one by one or many, as in a folder
+			var browsingGroups = rows.Count > 0 && rows[0].Group is not null;
+			foreach (var list in new ListViewBase[] { EntryList, TileGrid })
+			{
+				list.SelectionMode = browsingGroups ? ListViewSelectionMode.None : ListViewSelectionMode.Extended;
+				list.IsItemClickEnabled = browsingGroups;
+				list.CanDragItems = !browsingGroups;
+			}
+
 			if (detailsItem is not null && library.Find(detailsItem.Id) is null)
-				CloseDetails();
+				ClearDetails();
 
 			UpdateView();
+			RestoreSelection(selectedPaths);
 		}
 
 		private string ViewSettingKey
@@ -400,6 +421,7 @@ namespace Files.App.Books.Library
 
 		private void ViewButton_Click(object sender, RoutedEventArgs e)
 		{
+			var selectedPaths = SelectedPaths();
 			try
 			{
 				AppStorage.LocalSettings[ViewSettingKey] = PrefersTiles() ? "list" : "tiles";
@@ -410,6 +432,7 @@ namespace Files.App.Books.Library
 			}
 
 			UpdateView();
+			RestoreSelection(selectedPaths);
 		}
 
 		// Duplicates are compared side by side, so they stay a list
@@ -427,6 +450,7 @@ namespace Files.App.Books.Library
 			if (!tiles)
 			{
 				TileGrid.ItemsSource = null;
+				UpdateSelection();
 				return;
 			}
 
@@ -442,6 +466,8 @@ namespace Files.App.Books.Library
 			{
 				TileGrid.ItemsSource = rows;
 			}
+
+			UpdateSelection();
 		}
 
 		/// <summary>"2026-09" from the date a photo was taken, or from the file when the photo does not say.</summary>
@@ -573,7 +599,7 @@ namespace Files.App.Books.Library
 
 			section = selected;
 			groupKey = null;
-			CloseDetails();
+			ClearDetails();
 			ShowList();
 		}
 
@@ -599,9 +625,6 @@ namespace Files.App.Books.Library
 				case CollectionRowViewModel { Group: { } group }:
 					groupKey = group.Key;
 					ShowList();
-					break;
-				case CollectionRowViewModel { Item: { } item }:
-					ShowDetails(item);
 					break;
 			}
 		}
@@ -675,7 +698,8 @@ namespace Files.App.Books.Library
 
 			DetailsCover.Source = null;
 			_ = LoadDetailsCoverAsync(item);
-			DetailsPanel.Visibility = Visibility.Visible;
+			DetailsEmpty.Visibility = Visibility.Collapsed;
+			DetailsContent.Visibility = Visibility.Visible;
 		}
 
 		private async Task LoadDetailsCoverAsync(CollectionItem item)
@@ -694,15 +718,301 @@ namespace Files.App.Books.Library
 			}
 		}
 
-		private void CloseDetails()
+		private void ClearDetails()
 		{
 			detailsItem = null;
-			DetailsPanel.Visibility = Visibility.Collapsed;
 			DetailsCover.Source = null;
+			DetailsContent.Visibility = Visibility.Collapsed;
+			DetailsEmpty.Visibility = Visibility.Visible;
 		}
 
+		// The details are this page's information pane: the toolbar button and Alt+Ctrl+I open and close them
 		private void CloseDetails_Click(object sender, RoutedEventArgs e)
-			=> CloseDetails();
+			=> UserSettings.InfoPaneSettingsService.IsInfoPaneEnabled = false;
+
+		private void UserSettings_OnSettingChangedEvent(object? sender, SettingChangedEventArgs e)
+		{
+			if (e.SettingName == nameof(IInfoPaneSettingsService.IsInfoPaneEnabled))
+				DispatcherQueue.TryEnqueue(UpdateSelection);
+		}
+
+		private ListViewBase ActiveList
+			=> TileGrid.Visibility == Visibility.Visible ? TileGrid : EntryList;
+
+		private List<CollectionItem> SelectedItems()
+			=> ActiveList.SelectionMode == ListViewSelectionMode.None
+				? []
+				: ActiveList.SelectedItems.OfType<CollectionRowViewModel>().Select(row => row.Item).OfType<CollectionItem>().ToList();
+
+		private HashSet<string> SelectedPaths()
+			=> SelectedItems().Select(item => item.Path).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+		private void RestoreSelection(HashSet<string> paths)
+		{
+			var list = ActiveList;
+			if (list.SelectionMode == ListViewSelectionMode.None)
+				return;
+
+			// The list that is not shown keeps nothing selected, so commands never act on what is out of sight
+			var hidden = ReferenceEquals(list, TileGrid) ? (ListViewBase)EntryList : TileGrid;
+			if (hidden.SelectionMode != ListViewSelectionMode.None && hidden.ItemsSource is not null)
+				hidden.SelectedItems.Clear();
+
+			if (paths.Count == 0)
+				return;
+
+			foreach (var row in rows)
+			{
+				if (row.Item is { } item && paths.Contains(item.Path) && !list.SelectedItems.Contains(row))
+					list.SelectedItems.Add(row);
+			}
+		}
+
+		private void List_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			foreach (var row in e.RemovedItems.OfType<CollectionRowViewModel>())
+				row.IsSelected = false;
+			foreach (var row in e.AddedItems.OfType<CollectionRowViewModel>())
+				row.IsSelected = true;
+
+			if (ReferenceEquals(sender, ActiveList))
+				UpdateSelection();
+		}
+
+		/// <summary>The tick box of a row adds it to the selection or takes it out, without Ctrl.</summary>
+		private void SelectBox_Click(object sender, RoutedEventArgs e)
+		{
+			if (sender is not CheckBox { DataContext: CollectionRowViewModel row } box)
+				return;
+
+			var list = ActiveList;
+			if (list.SelectionMode == ListViewSelectionMode.None)
+				return;
+
+			var contains = list.SelectedItems.Contains(row);
+			if (box.IsChecked == true && !contains)
+				list.SelectedItems.Add(row);
+			else if (box.IsChecked != true && contains)
+				list.SelectedItems.Remove(row);
+		}
+
+		private void Row_PointerEntered(object sender, PointerRoutedEventArgs e)
+		{
+			if ((sender as FrameworkElement)?.DataContext is CollectionRowViewModel row)
+				row.IsHovered = true;
+		}
+
+		private void Row_PointerExited(object sender, PointerRoutedEventArgs e)
+		{
+			if ((sender as FrameworkElement)?.DataContext is CollectionRowViewModel row)
+				row.IsHovered = false;
+		}
+
+		/// <summary>The selection bar and the details pane follow what is selected.</summary>
+		private void UpdateSelection()
+		{
+			var selected = SelectedItems();
+			foreach (var row in rows)
+				row.IsSelecting = selected.Count > 0;
+
+			SelectionBar.Visibility = selected.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+			SelectionText.Text = string.Format(CultureInfo.CurrentCulture, Strings.ConsystoCollectionSelected.GetLocalizedResource(), selected.Count);
+
+			var paneOpen = kind is not null && UserSettings.InfoPaneSettingsService.IsInfoPaneEnabled;
+			DetailsPanel.Visibility = paneOpen ? Visibility.Visible : Visibility.Collapsed;
+			if (!paneOpen)
+				return;
+
+			// The item selected last is the one shown, as the preview pane does in a folder
+			var shownItem = selected.LastOrDefault();
+			if (shownItem is null)
+				ClearDetails();
+			else if (!ReferenceEquals(shownItem, detailsItem))
+				ShowDetails(shownItem);
+		}
+
+		private void List_RightTapped(object sender, RightTappedRoutedEventArgs e)
+		{
+			var list = (ListViewBase)sender;
+			if (list.SelectionMode == ListViewSelectionMode.None
+				|| (e.OriginalSource as FrameworkElement)?.DataContext is not CollectionRowViewModel { Item: not null } row)
+				return;
+
+			// A right click outside the selection selects that one item, as in a folder
+			if (!list.SelectedItems.Contains(row))
+				list.SelectedItem = row;
+
+			var menu = new MenuFlyout();
+			menu.Items.Add(CommandItem(Strings.Open.GetLocalizedResource(), "", "Enter", OpenSelectedAsync));
+			if (SelectedItems().Count == 1)
+				menu.Items.Add(CommandItem(Strings.ConsystoOpdsShowInFolder.GetLocalizedResource(), "", null, () => { RevealSelected(); return Task.CompletedTask; }));
+			menu.Items.Add(new MenuFlyoutSeparator());
+			menu.Items.Add(CommandItem(Strings.Copy.GetLocalizedResource(), "", "Ctrl+C", () => CopySelectedAsync(DataPackageOperation.Copy)));
+			menu.Items.Add(CommandItem(Strings.Cut.GetLocalizedResource(), "", "Ctrl+X", () => CopySelectedAsync(DataPackageOperation.Move)));
+			menu.Items.Add(CommandItem(Strings.CopyPath.GetLocalizedResource(), "", "Ctrl+Shift+C", () => { CopySelectedPaths(); return Task.CompletedTask; }));
+			menu.Items.Add(new MenuFlyoutSeparator());
+			menu.Items.Add(CommandItem(Strings.ConsystoCollectionDelete.GetLocalizedResource(), "", "Delete", () => DeleteSelectedAsync(permanently: false)));
+			menu.ShowAt(list, new Microsoft.UI.Xaml.Controls.Primitives.FlyoutShowOptions { Position = e.GetPosition(list) });
+			e.Handled = true;
+		}
+
+		private static MenuFlyoutItem CommandItem(string text, string glyph, string? keys, Func<Task> action)
+		{
+			var item = new MenuFlyoutItem { Text = text, Icon = new FontIcon { Glyph = glyph } };
+			if (keys is not null)
+				item.KeyboardAcceleratorTextOverride = keys;
+			item.Click += async (_, _) => await action();
+			return item;
+		}
+
+		// The app's own Copy, Cut and Delete need a folder view and are not executable here, so the keys reach the list
+		private async void List_KeyDown(object sender, KeyRoutedEventArgs e)
+		{
+			if (SelectedItems().Count == 0)
+				return;
+
+			var modifiers = HotKeyHelpers.GetCurrentKeyModifiers();
+			switch (e.Key)
+			{
+				case VirtualKey.Enter when modifiers == KeyModifiers.None:
+					e.Handled = true;
+					await OpenSelectedAsync();
+					break;
+				case VirtualKey.Delete:
+					e.Handled = true;
+					await DeleteSelectedAsync(permanently: modifiers == KeyModifiers.Shift);
+					break;
+				case VirtualKey.C when modifiers == KeyModifiers.Ctrl:
+					e.Handled = true;
+					await CopySelectedAsync(DataPackageOperation.Copy);
+					break;
+				case VirtualKey.X when modifiers == KeyModifiers.Ctrl:
+					e.Handled = true;
+					await CopySelectedAsync(DataPackageOperation.Move);
+					break;
+				case VirtualKey.C when modifiers == KeyModifiers.CtrlShift:
+					e.Handled = true;
+					CopySelectedPaths();
+					break;
+				case VirtualKey.Escape:
+					e.Handled = true;
+					ActiveList.SelectedItems.Clear();
+					break;
+			}
+		}
+
+		private async void CopySelectedButton_Click(object sender, RoutedEventArgs e)
+			=> await CopySelectedAsync(DataPackageOperation.Copy);
+
+		private async void CutSelectedButton_Click(object sender, RoutedEventArgs e)
+			=> await CopySelectedAsync(DataPackageOperation.Move);
+
+		private async void DeleteSelectedButton_Click(object sender, RoutedEventArgs e)
+			=> await DeleteSelectedAsync(permanently: false);
+
+		private async Task OpenSelectedAsync()
+		{
+			if (appInstance is null)
+				return;
+
+			foreach (var item in SelectedItems())
+				await NavigationHelpers.OpenPath(item.Path, appInstance, FilesystemItemType.File);
+		}
+
+		private void RevealSelected()
+		{
+			if (SelectedItems() is [var item] && appInstance is not null && SystemIO.Path.GetDirectoryName(item.Path) is { } folder)
+				appInstance.NavigateToPath(folder, new NavigationArguments() { SelectItems = [item.FileName] });
+		}
+
+		/// <summary>The files themselves go to the clipboard, so they paste into any folder here or in Explorer.</summary>
+		private async Task CopySelectedAsync(DataPackageOperation operation)
+		{
+			var paths = SelectedItems().Select(item => item.Path).ToArray();
+			if (paths.Length == 0)
+				return;
+
+			try
+			{
+				await FileOperationsHelpers.SetClipboard(paths, operation);
+			}
+			catch (Exception ex)
+			{
+				App.Logger.LogWarning(ex, "Collection items could not be put on the clipboard");
+				ShowStatus(InfoBarSeverity.Error, Strings.ConsystoCollectionClipboardFailed.GetLocalizedResource(), ex.Message);
+			}
+		}
+
+		private void CopySelectedPaths()
+		{
+			var paths = SelectedItems().Select(item => item.Path).ToList();
+			if (paths.Count == 0)
+				return;
+
+			var package = new DataPackage();
+			package.SetText(string.Join(Environment.NewLine, paths));
+			Clipboard.SetContent(package);
+		}
+
+		private async Task DeleteSelectedAsync(bool permanently)
+		{
+			var selected = SelectedItems();
+			if (selected.Count == 0 || appInstance is null || collection is null)
+				return;
+
+			StatusBar.IsOpen = false;
+			try
+			{
+				var items = selected.Select(item => StorageHelpers.FromPathAndType(item.Path, FilesystemItemType.File)).ToList();
+				await appInstance.FilesystemHelpers.DeleteItemsAsync(items, UserSettings.FoldersSettingsService.DeleteConfirmationPolicy, permanently, registerHistory: true);
+			}
+			catch (Exception ex)
+			{
+				App.Logger.LogWarning(ex, "Collection items could not be deleted");
+				ShowStatus(InfoBarSeverity.Error, Strings.ConsystoLibraryDeleteFailed.GetLocalizedResource(), ex.Message);
+			}
+
+			// The folder watcher would notice as well, a few seconds later
+			await CollectionManager.Instance.RescanAsync(collection.Id);
+		}
+
+		/// <summary>Items dragged out of a collection drop as files into a folder, the other pane or another program.</summary>
+		private void List_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
+		{
+			var paths = e.Items.OfType<CollectionRowViewModel>().Select(row => row.Item?.Path).OfType<string>().ToList();
+			if (paths.Count == 0)
+			{
+				e.Cancel = true;
+				return;
+			}
+
+			e.Data.RequestedOperation = DataPackageOperation.Copy | DataPackageOperation.Move;
+			e.Data.SetDataProvider(StandardDataFormats.StorageItems, async request =>
+			{
+				var deferral = request.GetDeferral();
+				try
+				{
+					var files = new List<IStorageItem>();
+					foreach (var path in paths)
+					{
+						try
+						{
+							files.Add(await StorageFile.GetFileFromPathAsync(path));
+						}
+						catch (Exception ex)
+						{
+							App.Logger.LogDebug(ex, "A collection item could not be dragged");
+						}
+					}
+
+					request.SetData(files);
+				}
+				finally
+				{
+					deferral.Complete();
+				}
+			});
+		}
 
 		private async void OpenButton_Click(object sender, RoutedEventArgs e)
 		{
