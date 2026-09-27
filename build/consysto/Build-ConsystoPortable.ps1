@@ -29,7 +29,7 @@ param(
 )
 
 if (-not $StagingDirectory) {
-    $StagingDirectory = Join-Path $env:TEMP $(if ($Demo) { 'ConsystoFilesDemoBuild' } else { 'ConsystoFilesPortableBuild' })
+    $StagingDirectory = Join-Path ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\..\_build'))) $(if ($Demo) { 'ConsystoFilesDemoBuild' } else { 'ConsystoFilesPortableBuild' })
 }
 $demoFlag = if ($Demo) { 'true' } else { 'false' }
 $releaseKind = if ($Demo) { 'demo' } else { 'portable' }

@@ -40,8 +40,12 @@ public sealed class DrawingCollection : CollectionKind
 
     public override string Id => "drawings";
 
-    /// <summary>2: iProperties are read, so an index made before them is read again.</summary>
-    public override int Version => 2;
+    /// <summary>
+    /// 2: iProperties are read, so an index made before them is read again.
+    /// 3: every drawing is marked as having a picture; indexes made while the STEP engine or the CAD helper was missing
+    /// marked those files as having none, and kept them without a thumbnail for good.
+    /// </summary>
+    public override int Version => 3;
 
     public override bool Accepts(string fileName)
         => Extensions.Contains(Path.GetExtension(fileName), StringComparer.OrdinalIgnoreCase);
@@ -69,7 +73,9 @@ public sealed class DrawingCollection : CollectionKind
         var metadata = new ItemMetadata
         {
             Title = TitleFromFileName(Path.GetFileName(path)),
-            HasCover = CadPreviewSource.IsSupported(extension),
+            // Whether a picture can be drawn depends on helpers that may come and go with an update (the STEP engine, the
+            // CAD helper); the index must not remember their absence. A file that cannot be drawn simply keeps its icon.
+            HasCover = true,
         };
 
         metadata

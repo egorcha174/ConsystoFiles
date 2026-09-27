@@ -159,7 +159,7 @@ foreach ($set in 'Dev', 'Preview', 'Release') {
 
 if ($Preview) {
     $bitmap = New-Icon 512
-    $path = Join-Path $env:TEMP 'consysto-files-icon.png'
+    $path = Join-Path ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\..\..\_build'))) 'consysto-files-icon.png'
     Save-Png $bitmap $path
     $bitmap.Dispose()
     Write-Host "Просмотр: $path"

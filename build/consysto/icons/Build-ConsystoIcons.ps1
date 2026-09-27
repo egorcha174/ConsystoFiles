@@ -10,7 +10,7 @@ param(
 	# Clones of microsoft/fluentui-system-icons and microsoft/fluentui-emoji (MIT)
 	[Parameter(Mandatory)][string]$ThirdParty,
 	[string]$Out = (Join-Path $PSScriptRoot '..\..\..\src\Files.App\Assets\Consysto\Icons'),
-	[string]$Work = (Join-Path $env:TEMP 'ConsystoIcons')
+	[string]$Work = (Join-Path ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\..\..\_build'))) 'ConsystoIcons')
 )
 
 $ErrorActionPreference = 'Stop'

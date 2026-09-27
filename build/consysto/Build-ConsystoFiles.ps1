@@ -17,7 +17,7 @@
 #>
 param(
     [string]$Version,
-    [string]$StagingDirectory = (Join-Path $env:TEMP 'ConsystoFilesBuild'),
+    [string]$StagingDirectory = (Join-Path ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\..\_build'))) 'ConsystoFilesBuild'),
     [string]$OutputDirectory,
     [switch]$Unsigned
 )
@@ -104,6 +104,10 @@ foreach ($tiles in 'Dev', 'Preview') {
     $path = Join-Path $stageFiles "src\Files.App\Assets\AppTiles\$tiles"
     if (Test-Path -LiteralPath $path) { Remove-Item -LiteralPath $path -Recurse -Force }
 }
+
+# Помощник для чтения чужих CAD-форматов (SolidWorks, КОМПАС и др.): в пакет он попадает из build\CadHelpers,
+# см. Files.App.csproj. Раньше его клала только портативная сборка, и в установленной версии геометрии этих форматов не было
+& (Join-Path $PSScriptRoot 'Get-CadHelpers.ps1') -Destination (Join-Path $stageFiles 'build\CadHelpers')
 
 # 3. Сборка: запускатель (C++), затем приложение с пакетом
 & $msbuild (Join-Path $stageFiles 'src\Files.App.Launcher\Files.App.Launcher.vcxproj') -restore -t:Build -p:Platform=x64 -p:Configuration=Release -p:RestorePackagesConfig=true -v:minimal -nologo

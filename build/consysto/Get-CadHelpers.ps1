@@ -20,7 +20,7 @@
 param(
     [string]$Destination,
     [string]$Version = '0.6.0',
-    [string]$CacheDirectory = (Join-Path $env:LOCALAPPDATA 'Consysto\cad-helpers')
+    [string]$CacheDirectory = (Join-Path ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\..\_cache'))) 'cad-helpers')
 )
 
 $ErrorActionPreference = 'Stop'

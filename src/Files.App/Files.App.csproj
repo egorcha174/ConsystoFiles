@@ -107,6 +107,17 @@
         <Content Include="Assets\Consysto\Terminal\**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
+        <!-- Consysto fork: the OpenCascade mesher for STEP and IGES (native\StepMesher\build.ps1), found by StepMeshSource
+             next to the program in occt\. Without this the installed package had no STEP preview; the portable build copies it too. -->
+        <Content Include="..\..\native\out\occt\**" Condition="Exists('..\..\native\out\occt\Consysto.StepMesher.exe')">
+            <Link>occt\%(RecursiveDir)%(Filename)%(Extension)</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <!-- Consysto fork: the helper that reads other CAD formats (cadmpeg), put into build\CadHelpers by Get-CadHelpers.ps1 -->
+        <Content Include="..\..\build\CadHelpers\**" Condition="Exists('..\..\build\CadHelpers')">
+            <Link>CadHelpers\%(RecursiveDir)%(Filename)%(Extension)</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
         <Content Remove="Assets\Consysto\Icons\**" />
         <Content Include="Assets\Consysto\Icons\**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
