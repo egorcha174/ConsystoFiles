@@ -1,6 +1,6 @@
 # Consysto Files
 
-A file manager for Windows 11 that shows what is inside your files — CAD models and drawings, Illustrator and CorelDRAW artwork, e-books, music and photos — without the programs that made them. On top of that: collections over your folders, a terminal tab, a built-in torrent client, folder backups and a proper two-pane mode for those who grew up on Total Commander.
+A file manager for Windows 11 that shows what is inside your files — CAD models and drawings, 3D printing jobs, Illustrator and CorelDRAW artwork, e-books, music and photos — without the programs that made them. On top of that: collections over your folders, a terminal tab, a built-in torrent client, folder backups and a proper two-pane mode for those who grew up on Total Commander.
 
 **It is built on [Files](https://github.com/files-community/Files) by Files Community.** I chose Files because it already is a good modern file manager — tabs, panes, a preview pane, a clean Windows 11 interface. Everything listed under "What is added" below is my work on top of it; the rest belongs to the Files authors.
 
@@ -27,7 +27,15 @@ I am a mechanical designer, and this project started from what my own work kept 
 
 Columns carry the properties that matter: part code, material, mass, and the version of the program the file was last saved in. The same properties can be filtered on.
 
-**Collections.** Libraries built on top of folders — books, pictures, music, drawings. Files stay where they are; only an index is built. Indexing shows its progress and the folder it is working through. Duplicates are found by sampling file contents, not by name alone.
+**3D printing.** G-code (`.gcode`, `.gco`, `.g`), PrusaSlicer's binary `.bgcode`, FlashPrint's `.gx` and sliced `.gcode.3mf` projects from Flash Studio, OrcaSlicer, Bambu Studio, PrusaSlicer and Cura:
+
+- in a folder every job shows the thumbnail its slicer saved; a job without one is drawn from its toolpath;
+- the preview pane draws the toolpath in an isometric view, coloured from the bed to the top layer, and lists the print time, filament (weight, type, length), layer height, number of layers, nozzle, printer and slicer;
+- the details view gets a Print time column next to material, mass and version, so a folder of jobs can be sorted by how long they take or how much plastic they use.
+
+Only the head and the tail of a G-code file are read, so a folder of large jobs stays quick.
+
+**Collections.** Libraries built on top of folders — books, pictures, music, drawings. Files stay where they are; only an index is built. Indexing shows its progress and the folder it is working through. Duplicates are found by sampling file contents, not by name alone. Items in a collection are worked with as in a folder: select them by click, Ctrl, Shift, Ctrl+A or a tick in the corner of a tile; copy, cut, delete, open, show in the folder or copy the path from the buttons above the list, the context menu or the keyboard; drag them out into any folder. The information pane shows the selected item large, with its details.
 
 **Books.** Covers and details from FB2, EPUB, PDF and DjVu. An OPDS client for other people's catalogues, and an OPDS server for your own collection, which any reader app on a phone can open.
 
@@ -82,6 +90,10 @@ builds.
 **Drawings for cutting.** DXF flat patterns are visible in the folder itself, without opening each one.
 
 ![A folder of DXF flat patterns](docs/screenshots/drawings-dxf.png)
+
+**3D printing jobs.** Sliced projects shown by their slicer thumbnails; the preview pane lists print time, filament, layer height, nozzle, printer and slicer.
+
+![A folder of sliced .gcode.3mf projects with print details](docs/screenshots/print-3d.png)
 
 **A collection of drawings.** An index over several folders: 543 drawings with previews, materials and filters. The files stay where they are.
 
