@@ -14,6 +14,7 @@ The same program reads differently depending on who opens it:
 - **Total Commander / Norton Commander veterans** get an actual two-pane workflow on top of that foundation — [Two panes](#two-panes).
 - **Engineers and designers** get CAD drawings and models previewed without the CAD software installed — [Drawings and models](#drawings-and-models), [Inventor assemblies](#an-inventor-assembly-opens-like-a-folder), [Part properties](#part-properties-in-columns).
 - **Anyone who gets artwork files from clients** gets Illustrator and CorelDRAW shown without those programs — [Artwork](#artwork-illustrator-and-coreldraw).
+- **Anyone with a 3D printer** gets print jobs shown by their slicer thumbnails, with print time and filament in columns — [3D printing jobs](#3d-printing-jobs).
 - **Readers and collectors** get a library layer over plain folders — [Collections](#collections), [Books and OPDS](#books-and-opds).
 - **Anyone who downloads things** gets a torrent client inside the file manager — [Torrents](#torrents).
 - **People who back things up by hand** get folder comparison and backup plans — [Sync and backups](#sync-and-backups).
@@ -80,6 +81,22 @@ Part number, material, mass, and the exact version of the CAD program the file w
 
 ![An .ai and a .cdr file shown as thumbnails in a folder](screenshots/en/12-artwork-folder.png)
 
+## 3D printing jobs
+
+**Problem.** A folder of print jobs looks like thirty identical G-code icons. Which of "Tile 1", "Tile 2" and "Tile 3" is the right one, and how long does it take — only the slicer knows, so the slicer gets opened again.
+
+**Action.** Open the folder; select a job and look at the preview pane.
+
+**Result.** Every job shows the thumbnail its slicer saved. The preview pane draws a plain G-code file from its toolpath — an isometric view, coloured from the bed up to the top layer, that can be zoomed into — and lists print time, filament (grams, type, metres), layer height, number of layers, nozzle, printer and slicer. The details view gets a Print time column next to material, mass and version, so a folder of jobs sorts by how long they take or how much plastic they use; the part-number column, empty for print jobs, stays out of such a folder.
+
+**Mechanism.** Slicers write what they know as comments: a thumbnail as base64 PNG, JPEG or QOI between `; thumbnail begin` and `; thumbnail end`, and the settings and estimates as `key = value` lines. Only the first megabyte and the last half-megabyte of a file are read, which is where slicers keep all of this, so a folder of large jobs stays quick. QOI thumbnails are decoded and re-encoded as PNG, since Windows' picture decoders don't know the format. A sliced `.gcode.3mf` is a ZIP: the G-code of the plate is streamed from it without unpacking the whole file, and the plate picture comes from `Metadata/plate_1.png`. PrusaSlicer's binary `.bgcode` is walked block by block for its thumbnails and metadata; FlashPrint's `.gx` carries a BMP ahead of its G-code. The toolpath drawing follows extruding moves only, honours absolute and relative modes, lays G2/G3 arcs out as points, and drops the purge line printed before the first layer. Very large jobs are thinned by layers — the top layer always kept whole — so memory and drawing stay bounded; switching to another file cancels a drawing in progress.
+
+**Limitation.** Metadata in a `.bgcode` packed with heatshrink compression is skipped (thumbnails are read), and a `.bgcode` is shown by its thumbnail rather than drawn. A `.gcode.3mf` that was saved but never sliced has no G-code inside, so it shows the model but no print details. The toolpath view is a preview, not a simulation: line widths and travel moves are not drawn.
+
+**Evidence.** Tested on real jobs from Flash Studio 1.7.13 and Orca-Flashforge 1.6.2 for a Flashforge Adventurer 5M, both `.gcode` and `.gcode.3mf`: a 45-layer part reads as 1 h 3 min, 20 g PETG, 0.2 mm layers, and a 152-layer project as 3 h 48 min, 197 g. Arcs, broken numeric fields and Orca's two-times-on-one-line format were checked on hand-made files. The format readers for PrusaSlicer, Bambu Studio, Cura and FlashPrint follow those programs' published output, but haven't been run against their real files yet.
+
+![A folder of sliced .gcode.3mf projects, with print details in the preview pane](screenshots/print-3d.png)
+
 ## Collections
 
 **Problem.** Files that matter to you — a growing library of parts, photos, books, or music — are scattered across folders, and Explorer has no concept of "my collection" spanning several of them.
@@ -88,7 +105,11 @@ Part number, material, mass, and the exact version of the CAD program the file w
 
 **Result.** An index builds over them — with visible progress and which folder is currently being scanned — without moving or copying a single file. Duplicates are found by sampling file contents, not just by matching names.
 
-**Evidence.** A collection built from several customer-project folders indexed 543 drawings, with previews, materials and format filters, in the existing screenshot on the [README](../README.md).
+Items in a collection are worked with as files in a folder: selected by click, Ctrl, Shift or Ctrl+A — or by a tick in the corner of a tile, with no keys at all. What is selected can be copied, cut, deleted, opened, shown in its folder or have its path copied, from the buttons above the list, the context menu or the keyboard (Enter, Delete, Shift+Delete, Ctrl+C, Ctrl+X, Ctrl+Shift+C, Esc). The files themselves go to the clipboard, so they paste into any folder, in this program or in Explorer, and they can be dragged out. The information-pane button shows the selected item large, with its details. The selection survives a background rescan and switching between list and tiles.
+
+**Limitation.** Pasting *into* a collection isn't supported — a collection spans several folders, and which one should receive the files is not obvious yet. Renaming from the collection page isn't there either.
+
+**Evidence.** A collection built from several customer-project folders indexed 543 drawings, with previews, materials and format filters, in the existing screenshot on the [README](../README.md). Selection and file operations were checked on a demo collection of 36 generated pictures.
 
 ## Books and OPDS
 
@@ -146,6 +167,10 @@ Files already has two panes; this fork adds what Total Commander and Norton Comm
 
 ![Two panes side by side, each with its own drive header](screenshots/en/04-two-panes.png)
 
+## Two looks
+
+By default the window is dressed like the macOS Finder: round window buttons on the left, Safari-style tabs, striped rows. Settings → Appearance → Visual style switches it to the ordinary Windows 11 look — caption buttons on the right, stock tabs always visible, system selection colours, no stripes. The change applies after a restart, and a Restart button appears right there.
+
 ## Quick preview
 
 Press Space (or F3) on a selected file to see it full-size in an overlay, without opening a tab or a separate app — the same slot other file managers use for Quick Look-style previews.
@@ -178,6 +203,8 @@ Named plainly, because a missing feature described honestly is more useful than 
 - **Plain EPS** has no embedded preview in any file tested so far; nothing was written against files that couldn't be checked.
 - **Old-style, non-PDF-compatible Illustrator files** aren't read.
 - **The OPDS server** hasn't been checked yet against a real phone reader app.
+- **3D printing**: `.bgcode` metadata packed with heatshrink isn't read, and the PrusaSlicer, Bambu Studio, Cura and FlashPrint readers haven't met those programs' real files yet.
+- **Collections**: no pasting into a collection and no renaming from its page.
 - Three known rough edges in CAD preview loading are listed under [Security and limits](#security-and-limits) above rather than left for someone to discover.
 
 ## Licences and credits
