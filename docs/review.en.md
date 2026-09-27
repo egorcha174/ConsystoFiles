@@ -2,6 +2,8 @@
 
 This page goes through what Consysto Files actually does, scenario by scenario, with what it doesn't do yet named just as plainly. The short version is in the [README](../README.md); this is the long one, written the way an independent reviewer would write it — not a feature list to sell you something, but a record of what was tested and on what.
 
+Русская версия — [review.ru.md](review.ru.md)
+
 **The foundation is [Files](https://github.com/files-community/Files) by Files Community**, MPL-2.0/MIT, a modern Windows 11 file manager: tabs, panes, a preview pane, a clean interface, actively developed. I picked it up because it already solved the boring half of the problem well. Everything below the first section is what I added on top of it; the first section is Files' own work, credited as such.
 
 I am a mechanical designer, not a software company. This project grew out of what my own work kept needing — mainly reading other people's CAD files without their CAD systems installed — and then grew past that once I saw what else the same file manager could carry. It is free, it stays free, and it is an early build: rough edges are still there.

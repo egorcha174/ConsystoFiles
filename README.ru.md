@@ -4,7 +4,7 @@
 
 Проект открытый и бесплатный. Сейчас это ранняя версия: она работает, но встречаются шероховатости, и я буду рад сообщениям о них.
 
-[**Скачать готовую сборку**](https://github.com/egorcha174/ConsystoFiles/releases) · English version — [README.md](README.md)
+[**Скачать готовую сборку**](https://github.com/egorcha174/ConsystoFiles/releases) · [**Подробный обзор, сценарий за сценарием**](docs/review.ru.md) · English version — [README.md](README.md)
 
 ![Папка с деталями SolidWorks, Fusion и Siemens NX: каждая показана моделью](docs/screenshots/cad-formats.png)
 
