@@ -5756,6 +5756,15 @@
   <data name="ConsystoCollectionClipboardFailed" xml:space="preserve">
     <value>Не удалось поместить файлы в буфер обмена</value>
   </data>
+  <data name="ConsystoCollectionAdded" xml:space="preserve">
+    <value>Файлы добавлены в папку</value>
+  </data>
+  <data name="ConsystoCollectionAddFailed" xml:space="preserve">
+    <value>Не удалось добавить файлы</value>
+  </data>
+  <data name="ConsystoCollectionRenameFailed" xml:space="preserve">
+    <value>Не удалось переименовать файл</value>
+  </data>
   <data name="ConsystoPrintSection" xml:space="preserve">
     <value>Печать</value>
   </data>

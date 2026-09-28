@@ -32,7 +32,9 @@ public static class GcodeToolpath
         if (!file.Exists || file.Length > MaxFileBytes)
             return null;
 
-        using var reader = new StreamReader(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete, 1 << 16));
+        using var reader = path.EndsWith(".bgcode", StringComparison.OrdinalIgnoreCase)
+            ? BinaryGcode.OpenGcode(path)
+            : new StreamReader(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete, 1 << 16));
         var layers = new List<Layer>();
         var byHeight = new Dictionary<long, Layer>();
         var kept = 0;

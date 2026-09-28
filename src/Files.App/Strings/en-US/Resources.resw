@@ -5763,6 +5763,15 @@
   <data name="ConsystoCollectionClipboardFailed" xml:space="preserve">
     <value>The files could not be put on the clipboard</value>
   </data>
+  <data name="ConsystoCollectionAdded" xml:space="preserve">
+    <value>Files added to the folder</value>
+  </data>
+  <data name="ConsystoCollectionAddFailed" xml:space="preserve">
+    <value>Could not add the files</value>
+  </data>
+  <data name="ConsystoCollectionRenameFailed" xml:space="preserve">
+    <value>Could not rename the file</value>
+  </data>
   <data name="ConsystoPrintSection" xml:space="preserve">
     <value>Print</value>
   </data>

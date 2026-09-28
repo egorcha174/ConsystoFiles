@@ -138,11 +138,23 @@
 					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="Auto" />
 				</Grid.ColumnDefinitions>
+
+				<!--  Files from the clipboard go to the folder new items of the library are saved to  -->
+				<Button
+					x:Name="PasteButton"
+					Grid.Column="4"
+					Height="32"
+					VerticalAlignment="Center"
+					Click="PasteButton_Click"
+					Visibility="Collapsed">
+					<FontIcon FontSize="14" Glyph="&#xE77F;" />
+				</Button>
 
 				<Button
 					x:Name="ViewButton"
-					Grid.Column="4"
+					Grid.Column="5"
 					Height="32"
 					VerticalAlignment="Center"
 					Click="ViewButton_Click"
@@ -191,6 +203,12 @@
 						Foreground="{ThemeResource TextFillColorSecondaryBrush}"
 						Style="{StaticResource CaptionTextBlockStyle}" />
 					<Button
+						x:Name="RenameSelectedButton"
+						Height="32"
+						Click="RenameSelectedButton_Click">
+						<FontIcon FontSize="14" Glyph="&#xE8AC;" />
+					</Button>
+					<Button
 						x:Name="CopySelectedButton"
 						Height="32"
 						Click="CopySelectedButton_Click">
@@ -224,10 +242,14 @@
 				x:Name="EntryList"
 				Grid.Row="1"
 				Padding="0,0,12,16"
+				AllowDrop="True"
 				ContainerContentChanging="EntryList_ContainerContentChanging"
 				CanDragItems="True"
 				DoubleTapped="EntryList_DoubleTapped"
+				DragItemsCompleted="List_DragItemsCompleted"
 				DragItemsStarting="List_DragItemsStarting"
+				DragOver="List_DragOver"
+				Drop="List_Drop"
 				ItemClick="EntryList_ItemClick"
 				KeyDown="List_KeyDown"
 				RightTapped="List_RightTapped"
@@ -348,10 +370,14 @@
 				x:Name="TileGrid"
 				Grid.Row="1"
 				Padding="12,0,12,16"
+				AllowDrop="True"
 				ContainerContentChanging="EntryList_ContainerContentChanging"
 				CanDragItems="True"
 				DoubleTapped="EntryList_DoubleTapped"
+				DragItemsCompleted="List_DragItemsCompleted"
 				DragItemsStarting="List_DragItemsStarting"
+				DragOver="List_DragOver"
+				Drop="List_Drop"
 				ItemClick="EntryList_ItemClick"
 				KeyDown="List_KeyDown"
 				RightTapped="List_RightTapped"

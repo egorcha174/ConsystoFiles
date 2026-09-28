@@ -88,13 +88,13 @@ public static class CadPreviewSource
         switch (extension)
         {
             // In the preview pane a print job is drawn from its moves, which can be zoomed into: the picture slicers
-            // store is small, often 140×110. The picture stays for jobs that cannot be drawn: binary G-code
+            // store is small, often 140×110. The picture stays for jobs that cannot be drawn
             case ".gcode":
             case ".gco":
             case ".g":
             case ".gx":
             case ".bgcode":
-                if (extension != ".bgcode" && GcodeToolpath.Load(path, cancellation) is { } toolpath)
+                if (GcodeToolpath.Load(path, cancellation) is { } toolpath)
                     return new CadPreviewContent { Drawing = toolpath };
                 return new CadPreviewContent { Image = GcodeReader.Read(path).Thumbnail };
 

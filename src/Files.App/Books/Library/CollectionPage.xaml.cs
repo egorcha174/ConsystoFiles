@@ -47,6 +47,8 @@ namespace Files.App.Books.Library
 		private string? groupKey;
 		private CollectionSnapshot? shown;
 		private CollectionItem? detailsItem;
+		private string? pendingSelection;
+		private bool draggingOut;
 
 		public CollectionPage()
 		{
@@ -56,6 +58,8 @@ namespace Files.App.Books.Library
 			OpenButton.Content = Strings.ConsystoLibraryOpen.GetLocalizedResource();
 			RevealButton.Content = Strings.ConsystoOpdsShowInFolder.GetLocalizedResource();
 			DetailsEmpty.Text = Strings.ConsystoCollectionPickItem.GetLocalizedResource();
+			ToolTipService.SetToolTip(RenameSelectedButton, $"{Strings.Rename.GetLocalizedResource()} (F2)");
+			ToolTipService.SetToolTip(PasteButton, $"{Strings.Paste.GetLocalizedResource()} (Ctrl+V)");
 			ToolTipService.SetToolTip(CopySelectedButton, $"{Strings.Copy.GetLocalizedResource()} (Ctrl+C)");
 			ToolTipService.SetToolTip(CutSelectedButton, $"{Strings.Cut.GetLocalizedResource()} (Ctrl+X)");
 			ToolTipService.SetToolTip(DeleteSelectedButton, $"{Strings.ConsystoCollectionDelete.GetLocalizedResource()} (Delete)");
@@ -306,6 +310,7 @@ namespace Files.App.Books.Library
 
 			ScanRing.IsActive = scanning;
 			ScanRing.Visibility = scanning ? Visibility.Visible : Visibility.Collapsed;
+			PasteButton.Visibility = kind is not null && PasteFolder() is not null ? Visibility.Visible : Visibility.Collapsed;
 			UpdateScanProgress();
 			PageSubtitle.Text = collection is null || kind is null
 				? string.Empty
@@ -349,6 +354,9 @@ namespace Files.App.Books.Library
 				.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
 			var selectedPaths = SelectedPaths();
+			// A renamed item is selected again under its new name once the rescan brings it
+			if (pendingSelection is not null)
+				selectedPaths.Add(pendingSelection);
 
 			foreach (var row in rows)
 				row.PropertyChanged -= Row_PropertyChanged;
@@ -400,6 +408,8 @@ namespace Files.App.Books.Library
 
 			UpdateView();
 			RestoreSelection(selectedPaths);
+			if (pendingSelection is not null && rows.Any(row => string.Equals(row.Item?.Path, pendingSelection, StringComparison.OrdinalIgnoreCase)))
+				pendingSelection = null;
 		}
 
 		private string ViewSettingKey
@@ -816,6 +826,7 @@ namespace Files.App.Books.Library
 				row.IsSelecting = selected.Count > 0;
 
 			SelectionBar.Visibility = selected.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+			RenameSelectedButton.Visibility = selected.Count == 1 ? Visibility.Visible : Visibility.Collapsed;
 			SelectionText.Text = string.Format(CultureInfo.CurrentCulture, Strings.ConsystoCollectionSelected.GetLocalizedResource(), selected.Count);
 
 			var paneOpen = kind is not null && UserSettings.InfoPaneSettingsService.IsInfoPaneEnabled;
@@ -834,15 +845,28 @@ namespace Files.App.Books.Library
 		private void List_RightTapped(object sender, RightTappedRoutedEventArgs e)
 		{
 			var list = (ListViewBase)sender;
-			if (list.SelectionMode == ListViewSelectionMode.None
-				|| (e.OriginalSource as FrameworkElement)?.DataContext is not CollectionRowViewModel { Item: not null } row)
+			if (list.SelectionMode == ListViewSelectionMode.None)
 				return;
+
+			var menu = new MenuFlyout();
+			var canPaste = PasteFolder() is not null;
+			if ((e.OriginalSource as FrameworkElement)?.DataContext is not CollectionRowViewModel { Item: not null } row)
+			{
+				// An empty spot of the list, as the background of a folder: only pasting makes sense there
+				if (!canPaste)
+					return;
+
+				list.SelectedItems.Clear();
+				menu.Items.Add(CommandItem(Strings.Paste.GetLocalizedResource(), "", "Ctrl+V", PasteAsync));
+				menu.ShowAt(list, new Microsoft.UI.Xaml.Controls.Primitives.FlyoutShowOptions { Position = e.GetPosition(list) });
+				e.Handled = true;
+				return;
+			}
 
 			// A right click outside the selection selects that one item, as in a folder
 			if (!list.SelectedItems.Contains(row))
 				list.SelectedItem = row;
 
-			var menu = new MenuFlyout();
 			menu.Items.Add(CommandItem(Strings.Open.GetLocalizedResource(), "", "Enter", OpenSelectedAsync));
 			if (SelectedItems().Count == 1)
 				menu.Items.Add(CommandItem(Strings.ConsystoOpdsShowInFolder.GetLocalizedResource(), "", null, () => { RevealSelected(); return Task.CompletedTask; }));
@@ -850,7 +874,11 @@ namespace Files.App.Books.Library
 			menu.Items.Add(CommandItem(Strings.Copy.GetLocalizedResource(), "", "Ctrl+C", () => CopySelectedAsync(DataPackageOperation.Copy)));
 			menu.Items.Add(CommandItem(Strings.Cut.GetLocalizedResource(), "", "Ctrl+X", () => CopySelectedAsync(DataPackageOperation.Move)));
 			menu.Items.Add(CommandItem(Strings.CopyPath.GetLocalizedResource(), "", "Ctrl+Shift+C", () => { CopySelectedPaths(); return Task.CompletedTask; }));
+			if (canPaste)
+				menu.Items.Add(CommandItem(Strings.Paste.GetLocalizedResource(), "", "Ctrl+V", PasteAsync));
 			menu.Items.Add(new MenuFlyoutSeparator());
+			if (SelectedItems().Count == 1)
+				menu.Items.Add(CommandItem(Strings.Rename.GetLocalizedResource(), "", "F2", RenameSelectedAsync));
 			menu.Items.Add(CommandItem(Strings.ConsystoCollectionDelete.GetLocalizedResource(), "", "Delete", () => DeleteSelectedAsync(permanently: false)));
 			menu.ShowAt(list, new Microsoft.UI.Xaml.Controls.Primitives.FlyoutShowOptions { Position = e.GetPosition(list) });
 			e.Handled = true;
@@ -868,12 +896,24 @@ namespace Files.App.Books.Library
 		// The app's own Copy, Cut and Delete need a folder view and are not executable here, so the keys reach the list
 		private async void List_KeyDown(object sender, KeyRoutedEventArgs e)
 		{
+			var modifiers = HotKeyHelpers.GetCurrentKeyModifiers();
+			// Pasting needs nothing selected
+			if (e.Key == VirtualKey.V && modifiers == KeyModifiers.Ctrl && PasteFolder() is not null)
+			{
+				e.Handled = true;
+				await PasteAsync();
+				return;
+			}
+
 			if (SelectedItems().Count == 0)
 				return;
 
-			var modifiers = HotKeyHelpers.GetCurrentKeyModifiers();
 			switch (e.Key)
 			{
+				case VirtualKey.F2 when modifiers == KeyModifiers.None:
+					e.Handled = true;
+					await RenameSelectedAsync();
+					break;
 				case VirtualKey.Enter when modifiers == KeyModifiers.None:
 					e.Handled = true;
 					await OpenSelectedAsync();
@@ -909,6 +949,187 @@ namespace Files.App.Books.Library
 
 		private async void DeleteSelectedButton_Click(object sender, RoutedEventArgs e)
 			=> await DeleteSelectedAsync(permanently: false);
+
+		private async void RenameSelectedButton_Click(object sender, RoutedEventArgs e)
+			=> await RenameSelectedAsync();
+
+		private async void PasteButton_Click(object sender, RoutedEventArgs e)
+			=> await PasteAsync();
+
+		/// <summary>
+		/// Where pasted and dropped files go: the folder the Windows library saves to, as Explorer does,
+		/// or else the first of its folders that exists.
+		/// </summary>
+		private string? PasteFolder()
+		{
+			if (collection is null)
+				return null;
+
+			var library = App.LibraryManager.Libraries.FirstOrDefault(item => string.Equals(item.Path, collection.LibraryPath, StringComparison.OrdinalIgnoreCase));
+			return new[] { library?.DefaultSaveFolder }
+				.Concat(collection.Folders)
+				.FirstOrDefault(folder => !string.IsNullOrEmpty(folder) && SystemIO.Directory.Exists(folder));
+		}
+
+		private async Task PasteAsync()
+		{
+			if (PasteFolder() is not { } folder)
+				return;
+
+			DataPackageView content;
+			try
+			{
+				content = Clipboard.GetContent();
+			}
+			catch (Exception ex)
+			{
+				App.Logger.LogDebug(ex, "The clipboard could not be read");
+				return;
+			}
+
+			if (content.Contains(StandardDataFormats.StorageItems))
+				await AddFilesAsync(content.RequestedOperation, content, folder);
+		}
+
+		/// <summary>Copies or moves files into the collection by the app's own file operations: progress, conflicts and undo as in a folder.</summary>
+		private async Task AddFilesAsync(DataPackageOperation operation, DataPackageView content, string folder)
+		{
+			if (appInstance is null || collection is null)
+				return;
+
+			StatusBar.IsOpen = false;
+			try
+			{
+				var result = await appInstance.FilesystemHelpers.PerformOperationTypeAsync(operation, content, folder, showDialog: false, registerHistory: true);
+				if (result == ReturnResult.Success)
+					ShowStatus(InfoBarSeverity.Success, Strings.ConsystoCollectionAdded.GetLocalizedResource(), folder);
+			}
+			catch (Exception ex)
+			{
+				App.Logger.LogWarning(ex, "Files could not be added to a collection");
+				ShowStatus(InfoBarSeverity.Error, Strings.ConsystoCollectionAddFailed.GetLocalizedResource(), ex.Message);
+			}
+
+			// The folder watcher would notice as well, a few seconds later
+			await CollectionManager.Instance.RescanAsync(collection.Id);
+		}
+
+		private void List_DragOver(object sender, DragEventArgs e)
+		{
+			// Items dragged out of this page are already in the collection
+			if (draggingOut || PasteFolder() is not { } folder || !e.DataView.Contains(StandardDataFormats.StorageItems))
+			{
+				e.AcceptedOperation = DataPackageOperation.None;
+				return;
+			}
+
+			// Adding to a collection keeps the original where it was, unless Shift asks to move it
+			var move = e.Modifiers.HasFlag(Windows.ApplicationModel.DataTransfer.DragDrop.DragDropModifiers.Shift);
+			e.AcceptedOperation = move ? DataPackageOperation.Move : DataPackageOperation.Copy;
+			e.DragUIOverride.Caption = string.Format(
+				(move ? Strings.MoveToFolderCaptionText : Strings.CopyToFolderCaptionText).GetLocalizedResource(),
+				SystemIO.Path.GetFileName(folder));
+		}
+
+		private async void List_Drop(object sender, DragEventArgs e)
+		{
+			if (draggingOut || PasteFolder() is not { } folder)
+				return;
+
+			var deferral = e.GetDeferral();
+			try
+			{
+				await AddFilesAsync(e.AcceptedOperation, e.DataView, folder);
+			}
+			finally
+			{
+				deferral.Complete();
+			}
+		}
+
+		private void List_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
+			=> draggingOut = false;
+
+		// Double extensions stay whole when the name is selected for editing
+		private static readonly string[] CompoundExtensions = [".fb2.zip", ".gcode.3mf"];
+
+		private async Task RenameSelectedAsync()
+		{
+			if (SelectedItems() is not [var item] || appInstance is null || collection is null
+				|| SystemIO.Path.GetDirectoryName(item.Path) is not { } folder)
+				return;
+
+			var oldName = item.FileName;
+			var extension = CompoundExtensions.FirstOrDefault(candidate => oldName.EndsWith(candidate, StringComparison.OrdinalIgnoreCase))
+				?? SystemIO.Path.GetExtension(oldName);
+			var nameBox = new TextBox { Text = oldName, MinWidth = 360 };
+			nameBox.Loaded += (_, _) =>
+			{
+				nameBox.Focus(FocusState.Programmatic);
+				nameBox.Select(0, oldName.Length - extension.Length is > 0 and var length ? length : oldName.Length);
+			};
+			var error = new TextBlock
+			{
+				Foreground = (Brush)Application.Current.Resources["SystemFillColorCriticalBrush"],
+				TextWrapping = TextWrapping.Wrap,
+				Visibility = Visibility.Collapsed,
+			};
+			nameBox.TextChanged += (_, _) => error.Visibility = Visibility.Collapsed;
+
+			var dialog = new ContentDialog
+			{
+				Title = Strings.Rename.GetLocalizedResource(),
+				Content = new StackPanel { Spacing = 8, Children = { nameBox, error } },
+				PrimaryButtonText = Strings.Rename.GetLocalizedResource(),
+				CloseButtonText = Strings.Cancel.GetLocalizedResource(),
+				DefaultButton = ContentDialogButton.Primary,
+			};
+
+			string NewName() => nameBox.Text.Trim();
+
+			dialog.PrimaryButtonClick += (_, args) =>
+			{
+				var name = NewName();
+				string? message = null;
+				if (FilesystemHelpers.ContainsRestrictedCharacters(name))
+					message = Strings.ErrorNameInputRestrictedCharacters.GetLocalizedResource();
+				else if (FilesystemHelpers.ContainsRestrictedFileName(name))
+					message = Strings.ErrorNameInputRestricted.GetLocalizedResource();
+				else if (!FilesystemHelpers.IsValidForFilename(name))
+					message = Strings.EnterAnItemName.GetLocalizedResource();
+				// A change of letter case only is the same file on Windows, not a clash
+				else if (!string.Equals(name, oldName, StringComparison.OrdinalIgnoreCase) && SystemIO.Path.Exists(SystemIO.Path.Combine(folder, name)))
+					message = Strings.ItemAlreadyExistsDialogContent.GetLocalizedResource();
+
+				if (message is null)
+					return;
+
+				error.Text = message;
+				error.Visibility = Visibility.Visible;
+				args.Cancel = true;
+			};
+
+			if (await dialog.TryShowAsync() != ContentDialogResult.Primary || NewName() is var newName && newName == oldName)
+				return;
+
+			StatusBar.IsOpen = false;
+			try
+			{
+				// The app's own rename: it asks before changing an extension and can be undone with Ctrl+Z in a folder
+				var source = StorageHelpers.FromPathAndType(item.Path, FilesystemItemType.File);
+				if (await appInstance.FilesystemHelpers.RenameAsync(source, newName, NameCollisionOption.FailIfExists, registerHistory: true) != ReturnResult.Success)
+					return;
+			}
+			catch (Exception ex)
+			{
+				App.Logger.LogWarning(ex, "A collection item could not be renamed");
+				ShowStatus(InfoBarSeverity.Error, Strings.ConsystoCollectionRenameFailed.GetLocalizedResource(), ex.Message);
+				return;
+			}
+
+			pendingSelection = SystemIO.Path.Combine(folder, newName);
+			await CollectionManager.Instance.RescanAsync(collection.Id);
+		}
 
 		private async Task OpenSelectedAsync()
 		{
@@ -986,6 +1207,7 @@ namespace Files.App.Books.Library
 				return;
 			}
 
+			draggingOut = true;
 			e.Data.RequestedOperation = DataPackageOperation.Copy | DataPackageOperation.Move;
 			e.Data.SetDataProvider(StandardDataFormats.StorageItems, async request =>
 			{
