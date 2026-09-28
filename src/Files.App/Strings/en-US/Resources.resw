@@ -4765,6 +4765,12 @@
   <data name="ConsystoCloudTipsDescription" xml:space="preserve">
     <value>Russian cards and transfers, no account needed</value>
   </data>
+  <data name="ConsystoLavaDonate" xml:space="preserve">
+    <value>lava.top: cards from abroad</value>
+  </data>
+  <data name="ConsystoLavaDonateDescription" xml:space="preserve">
+    <value>Cards issued outside Russia, from 95+ countries</value>
+  </data>
   <data name="ConsystoBoostyDonate" xml:space="preserve">
     <value>Boosty: one-off transfer</value>
   </data>

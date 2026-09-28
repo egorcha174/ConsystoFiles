@@ -186,6 +186,8 @@ namespace Files.App
 			// A blog with a paid tier; the program itself stays free on the releases page above
 			public const string ConsystoBoostyUrl = @"https://boosty.to/egorcha";
 			public const string ConsystoBoostyDonateUrl = @"https://boosty.to/egorcha/donate";
+			// CloudTips and Boosty take only Russian cards; lava.top takes cards from abroad
+			public const string ConsystoLavaDonateUrl = @"https://app.lava.top/egorcha?donate=open";
 			public const string CrowdinUrl = @"https://crowdin.com/project/files-app";
 			public static readonly string ReleaseNotesUrl = @"https://github.com/egorcha174/ConsystoFiles/releases";
 		}

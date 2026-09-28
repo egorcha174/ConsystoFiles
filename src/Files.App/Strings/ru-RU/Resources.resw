@@ -4759,6 +4759,12 @@
   <data name="ConsystoCloudTipsDescription" xml:space="preserve">
     <value>Картой или через СБП, регистрация не нужна</value>
   </data>
+  <data name="ConsystoLavaDonate" xml:space="preserve">
+    <value>lava.top: карты из других стран</value>
+  </data>
+  <data name="ConsystoLavaDonateDescription" xml:space="preserve">
+    <value>Для карт, выпущенных за рубежом: принимает из 95+ стран</value>
+  </data>
   <data name="ConsystoBoostyDonate" xml:space="preserve">
     <value>Boosty: разовый перевод</value>
   </data>

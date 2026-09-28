@@ -45,6 +45,7 @@ namespace Files.App.ViewModels.Settings
 		public ICommand OpenMaxCommand { get; }
 		public ICommand OpenBoostyCommand { get; }
 		public ICommand OpenBoostyDonateCommand { get; }
+		public ICommand OpenLavaDonateCommand { get; }
 		public ICommand OpenLogLocationCommand { get; }
 		public ICommand OpenDocumentationCommand { get; }
 		public ICommand OpenDiscordCommand { get; }
@@ -97,6 +98,7 @@ namespace Files.App.ViewModels.Settings
 			OpenMaxCommand = new AsyncRelayCommand(OpenMax);
 			OpenBoostyCommand = new AsyncRelayCommand(OpenBoosty);
 			OpenBoostyDonateCommand = new AsyncRelayCommand(OpenBoostyDonate);
+			OpenLavaDonateCommand = new AsyncRelayCommand(OpenLavaDonate);
 			OpenDocumentationCommand = new AsyncRelayCommand(DoOpenDocumentation);
 			OpenDiscordCommand = new AsyncRelayCommand(DoOpenDiscord);
 			SubmitFeatureRequestCommand = new AsyncRelayCommand(DoSubmitFeatureRequest);
@@ -234,6 +236,11 @@ namespace Files.App.ViewModels.Settings
 		public Task OpenBoostyDonate()
 		{
 			return Launcher.LaunchUriAsync(new Uri(Constants.ExternalUrl.ConsystoBoostyDonateUrl)).AsTask();
+		}
+
+		public Task OpenLavaDonate()
+		{
+			return Launcher.LaunchUriAsync(new Uri(Constants.ExternalUrl.ConsystoLavaDonateUrl)).AsTask();
 		}
 
 		public string GetAppVersion()

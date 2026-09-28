@@ -123,8 +123,9 @@ The program is free and will stay that way. If it saved you time and you would l
 
 - [CloudTips](https://pay.cloudtips.ru/p/c83072e9) — Russian cards and transfers, no account needed.
 - [Boosty](https://boosty.to/egorcha/donate)
+- [lava.top](https://app.lava.top/egorcha?donate=open) — cards issued outside Russia, from 95+ countries.
 
-There is no GitHub Sponsors button and there will not be one: it does not work from Russia. Neither page accepts cards issued outside Russia, so from abroad the kind thing is a bug report rather than money.
+There is no GitHub Sponsors button and there will not be one: it does not work from Russia.
 
 ## Feedback
 

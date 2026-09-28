@@ -121,6 +121,7 @@ build\consysto\Build-ConsystoPortable.ps1
 
 - [CloudTips](https://pay.cloudtips.ru/p/c83072e9). Картой или через СБП, регистрация не нужна.
 - [Boosty](https://boosty.to/egorcha/donate)
+- [lava.top](https://app.lava.top/egorcha?donate=open). Для карт, выпущенных за рубежом: принимает из 95+ стран.
 
 Привычной для открытых проектов кнопки GitHub Sponsors тут нет и не будет: из России она не работает.
 

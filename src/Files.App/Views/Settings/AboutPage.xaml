@@ -77,6 +77,17 @@
 							<FontIcon Glyph="&#xE8A7;" />
 						</wctcontrols:SettingsCard.ActionIcon>
 					</wctcontrols:SettingsCard>
+
+					<wctcontrols:SettingsCard
+						HorizontalAlignment="Stretch"
+						Command="{x:Bind ViewModel.OpenLavaDonateCommand}"
+						Description="{helpers:ResourceString Name=ConsystoLavaDonateDescription}"
+						Header="{helpers:ResourceString Name=ConsystoLavaDonate}"
+						IsClickEnabled="True">
+						<wctcontrols:SettingsCard.ActionIcon>
+							<FontIcon Glyph="&#xE8A7;" />
+						</wctcontrols:SettingsCard.ActionIcon>
+					</wctcontrols:SettingsCard>
 				</wctcontrols:SettingsExpander.Items>
 			</wctcontrols:SettingsExpander>
 
