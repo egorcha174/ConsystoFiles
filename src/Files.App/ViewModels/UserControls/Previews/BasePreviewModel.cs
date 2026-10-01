@@ -58,7 +58,9 @@ namespace Files.App.ViewModels.Previews
 			{
 				var itemPath = Item.ItemPath!;
 				var rootItem = await FilesystemTasks.WrapNullable(() => DriveHelpers.GetRootFromPathAsync(itemPath));
-				Item.ItemFile = await StorageFileExtensions.DangerousGetFileFromPathAsync(itemPath, rootItem.Result);
+				// Consysto fork: wrapped like every other caller. When no provider knows the file the lookup throws, and a raw
+				// call took the whole preview down with it; previewers that read by path (CAD, print jobs) do not need the object
+				Item.ItemFile = (await FilesystemTasks.WrapNullable(() => StorageFileExtensions.DangerousGetFileFromPathAsync(itemPath, rootItem.Result))).Result;
 			}
 
 			await Task.Run(async () =>

@@ -553,6 +553,14 @@ namespace Files.App.ViewModels.UserControls
 			catch (Exception ex)
 			{
 				Debug.WriteLine(ex);
+
+				// Consysto fork: this is the last fallback, so it must leave the pane in a final state.
+				// Returning with the state still at LoadingPreview kept the spinner turning forever.
+				if (token.IsCancellationRequested)
+					return;
+
+				PreviewPaneContent = null;
+				PreviewPaneState = PreviewPaneStates.NoPreviewOrDetailsAvailable;
 			}
 		}
 
