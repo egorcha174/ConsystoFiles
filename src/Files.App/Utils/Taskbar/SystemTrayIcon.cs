@@ -36,6 +36,8 @@ namespace Files.App.Utils.Taskbar
 			AppEnvironment.StorePreview => new Guid("684F2832-AC2B-4630-98C2-73D6AEBD4003"),
 			AppEnvironment.SideloadStable => new Guid("684F2832-AC2B-4630-98C2-73D6AEBD4004"),
 			AppEnvironment.StoreStable => new Guid("684F2832-AC2B-4630-98C2-73D6AEBD4005"),
+			// Consysto fork: the Store copy gets its own icon identity, so it never collides with an installed Files
+			AppEnvironment.ConsystoStore => new Guid("C0F5A2D1-3B7E-4C1A-9E55-2B8D6F0A7C02"),
 			_ => new Guid("684F2832-AC2B-4630-98C2-73D6AEBD4001")
 		};
 

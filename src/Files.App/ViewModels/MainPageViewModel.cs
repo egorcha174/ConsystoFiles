@@ -138,7 +138,7 @@ namespace Files.App.ViewModels
 				if (!canShowPrompts || hasShownReviewPrompt)
 					return false;
 
-				var isTargetEnvironment = AppLifecycleHelper.AppEnvironment is AppEnvironment.StoreStable or AppEnvironment.StorePreview;
+				var isTargetEnvironment = AppLifecycleHelper.AppEnvironment is AppEnvironment.StoreStable or AppEnvironment.StorePreview or AppEnvironment.ConsystoStore;
 				var hasClickedReviewPrompt = UserSettingsService.ApplicationSettingsService.HasClickedReviewPrompt;
 				var launchCountReached = AppLifecycleHelper.TotalLaunchCount % 30 == 0;
 

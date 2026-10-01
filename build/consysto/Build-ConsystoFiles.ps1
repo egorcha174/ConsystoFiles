@@ -14,22 +14,44 @@
 
 .PARAMETER Unsigned
     Только проверить, что пакет собирается. Неподписанный пакет не установить.
+
+.PARAMETER Store
+    Пакет для Microsoft Store (.msixupload): без своей подписи (подписывает магазин), без права самообновления
+    packageManagement (обновляет магазин), тип сборки ConsystoStore. Имя пакета и издатель — из Partner Center
+    («Управление продуктом → Удостоверение продукта»): -StoreIdentityName и -StorePublisher. Без них собирается
+    черновой пакет с нашими именами — годится проверить сборку и прогнать Windows App Certification Kit, но не для загрузки.
 #>
 param(
     [string]$Version,
     [string]$StagingDirectory = (Join-Path ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\..\_build'))) 'ConsystoFilesBuild'),
     [string]$OutputDirectory,
-    [switch]$Unsigned
+    [switch]$Unsigned,
+    [switch]$Store,
+    [string]$StoreIdentityName,
+    [string]$StorePublisher,
+    [string]$StorePublisherDisplayName = 'Egor Chayka'
 )
 
 $ErrorActionPreference = 'Stop'
 $filesRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-if (-not $OutputDirectory) { $OutputDirectory = Join-Path $filesRoot 'artifacts\ConsystoFiles' }
+if (-not $OutputDirectory) { $OutputDirectory = Join-Path $filesRoot $(if ($Store) { 'artifacts\ConsystoFilesStore' } else { 'artifacts\ConsystoFiles' }) }
+if ($Store) {
+    # Своя копия исходников: в общей сборка для себя и для магазина путали бы тип сборки в bin/obj
+    if (-not $PSBoundParameters.ContainsKey('StagingDirectory')) { $StagingDirectory = "$StagingDirectory-Store" }
+    $Unsigned = $true   # магазин подписывает пакет сам
+    # Магазин требует, чтобы последняя часть версии была 0
+    if ($Version -and $Version -notmatch '\.0$') { throw 'Для магазина последняя часть версии должна быть 0.' }
+    if (-not $StoreIdentityName -or -not $StorePublisher) {
+        Write-Warning 'Данные из Partner Center не заданы: собираю черновой пакет, для загрузки в магазин он не подойдёт.'
+    }
+}
 
 # Версия растёт со временем сборки: 1.<год>.<месяц день>.<час минута>, каждая часть не больше 65535
 if (-not $Version) {
     $now = Get-Date
     $Version = '1.{0}.{1}.{2}' -f ($now.Year - 2000), ($now.Month * 100 + $now.Day), ($now.Hour * 100 + $now.Minute)
+    # У магазина четвёртая часть версии занята: время уходит в третью часть (месяц, день, час)
+    if ($Store) { $Version = '1.{0}.{1}.0' -f ($now.Year - 2000), ($now.Month * 1000 + $now.Day * 10 + [int][Math]::Floor($now.Hour / 3)) }
 }
 
 $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
@@ -73,15 +95,21 @@ $ns.AddNamespace('pkg', 'http://schemas.microsoft.com/appx/manifest/foundation/w
 $ns.AddNamespace('uap', 'http://schemas.microsoft.com/appx/manifest/uap/windows10')
 $ns.AddNamespace('uap5', 'http://schemas.microsoft.com/appx/manifest/uap/windows10/5')
 
-$manifest.Package.Identity.Name = 'ConsystoFiles'
-$manifest.Package.Identity.Publisher = 'CN=Consysto'
+$manifest.Package.Identity.Name = $(if ($Store -and $StoreIdentityName) { $StoreIdentityName } else { 'ConsystoFiles' })
+$manifest.Package.Identity.Publisher = $(if ($Store -and $StorePublisher) { $StorePublisher } else { 'CN=Consysto' })
 $manifest.Package.Identity.Version = $Version
 $manifest.Package.Properties.DisplayName = 'Consysto Files'
-$manifest.Package.Properties.PublisherDisplayName = 'Consysto'
+$manifest.Package.Properties.PublisherDisplayName = $(if ($Store) { $StorePublisherDisplayName } else { 'Consysto' })
 $manifest.Package.Applications.Application.VisualElements.DisplayName = 'Consysto Files'
 $manifest.Package.Applications.Application.VisualElements.DefaultTile.ShortName = 'Consysto Files'
 $manifest.SelectSingleNode("/pkg:Package/pkg:Applications/pkg:Application/pkg:Extensions/uap:Extension[@Category='windows.protocol']/uap:Protocol", $ns).SetAttribute('Name', 'consysto-files')
 $manifest.SelectSingleNode("/pkg:Package/pkg:Applications/pkg:Application/pkg:Extensions/uap5:Extension[@Category='windows.appExecutionAlias']/uap5:AppExecutionAlias/uap5:ExecutionAlias", $ns).SetAttribute('Alias', 'consysto-files.exe')
+if ($Store) {
+    # Самообновление пакета нужно только сборке вне магазина; магазин это право без нужды не пропускает
+    $ns.AddNamespace('rescap', 'http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities')
+    $packageManagement = $manifest.SelectSingleNode("/pkg:Package/pkg:Capabilities/rescap:Capability[@Name='packageManagement']", $ns)
+    if ($packageManagement) { [void]$packageManagement.ParentNode.RemoveChild($packageManagement) }
+}
 $manifest.Save($manifestPath)
 
 function Update-Text([string[]]$Include, [string]$From, [string]$To) {
@@ -99,7 +127,7 @@ function Update-Text([string[]]$Include, [string]$From, [string]$To) {
 
 Update-Text -Include '*.csproj', '*.appxmanifest', '*.xaml' -From 'Assets\AppTiles\Dev' -To 'Assets\AppTiles\Release'
 Update-Text -Include '*.cs', '*.cpp' -From 'files-dev' -To 'consysto-files'
-Update-Text -Include '*.cs' -From 'cd_app_env_placeholder' -To 'Consysto'
+Update-Text -Include '*.cs' -From 'cd_app_env_placeholder' -To $(if ($Store) { 'ConsystoStore' } else { 'Consysto' })
 foreach ($tiles in 'Dev', 'Preview') {
     $path = Join-Path $stageFiles "src\Files.App\Assets\AppTiles\$tiles"
     if (Test-Path -LiteralPath $path) { Remove-Item -LiteralPath $path -Recurse -Force }
@@ -124,7 +152,7 @@ $arguments = @(
     '-restore', '-t:Build',
     '-p:Platform=x64', '-p:Configuration=Release',
     "-p:AppxPackageDir=$packageDirectory\",
-    '-p:AppxBundle=Never', '-p:GenerateAppxPackageOnBuild=true', '-p:UapAppxPackageBuildMode=SideloadOnly',
+    '-p:AppxBundle=Never', '-p:GenerateAppxPackageOnBuild=true', "-p:UapAppxPackageBuildMode=$(if ($Store) { 'StoreUpload' } else { 'SideloadOnly' })",
     '-p:RestorePackagesConfig=true', '-v:minimal', '-nologo'
 )
 if ($Unsigned) {
@@ -135,7 +163,20 @@ if ($Unsigned) {
 & $msbuild @arguments
 if ($LASTEXITCODE -ne 0) { throw 'Приложение не собралось.' }
 
-# 4. Папка для переноса на ноутбук
+# 4. Для магазина — файл загрузки .msixupload (или сам .msix, если студия его не собрала), для себя — папка для переноса на ноутбук
+if ($Store) {
+    $upload = Get-ChildItem $packageDirectory -Recurse -Include '*.msixupload', '*.msix' |
+        Sort-Object @{ Expression = { $_.Extension -eq '.msixupload' }; Descending = $true }, LastWriteTime -Descending |
+        Select-Object -First 1
+    if (-not $upload) { throw 'Пакет для магазина не найден.' }
+    $release = Join-Path $OutputDirectory "ConsystoFiles_$Version"
+    New-Item -ItemType Directory -Force -Path $release | Out-Null
+    Copy-Item -LiteralPath $upload.FullName -Destination $release -Force
+    Write-Host "Готово для магазина: $(Join-Path $release $upload.Name)"
+    return
+}
+
+# Папка для переноса на ноутбук
 $msix = Get-ChildItem $packageDirectory -Recurse -Filter '*.msix' | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 if (-not $msix) { throw 'Пакет .msix не найден.' }
 

@@ -160,7 +160,7 @@ namespace Files.App
 				}
 
 				// Configure Sentry
-				if (AppLifecycleHelper.AppEnvironment is not (AppEnvironment.Dev or AppEnvironment.Consysto))
+				if (AppLifecycleHelper.AppEnvironment is not (AppEnvironment.Dev or AppEnvironment.Consysto or AppEnvironment.ConsystoStore))
 					AppLifecycleHelper.ConfigureSentry();
 
 				var userSettingsService = Ioc.Default.GetRequiredService<IUserSettingsService>();

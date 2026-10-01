@@ -408,7 +408,7 @@ namespace Files.App.Helpers
 				services.AddSingleton<IUpdateService, PortableUpdateService>();
 			else if (AppEnvironment is AppEnvironment.SideloadPreview or AppEnvironment.SideloadStable)
 				services.AddSingleton<IUpdateService, SideloadUpdateService>();
-			else if (AppEnvironment is AppEnvironment.StorePreview or AppEnvironment.StoreStable)
+			else if (AppEnvironment is AppEnvironment.StorePreview or AppEnvironment.StoreStable or AppEnvironment.ConsystoStore)
 				services.AddSingleton<IUpdateService, StoreUpdateService>();
 			else
 				services.AddSingleton<IUpdateService, DummyUpdateService>();

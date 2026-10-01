@@ -39,6 +39,11 @@ namespace Files.App.Data.Enums
 		/// <summary>
 		/// Consysto fork, sideloaded with its own installer: no updates from files.community and no crash reports to Files.
 		/// </summary>
-		Consysto
+		Consysto,
+
+		/// <summary>
+		/// Consysto fork published in the Microsoft Store: the Store updates it and hosts its reviews, crash reports still stay home.
+		/// </summary>
+		ConsystoStore
 	}
 }
