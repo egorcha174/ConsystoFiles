@@ -129,4 +129,4 @@ There is no GitHub Sponsors button and there will not be one: it does not work f
 
 ## Feedback
 
-Found a bug — please open an issue. It helps a lot to attach `data\Local\debug.log`, or, in the installed version, the report that Settings → About → "Save an error report" puts on your desktop.
+Found a bug — please open an issue, or write to consysto@gmail.com. It helps a lot to attach `data\Local\debug.log`, or, in the installed version, the report that Settings → About → "Save an error report" puts on your desktop.
