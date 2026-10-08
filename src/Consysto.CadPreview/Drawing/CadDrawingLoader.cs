@@ -216,23 +216,60 @@ internal sealed class EntityFlattener(Drawing2D drawing)
 
     private void Skip(string what) => drawing.Skipped[what] = drawing.Skipped.GetValueOrDefault(what) + 1;
 
+    /// <summary>
+    /// The curve of a spline by de Boor's algorithm over its working domain, knots[degree]..knots[count]. ACadSharp
+    /// walks the whole knot vector instead: with the periodic flag cleared the curve came out right but with a short
+    /// hook at the seam of every closed outline, the part of the knot vector outside that domain (08.10.2026).
+    /// </summary>
     private static bool TryEvaluateAsNonPeriodic(Spline spline, out List<XYZ> points)
     {
         points = [];
-        try
-        {
-            var plain = (Spline)spline.Clone();
-            plain.Flags &= ~SplineFlags.Periodic;
-            if (!plain.TryPolygonalVertexes(SplineSegments(plain.ControlPoints.Count), out var evaluated)
-                || !IsSane(evaluated, spline.ControlPoints))
-                return false;
-            points = evaluated;
-            return true;
-        }
-        catch (Exception)
-        {
+        int degree = spline.Degree;
+        var controls = spline.ControlPoints;
+        var knots = spline.Knots;
+        int count = controls.Count;
+        if (degree < 1 || count <= degree || knots.Count != count + degree + 1)
             return false;
+
+        double start = knots[degree], end = knots[count];
+        if (!(end > start) || !double.IsFinite(start) || !double.IsFinite(end))
+            return false;
+
+        bool rational = spline.Weights.Count == count;
+        int segments = SplineSegments(count);
+        var homogeneous = new (double X, double Y, double Z, double W)[degree + 1];
+        for (int step = 0; step <= segments; step++)
+        {
+            double t = step == segments ? end : start + (end - start) * step / segments;
+
+            // The knot span holding t, kept inside the working domain so the end of the curve is reached exactly
+            int span = degree;
+            while (span < count - 1 && knots[span + 1] <= t)
+                span++;
+
+            for (int j = 0; j <= degree; j++)
+            {
+                var point = controls[span - degree + j];
+                double weight = rational ? spline.Weights[span - degree + j] : 1;
+                homogeneous[j] = (point.X * weight, point.Y * weight, point.Z * weight, weight);
+            }
+            for (int r = 1; r <= degree; r++)
+                for (int j = degree; j >= r; j--)
+                {
+                    double left = knots[span - degree + j], right = knots[span + 1 + j - r];
+                    double alpha = right > left ? (t - left) / (right - left) : 0;
+                    var a = homogeneous[j - 1];
+                    var b = homogeneous[j];
+                    homogeneous[j] = (a.X + alpha * (b.X - a.X), a.Y + alpha * (b.Y - a.Y), a.Z + alpha * (b.Z - a.Z), a.W + alpha * (b.W - a.W));
+                }
+
+            var result = homogeneous[degree];
+            if (!(Math.Abs(result.W) > 1e-12))
+                return false;
+            points.Add(new XYZ(result.X / result.W, result.Y / result.W, result.Z / result.W));
         }
+
+        return IsSane(points, controls);
     }
 
     private static bool IsSane(IReadOnlyList<XYZ> evaluated, IReadOnlyList<XYZ> controls)
