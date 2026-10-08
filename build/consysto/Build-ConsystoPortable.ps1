@@ -25,7 +25,9 @@ param(
     [string]$StagingDirectory,
     [string]$OutputDirectory,
     [switch]$SkipArchive,
-    [switch]$Demo
+    [switch]$Demo,
+    # Parasolid (X_T/X_B) — только по явному ключу: помощник весит ~240 МБ и настоящие X_T пока не читает (07.10.2026)
+    [switch]$WithParasolid
 )
 
 if (-not $StagingDirectory) {
@@ -35,6 +37,7 @@ $demoFlag = if ($Demo) { 'true' } else { 'false' }
 $releaseKind = if ($Demo) { 'demo' } else { 'portable' }
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'Build-Quarantine.ps1')
 $filesRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 if (-not $OutputDirectory) { $OutputDirectory = Join-Path $filesRoot 'artifacts\ConsystoFiles' }
 
@@ -82,23 +85,26 @@ Update-Text -Include '*.csproj', '*.appxmanifest', '*.xaml' -From 'Assets\AppTil
 Update-Text -Include '*.cs', '*.cpp' -From 'files-dev' -To 'consysto-files'
 Update-Text -Include '*.cs' -From 'cd_app_env_placeholder' -To 'Consysto'
 
+if ($WithParasolid) { & (Join-Path $PSScriptRoot 'Get-ParasolidHelpers.ps1') -Destination (Join-Path $stageFiles 'build\Parasolid') }
+
 # 2. Сборка. Files.App.Server собирается из цели MSBuild без восстановления, поэтому решение восстанавливается заранее
-& $msbuild (Join-Path $stageFiles 'Files.slnx') -t:Restore -p:Platform=x64 -p:Configuration=Release -v:minimal -nologo
+& $msbuild (Join-Path $stageFiles 'Files.slnx') -t:Restore -p:Platform=x64 -p:Configuration=Release -v:quiet -clp:ErrorsOnly -nologo
 if ($LASTEXITCODE -ne 0) { throw 'Пакеты NuGet не восстановились.' }
 
 # Files.App.Server отдаёт приложению свой .winmd, поэтому собирается первым
-& $msbuild (Join-Path $stageFiles 'src\Files.App.Server\Files.App.Server.csproj') -t:Build -p:Platform=x64 -p:Configuration=Release -v:minimal -nologo
+& $msbuild (Join-Path $stageFiles 'src\Files.App.Server\Files.App.Server.csproj') -t:Build -p:Platform=x64 -p:Configuration=Release -v:quiet -clp:ErrorsOnly -nologo
 if ($LASTEXITCODE -ne 0) { throw 'Вспомогательный процесс не собрался.' }
 
 $build = Join-Path $StagingDirectory 'portable'
-if (Test-Path -LiteralPath $build) { Remove-Item -LiteralPath $build -Recurse -Force }
+Move-BuildOutputToQuarantine $build $StagingDirectory
 New-Item -ItemType Directory -Force -Path $build | Out-Null
 
 & $msbuild (Join-Path $stageFiles 'src\Files.App\Files.App.csproj') `
     -restore -t:Build -p:Platform=x64 -p:Configuration=Release -p:ConsystoPortable=true "-p:ConsystoDemo=$demoFlag" `
+    "-p:ConsystoParasolid=$(if ($WithParasolid) { 'true' } else { 'false' })" `
     "-p:OutDir=$build\" -p:RestorePackagesConfig=true `
     "-p:Version=$Version" "-p:AssemblyVersion=$Version" "-p:FileVersion=$Version" `
-    -v:minimal -nologo
+    -v:quiet -clp:ErrorsOnly -nologo
 if ($LASTEXITCODE -ne 0) { throw 'Приложение не собралось.' }
 if (-not (Test-Path -LiteralPath (Join-Path $build 'Files.exe'))) { throw 'Files.exe не собрался.' }
 
@@ -106,11 +112,11 @@ if (-not (Test-Path -LiteralPath (Join-Path $build 'Files.exe'))) { throw 'Files
 Get-ChildItem $build -Recurse -File -Include '*.pdb', '*.lib', '*.exp', 'AppxManifest.xml' |
     ForEach-Object { [IO.File]::Delete($_.FullName) }
 $data = Join-Path $build 'data'
-if (Test-Path -LiteralPath $data) { Remove-Item -LiteralPath $data -Recurse -Force }
+Move-BuildOutputToQuarantine $data $StagingDirectory
 
 # 4. Папка для раздачи
 $release = Join-Path $OutputDirectory "ConsystoFiles-${releaseKind}_$Version"
-if (Test-Path -LiteralPath $release) { Remove-Item -LiteralPath $release -Recurse -Force }
+Move-BuildOutputToQuarantine $release $OutputDirectory
 New-Item -ItemType Directory -Force -Path (Split-Path $release -Parent) | Out-Null
 robocopy $build $release /MIR /NFL /NDL /NJH /NJS /NP | Out-Null
 if ($LASTEXITCODE -ge 8) { throw "Не удалось собрать папку раздачи (robocopy $LASTEXITCODE)." }
@@ -141,7 +147,7 @@ Write-Host "Папка: $release ($size МБ)"
 
 if (-not $SkipArchive) {
     $archive = "$release.zip"
-    if (Test-Path -LiteralPath $archive) { [IO.File]::Delete($archive) }
+    Move-BuildOutputToQuarantine $archive $OutputDirectory
     # Пакуется сама папка, а не её содержимое: распаковка «сюда» не рассыпает пятьсот файлов по чужой папке
     Compress-Archive -LiteralPath $release -DestinationPath $archive -CompressionLevel Optimal
     $archiveSize = [math]::Round((Get-Item -LiteralPath $archive).Length / 1MB)

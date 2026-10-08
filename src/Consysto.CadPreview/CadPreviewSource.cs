@@ -1,9 +1,10 @@
-﻿using Consysto.CadPreview.Artwork;
+using Consysto.CadPreview.Artwork;
 using Consysto.CadPreview.Drawing;
 using Consysto.CadPreview.Fusion;
 using Consysto.CadPreview.Inventor;
 using Consysto.CadPreview.Kompas;
 using Consysto.CadPreview.Mesh;
+using Consysto.CadPreview.Parasolid;
 using Consysto.CadPreview.Print;
 using Consysto.CadPreview.SolidWorks;
 using Consysto.CadPreview.Step;
@@ -63,7 +64,19 @@ public static class CadPreviewSource
                 || extension.Equals(".svg", StringComparison.OrdinalIgnoreCase)
                 || FusionPreviewReader.IsSupported(extension)
                 || StepMeshSource.IsSupported(extension)
+                || ParasolidMeshSource.IsSupported(extension)
                 || GcodeReader.IsSupported(extension));
+
+    /// <summary>
+    /// Formats whose preview is the picture the CAD system saved inside the file. Without one there is nothing
+    /// wrong with the format: the file simply has no picture (Inventor saves it only when told to).
+    /// </summary>
+    public static bool ShowsStoredPicture(string? extension)
+        => extension is not null
+            && (InventorPreviewReader.IsSupported(extension)
+                || SolidWorksPreviewReader.IsSupported(extension)
+                || KompasPreviewReader.IsSupported(extension)
+                || FusionPreviewReader.IsSupported(extension));
 
     /// <summary>
     /// For a thumbnail in a folder: a print job shows the picture its slicer stored, which is read from the head of the file,
@@ -123,6 +136,12 @@ public static class CadPreviewSource
                     ? new CadPreviewContent { Image = package.Thumbnail }
                     : new CadPreviewContent { Mesh = package.Mesh };
 
+            case ".x_t":
+            case ".x_b":
+            case ".xmt_txt":
+            case ".xmt_bin":
+                return FromMesh(ParasolidMeshSource.Load(path, cancellation));
+
             default:
                 // Documents of other CAD systems: what they saved as their own picture is what we show
                 // Geometry first, so a document can be turned in the hand; what cannot be read falls back to its own picture
@@ -142,14 +161,21 @@ public static class CadPreviewSource
                 if (FusionPreviewReader.IsSupported(extension))
                     return new CadPreviewContent { Image = FusionPreviewReader.TryRead(path) };
 
-                // Illustrator and CorelDRAW: an .ai is a PDF to be drawn, a .cdr carries a finished picture
+                // Illustrator and CorelDRAW: use an embedded safe picture first. Some newer .ai files expose only
+                // empty PDF layer markers and keep the visible artwork in Illustrator's private data.
                 if (extension == ".svg")
                     return new CadPreviewContent { Drawn = new HostDrawn(HostDrawnKind.Svg, path) };
 
                 if (ArtworkPreviewReader.IsSupported(extension))
-                    return ArtworkPreviewReader.IsPdfInside(path)
-                        ? new CadPreviewContent { Drawn = new HostDrawn(HostDrawnKind.PdfPage, path) }
-                        : new CadPreviewContent { Image = ArtworkPreviewReader.TryRead(path) };
+                {
+                    if (ArtworkPreviewReader.TryRead(path) is { } artwork)
+                        return new CadPreviewContent { Image = artwork };
+
+                    if (extension == ".ai" && ArtworkPreviewReader.IsPdfInside(path))
+                        return new CadPreviewContent { Drawn = new HostDrawn(HostDrawnKind.PdfPage, path) };
+
+                    return new CadPreviewContent();
+                }
 
                 return InventorPreviewReader.IsSupported(extension)
                     ? new CadPreviewContent { Image = InventorPreviewReader.TryRead(path) }

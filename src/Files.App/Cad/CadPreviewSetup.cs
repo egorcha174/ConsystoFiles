@@ -2,6 +2,7 @@
 
 using Consysto.CadPreview;
 using Consysto.CadPreview.Step;
+using Consysto.CadPreview.Parasolid;
 using Windows.Storage;
 
 namespace Files.App.Cad
@@ -16,6 +17,7 @@ namespace Files.App.Cad
 			// Tessellated STEP/IGES meshes live with the other caches of the package. The mesher itself ships with
 			// Consysto.CadPreview.WinUI (Consysto.CadPreview.WinUI\occt in the package), which the core finds on its own.
 			StepMeshSource.CacheDirectory = SystemIO.Path.Combine(AppStorage.LocalCacheFolderPath, "cad-meshes");
+			ParasolidMeshSource.CacheDirectory = SystemIO.Path.Combine(AppStorage.LocalCacheFolderPath, "parasolid-meshes");
 			return true;
 		});
 

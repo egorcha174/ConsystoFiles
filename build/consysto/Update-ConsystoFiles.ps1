@@ -29,7 +29,9 @@
 param(
     [string]$Version,
     [switch]$SkipInstall,
-    [switch]$PortableOnly
+    [switch]$PortableOnly,
+    # Parasolid (X_T/X_B) кладётся в обе сборки только по этому ключу (решение Егора 07.10.2026)
+    [switch]$WithParasolid
 )
 
 $ErrorActionPreference = 'Stop'
@@ -48,7 +50,7 @@ Write-Host "Consysto Files $Version — портативная и установ
 Write-Host ''
 
 # 1. Портативная
-& (Join-Path $here 'Build-ConsystoPortable.ps1') -Version $Version
+& (Join-Path $here 'Build-ConsystoPortable.ps1') -Version $Version -WithParasolid:$WithParasolid
 if ($LASTEXITCODE) { throw 'Портативная сборка не собралась.' }
 
 if ($PortableOnly) {
@@ -59,7 +61,7 @@ if ($PortableOnly) {
 }
 
 # 2. Установочный пакет
-& (Join-Path $here 'Build-ConsystoFiles.ps1') -Version $Version
+& (Join-Path $here 'Build-ConsystoFiles.ps1') -Version $Version -WithParasolid:$WithParasolid
 if ($LASTEXITCODE) { throw 'Установочный пакет не собрался.' }
 
 $release = Join-Path $filesRoot "artifacts\ConsystoFiles\ConsystoFiles_$Version"

@@ -416,3 +416,7 @@ build/consysto/reports/
 # Сборка движка STEP: результат и промежуточные файлы
 native/out/
 native/StepMesher/obj/
+
+native/ParasolidMesher/obj/
+build/Parasolid/
+build/Parasolid.preparing-*/

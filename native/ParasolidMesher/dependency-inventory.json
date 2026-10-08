@@ -1,0 +1,546 @@
+{
+  "binding": "cadquery-ocp-novtk 7.9.3.1.1",
+  "libraries": [
+    {
+      "file": "deflate-0c8d7e40b4512d86969e2003a7d8bede.dll",
+      "sha256": "0c8d7e40b4512d86969e2003a7d8bede601cfb9bc0a2d2472056a08a769769d5",
+      "package": "libdeflate",
+      "version": "1.25",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/libdeflate-1.25-h51727cc_0.conda",
+      "license": "MIT",
+      "source_archive_sha256": "834e4881a18b690d5ec36f44852facd38e13afe599e369be62d29bd675f107ee"
+    },
+    {
+      "file": "FreeImage-cdc93a325d5d072e5fb5e9d45cff8d2e.dll",
+      "sha256": "670ad2bf7cf19d05a739bc7fc508d27205dade420375a475c0f9437096a37850",
+      "package": "freeimage",
+      "version": "3.18.0",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/freeimage-3.18.0-hf4481c9_24.conda",
+      "license": "FreeImage Public License 1.0",
+      "source_archive_sha256": "2ce0b1b16c8a902c701c2397efc3943230ebb380ade1691e2df61ea250a53534"
+    },
+    {
+      "file": "freetype-111bbfd18798ec20698ad64fb25a600c.dll",
+      "sha256": "f22aff08a7088afca5fbac8f60ff9b4f0f8ece2d09e8e7ed5f6807597f23387b",
+      "package": "freetype",
+      "version": "2.12.1",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/freetype-2.12.1-hdaf720e_2.conda",
+      "license": "FTL",
+      "source_archive_sha256": "2c53ee8879e05e149a9e525481d36adfd660a6abda26fd731376fa64ff03e728"
+    },
+    {
+      "file": "Iex-fae5e0881fcdc423b6db34b2e97d9dd0.dll",
+      "sha256": "454ff06ae67c59ebc072ca2d323cb86dc662a350027e31f880e7de0d462b630f",
+      "package": "openexr",
+      "version": "3.4.12",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/openexr-3.4.12-h7faf11f_0.conda",
+      "license": "BSD-3-Clause",
+      "source_archive_sha256": "08ef1d8a85b74a9e7fc3010008e9a4ce41196f841d26c51892d5cc5f39602863"
+    },
+    {
+      "file": "IlmThread-765b26b0caa5ec89c300feae4fd8d0e0.dll",
+      "sha256": "7fc67d74ea0686d8d3a48a4379766738b02e508771b288188aa789d0368a7a82",
+      "package": "openexr",
+      "version": "3.4.12",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/openexr-3.4.12-h7faf11f_0.conda",
+      "license": "BSD-3-Clause",
+      "source_archive_sha256": "08ef1d8a85b74a9e7fc3010008e9a4ce41196f841d26c51892d5cc5f39602863"
+    },
+    {
+      "file": "Imath-93e5719ce25c27e234d7d3cfef1a30c5.dll",
+      "sha256": "5a6f13d69d70f8342d86affed788f8ff882afc14ff4acb0ad25da6da78ae84c1",
+      "package": "imath",
+      "version": "3.2.2",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/imath-3.2.2-h1608b31_0.conda",
+      "license": "BSD-3-Clause",
+      "source_archive_sha256": "2aa57a5ed668ab34cc061b61082e3cee893d2e45ebc33f9432d13f7f292a990e"
+    },
+    {
+      "file": "jpeg8-77bef8b5257987800e01806f64a189e3.dll",
+      "sha256": "77bef8b5257987800e01806f64a189e312ba057e138356e69dc4367555bd0d93",
+      "package": "libjpeg-turbo",
+      "version": "3.1.4.1",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/libjpeg-turbo-3.1.4.1-hfd05255_0.conda",
+      "license": "IJG AND BSD-3-Clause AND Zlib",
+      "source_archive_sha256": "698d57b5b90120270eaa401298319fcb25ea186ae95b340c2f4813ed9171083d"
+    },
+    {
+      "file": "lcms2-7ba64f6e0c66e90b06b6fdda7ed89f37.dll",
+      "sha256": "7ba64f6e0c66e90b06b6fdda7ed89f37da5988d876860d407965a87fde6b8292",
+      "package": "lcms2",
+      "version": "2.19.1",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/lcms2-2.19.1-hf2c6c5f_0.conda",
+      "license": "MIT",
+      "source_archive_sha256": "57ecd32470a2607db238e631cda6d160ad65451715065fc4449acb11fe48fe28"
+    },
+    {
+      "file": "Lerc-8e574cd1bc0b7f8e260d4530daa7446d.dll",
+      "sha256": "27385d40523237cf998f5c5030c2c1673e5dbb94872b44f21959175d98aee51e",
+      "package": "lerc",
+      "version": "4.1.0",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/lerc-4.1.0-hd936e49_0.conda",
+      "license": "Apache-2.0",
+      "source_archive_sha256": "45df58fca800b552b17c3914cc9ab0d55a82c5172d72b5c44a59c710c06c5473"
+    },
+    {
+      "file": "liblzma-64eb6567bead1a5b7386bd7acd1cdd9d.dll",
+      "sha256": "64eb6567bead1a5b7386bd7acd1cdd9db8f9a03133eef7ae8208ae555738d680",
+      "package": "liblzma",
+      "version": "5.8.3",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/liblzma-5.8.3-hfd05255_0.conda",
+      "license": "0BSD",
+      "source_archive_sha256": "d636d1a25234063642f9c531a7bb58d84c1c496411280a36ea000bd122f078f1"
+    },
+    {
+      "file": "libpng16-c3f4406bf6331f0eb2bdd3c3323d921a.dll",
+      "sha256": "10429b82f82ac04dbc0633ed61616e5c5057812e30e2a9fcb12b598b4d2fb7d5",
+      "package": "libpng",
+      "version": "1.6.58",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/libpng-1.6.58-h7351971_0.conda",
+      "license": "zlib-acknowledgement",
+      "source_archive_sha256": "218913aeee391460bd0e341b834dbd9c6fa6ae0a4276c0c300266cc99a816a28"
+    },
+    {
+      "file": "libsharpyuv-c910eeed9d8f2bbf76ba6edf2e292ff7.dll",
+      "sha256": "c910eeed9d8f2bbf76ba6edf2e292ff7534a2674e2fb284a40514fe4e5f0a653",
+      "package": "libwebp-base",
+      "version": "1.6.0",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/libwebp-base-1.6.0-h4d5522a_0.conda",
+      "license": "BSD-3-Clause",
+      "source_archive_sha256": "7b6316abfea1007e100922760e9b8c820d6fc19df3f42fb5aca684cfacb31843"
+    },
+    {
+      "file": "libwebp-d04c2bb4fae02ef22f9f33389e8fa295.dll",
+      "sha256": "6ccb85825bff74d705ee5ac491a30a6555afb69d5e2ca8aec63e73c00929a3be",
+      "package": "libwebp-base",
+      "version": "1.6.0",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/libwebp-base-1.6.0-h4d5522a_0.conda",
+      "license": "BSD-3-Clause",
+      "source_archive_sha256": "7b6316abfea1007e100922760e9b8c820d6fc19df3f42fb5aca684cfacb31843"
+    },
+    {
+      "file": "libwebpmux-91ab52d47d455f8c682d0bb688b4702f.dll",
+      "sha256": "13204ad8022e8022eaab8fba417de3208f5485ba474187ce5844ab3c076d00e5",
+      "package": "libwebp-base",
+      "version": "1.6.0",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/libwebp-base-1.6.0-h4d5522a_0.conda",
+      "license": "BSD-3-Clause",
+      "source_archive_sha256": "7b6316abfea1007e100922760e9b8c820d6fc19df3f42fb5aca684cfacb31843"
+    },
+    {
+      "file": "msvcp140-639342ea9a67c0009122238ce070a825.dll",
+      "sha256": "639342ea9a67c0009122238ce070a8257e2e04d367d627509fec29f8442afb42",
+      "package": "Microsoft Visual C++ Runtime",
+      "version": "14.51.36231.0",
+      "license": "Microsoft Visual Studio redistributable terms"
+    },
+    {
+      "file": "OpenEXR-bf6fe40a5b675f43bf836498a2ac2d38.dll",
+      "sha256": "503835435d1a94b1a72aaf9c9fc37be097e3f46a8354d913110d07227cee88a7",
+      "package": "openexr",
+      "version": "3.4.12",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/openexr-3.4.12-h7faf11f_0.conda",
+      "license": "BSD-3-Clause",
+      "source_archive_sha256": "08ef1d8a85b74a9e7fc3010008e9a4ce41196f841d26c51892d5cc5f39602863"
+    },
+    {
+      "file": "OpenEXRCore-43a3d1e6dcf808d3b52c6aa1d1b3149b.dll",
+      "sha256": "ff9bec06b9b37952cbc4fbcf176a04ac4a36fe5d2df9131b84099b64313d2392",
+      "package": "openexr",
+      "version": "3.4.12",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/openexr-3.4.12-h7faf11f_0.conda",
+      "license": "BSD-3-Clause",
+      "source_archive_sha256": "08ef1d8a85b74a9e7fc3010008e9a4ce41196f841d26c51892d5cc5f39602863"
+    },
+    {
+      "file": "openjp2-274e6a200cd564b014389546f6472d38.dll",
+      "sha256": "274e6a200cd564b014389546f6472d387717dece95b7d03db5f99195bd1d6e03",
+      "package": "openjpeg",
+      "version": "2.5.4",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/openjpeg-2.5.4-h0e57b4f_0.conda",
+      "license": "BSD-2-Clause",
+      "source_archive_sha256": "24342dee891a49a9ba92e2018ec0bde56cc07fdaec95275f7a55b96f03ea4252"
+    },
+    {
+      "file": "openjph-c9b5711ab6c6a22bd06855ce333ce0ce.dll",
+      "sha256": "c9b5711ab6c6a22bd06855ce333ce0ce6a2f11b7c578786f79c1a84c93d43bfa",
+      "package": "openjph",
+      "version": "0.27.3",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/openjph-0.27.3-hf13a347_0.conda",
+      "license": "BSD-2-Clause",
+      "source_archive_sha256": "4f930d1e82e25b3cba375fc2c1cb53a7cd818a831914ff362bb3230eb3b2b58f"
+    },
+    {
+      "file": "raw-45784079ff4d194ec274ed36f7b6b205.dll",
+      "sha256": "23efe5297b755d4fedf0ddb1ce36b51fd2e6ada5409e4ac5696d91757b2dbe4a",
+      "package": "libraw",
+      "version": "0.21.5",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/libraw-0.21.5-h345c428_0.conda",
+      "license": "LGPL-2.1-only",
+      "source_archive_sha256": "e8deadcca9dc9371e36778638bb3b3869dc79576a3d2ddfc40b5d92efbf49dbc"
+    },
+    {
+      "file": "tiff-36f0745325765f7bfe29a721cde40b8e.dll",
+      "sha256": "e143c6d3d2f6240d7259f0f8a7c28d027333e8ce731b99db377e08ab1e9228d1",
+      "package": "libtiff",
+      "version": "4.7.1",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/libtiff-4.7.1-h8f73337_1.conda",
+      "license": "HPND",
+      "source_archive_sha256": "f1b8cccaaeea38a28b9cd496694b2e3d372bb5be0e9377c9e3d14b330d1cba8a"
+    },
+    {
+      "file": "TKBin-21c537e72e6e4de3f64bf48835255dd7.dll",
+      "sha256": "16f80ea3c143cb9d6af5927a52aa92ccc4440e6ab7dd195702538f1c7e0c2346",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKBinL-9beedd6604acbeb9fba3047ba7517bf8.dll",
+      "sha256": "0f417d30e377807ef03a21f4cb3d99971616c9efbbea4fc1e54149193bd3ae66",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKBinTObj-6f749c7ee0fe14d923d4c4a360ca202c.dll",
+      "sha256": "2303f87728e988b47a53ae992bb73feee5ceeeb4c4825b034204c128b98dd330",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKBinXCAF-2889e56f9f859814a2f6f81f18842861.dll",
+      "sha256": "2f199e4132a6a24ff358c182f4790383f4ddc4d4d412ed6070d0adbd05851543",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKBO-fbee9a1b0de580320288c463e13c5d99.dll",
+      "sha256": "12b6f1f4658e0a3fb8f3cee4077ffc3888c06d28c9802ef444629b95fed5e67f",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKBool-bb65d1de2b3233c1cd3137ce56f37772.dll",
+      "sha256": "486949a836e789b3087297aa9af8d6fa31732ab5ef2c5db8356bb5de4a36d9f3",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKBRep-9e0211508dd32cad982c426996d246f7.dll",
+      "sha256": "8a4e7a093d338b0949f4d2f2bd2d8d3fb96bc32e6c13e63886b0f335a70560f7",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKCAF-6e7bec622f5feedd9e130d7923edeed4.dll",
+      "sha256": "5eaddcf49caf16b71545fdb7792cfbe7534855227823bd8d177d1df81780bcab",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKCDF-0ecab8b4efcb363eb6045df4aca56ebb.dll",
+      "sha256": "9fa633667b4d80f437652817576b550ed50e7ca4eef8168c5e5656b5d792c85e",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKDE-cc8cea077c68ce50ab314ab5c5984f7f.dll",
+      "sha256": "9f81e4d731e708668febe019d64bf1d13a55f9268dec6117f7d72cbd50775f9f",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKDEGLTF-b24fc3e55af3c892b04feef6ca30e68a.dll",
+      "sha256": "fcb432ef051f75f3e29095d5c8f4fbab3c0f5126d0897e901a7aa3f2efaf0b2a",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKDEIGES-6758bc663a23da338dffe097d31503cc.dll",
+      "sha256": "89cebaf04c87878678081615318e70f44f11a882cd52057f7d7345c3837ac89f",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKDESTEP-055090a3aabb54140ac8de3206b3a714.dll",
+      "sha256": "aea632fc2bfc70caff84e2462e101134c8686c6897f093df400268ce0ac0fd34",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKDESTL-87ff23ae6d9c4070a3322524296fc582.dll",
+      "sha256": "43393ce4ff9b8c73ea69e71390eaf843e439da6ba2ad950b6ef394096da80c77",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKDEVRML-9553e96ab238c65ebe9d684d736d2a0f.dll",
+      "sha256": "a9ce77f43f4da4dcb86f8d249acbbb5955f5758a045671a54e2fef403846b38f",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKernel-2e922f0394cf518391d7a634ff48613a.dll",
+      "sha256": "787f46de2cb031b59d1dd62b8d1765e0293ab4e3eb88e4fa2d98bab0ad289936",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKExpress-f533aa69f72ecfcc78861080515f08b1.dll",
+      "sha256": "a264712f0dd4ef3041020ceb4588ece2f42198c5686d33f78c2008172992b616",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKFeat-dc9ee38f66a4b7795c54527767c1a60e.dll",
+      "sha256": "607219ea2a59fa7ef5d276b7ba41c793047114dead09091a218aa672702eb32c",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKFillet-0deb825adb50fd9a8b50b031eb3e6f0d.dll",
+      "sha256": "8f367cea7690637d37520f7561b092b43045ddadb44ded238d6e855cedd81b00",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKG2d-959faa65d04b2b27677840211ff3f2a9.dll",
+      "sha256": "8e6fe3bf0573acdad821fb3dd4ec2f2a0a9d77fd239f183c91445f10b789eec8",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKG3d-c67a8517b3a48c9ebf850c1f1d2aedba.dll",
+      "sha256": "8558bf86407950e4729ea080123fe1d819b95524cfc17aff1afebba91bf8ca23",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKGeomAlgo-b192a50dedd4a44fbd50c748f58cf6e4.dll",
+      "sha256": "20c331e5afeee92c04c25a36673b7abd9987dbbc08c02015813601808a6b2de5",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKGeomBase-93e9606d6e60856b11e70d7626f1a541.dll",
+      "sha256": "5b27ff25b8407805096a5a883813c9717736b2e101bf3f1c39b00f0703ffd30d",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKHLR-dbd49f2e93daee6aaf324f3181219ef3.dll",
+      "sha256": "74a604a2b31f7ff54fd9e1a7467896bcccef3771ff486a60f00360a9bbd88ea9",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKLCAF-caff105d1faf1f68b05891335672ba1d.dll",
+      "sha256": "9d9684a137c268d998c45dcf1c4c1912d8f0e9284458ca5fd313075f7d5303bb",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKMath-a4d520a359e85d64e4c82cd30334972f.dll",
+      "sha256": "c3b1c149fdb5467530cbdf83fba32beb7c0eb76e931a82077b8bed44810d4f78",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKMesh-88cbc95955509ae4f71327644b6e8d7c.dll",
+      "sha256": "5874d853003dab572002cd44c158a17204a0b7775b02c433e684776498167bcd",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKMeshVS-f0faf14980e1e5bba9465cb31b67b98d.dll",
+      "sha256": "1f3f12b066bb05782ac498c44ea3b581b80f832376ce58e951068804bdd8eaab",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKOffset-7bf990d07ca4f7d55d3ead11a8aa20e7.dll",
+      "sha256": "89b7cb8fb64648f4c8e782ae3c131113c4d59c52d6498704fa4228f83b46a4b9",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKOpenGl-d554c1f5d676897d65ae418f99847525.dll",
+      "sha256": "5f9b67ed695300f492aaf4755dcca8c07f4d20582ea1a7464e52be283c3a071c",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKPrim-83c38d6b67ec88d966621d2e65bd6c69.dll",
+      "sha256": "7d1838976bde453f8aff3cbee9ee32e6dbb19bfc9c550079aac6ffce4d896764",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKRWMesh-d5c6c93e1d5f8335a51b601d38ab543b.dll",
+      "sha256": "d9ef1c4cf260df355119ef9712a3590a8213423c613cb30f9b90699434a71898",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKService-8616be679481a2f2e5dc03db37457980.dll",
+      "sha256": "baef09339e0b3c52aff31090665ecbe8be2d11ccf2ca283404c55bb11c7f3b2e",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKShHealing-cc2724c130b4d24e0fda5548fba043dc.dll",
+      "sha256": "2e0a6976bf068b069ee5ffd307bc7d351ceec9604175a793109f01e28e7cd736",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKStd-5c38a0c88391f58bcf6ea14f2ea68c83.dll",
+      "sha256": "ad7ddb6559ad589c77a97dfca43efdee296fba501f47307a0d2d68652cb2b5ea",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKStdL-4fe714d87d2e2114689a727841f46608.dll",
+      "sha256": "6be7c490d27f71c37299dce203c2a83d5e4e9e5d42e215a1b7f241ce2feb2605",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKTObj-6e58d115e5a35fc1934deb212dcd8d29.dll",
+      "sha256": "fb73712e7251965e054421b3d4461c57ce6601ae31d4d9b82aff474ef22a954f",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKTopAlgo-352d2961a6efec630f5b2e94645afdae.dll",
+      "sha256": "6b3c798ef6c363e835dfc4d02a8f8bcb7fcb909f89ad017f15f4eaffe5b1b171",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKV3d-4932af1f8d669905566103d7a9c6833e.dll",
+      "sha256": "2188e5bad76d249e5ede6fdfeb8c3f1e762a92e472ccb6bfe9be292fa1211f9c",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKVCAF-fc190a67001aad1908bd96b3605c8205.dll",
+      "sha256": "90611edb7f46cf336c1a6c98d24477112dd30ceb3d3251d196ac4b8c9afc7c90",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKXCAF-e3a572b2108ace7a185daa89e0e7a1c5.dll",
+      "sha256": "cdfa86916457af2b3fd4d6bb14f5a9e0b347fce8d4d2c00f0be42a3d97e01da4",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKXml-fee3c7581b621598d3c970f7f0b4bec3.dll",
+      "sha256": "23d119299302228ec56e2c088c77bc3fb96e2cea714bcc4d0613f9c686d797fb",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKXmlL-87b983ff50463a1cafdea7b2921c52ea.dll",
+      "sha256": "25b4df4fc87f45eba6042d0f5536d501025a47e7fed0311a7b54b619280152d0",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKXmlTObj-ad34bea59374d3aac334b6637e00cef7.dll",
+      "sha256": "671ce2cf0ece7e63b389bbf40cfde1ab2d854a9f48bb1cc1919a61a6a8c51e1e",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKXmlXCAF-d5e14bced578e738b146782407dd86fd.dll",
+      "sha256": "00cd522615fcf18803f2a20ada2456c0d23dece6b0197d6aa3be34e6add4b14e",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "TKXSBase-b35fa599aa79d94a892a8cac85cbc45e.dll",
+      "sha256": "2f31e5ad064579cddb49d56f628993cfff434b3728d21d6797dee72d7ab228bd",
+      "package": "OCCT",
+      "version": "7.9.3",
+      "license": "LGPL-2.1-only WITH OCCT exception 1.0"
+    },
+    {
+      "file": "vcomp140-f96f3a14d88d8846f31f3ab38a490304.dll",
+      "sha256": "f96f3a14d88d8846f31f3ab38a490304ce7d6e4f70fae4304c63e59c7aea2d30",
+      "package": "Microsoft Visual C++ Runtime",
+      "version": "14.51.36231.0",
+      "license": "Microsoft Visual Studio redistributable terms"
+    },
+    {
+      "file": "zlib-85c711c83f96bed93184bede15be6b5a.dll",
+      "sha256": "85c711c83f96bed93184bede15be6b5a3e5444df09dfffef00564107189dc722",
+      "package": "libzlib",
+      "version": "1.3.2",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/libzlib-1.3.2-hfd05255_2.conda",
+      "license": "Zlib",
+      "source_archive_sha256": "88609816e0cc7452bac637aaf65783e5edf4fee8a9f8e22bdc3a75882c536061"
+    },
+    {
+      "file": "zstd-ca228f0f33b8296d6650b4694bb38ba9.dll",
+      "sha256": "ca228f0f33b8296d6650b4694bb38ba9ea8796c523b6b5e0682fcc05a5edab0a",
+      "package": "zstd",
+      "version": "1.5.7",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-h534d264_6.conda",
+      "license": "BSD-3-Clause",
+      "source_archive_sha256": "368d8628424966fd8f9c8018326a9c779e06913dd39e646cf331226acc90e5b2"
+    }
+  ],
+  "additional_static_component": {
+    "package": "jxrlib",
+    "version": "1.1",
+    "url": "https://conda.anaconda.org/conda-forge/win-64/jxrlib-1.1-hcfcfb64_3.conda",
+    "license": "BSD-2-Clause",
+    "source_archive_sha256": "a9ac265bcf65fce57cfb6512a1b072d5489445d14aa1b60c9bdf73370cf261b2"
+  }
+}

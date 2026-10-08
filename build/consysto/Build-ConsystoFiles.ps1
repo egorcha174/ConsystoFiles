@@ -29,10 +29,13 @@ param(
     [switch]$Store,
     [string]$StoreIdentityName,
     [string]$StorePublisher,
-    [string]$StorePublisherDisplayName = 'Egor Chayka'
+    [string]$StorePublisherDisplayName = 'Egor Chayka',
+    # Parasolid (X_T/X_B) — только по явному ключу: помощник весит ~240 МБ и настоящие X_T пока не читает (07.10.2026)
+    [switch]$WithParasolid
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'Build-Quarantine.ps1')
 $filesRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 if (-not $OutputDirectory) { $OutputDirectory = Join-Path $filesRoot $(if ($Store) { 'artifacts\ConsystoFilesStore' } else { 'artifacts\ConsystoFiles' }) }
 if ($Store) {
@@ -130,30 +133,32 @@ Update-Text -Include '*.cs', '*.cpp' -From 'files-dev' -To 'consysto-files'
 Update-Text -Include '*.cs' -From 'cd_app_env_placeholder' -To $(if ($Store) { 'ConsystoStore' } else { 'Consysto' })
 foreach ($tiles in 'Dev', 'Preview') {
     $path = Join-Path $stageFiles "src\Files.App\Assets\AppTiles\$tiles"
-    if (Test-Path -LiteralPath $path) { Remove-Item -LiteralPath $path -Recurse -Force }
+    Move-BuildOutputToQuarantine $path $StagingDirectory
 }
 
 # Помощник для чтения чужих CAD-форматов (SolidWorks, КОМПАС и др.): в пакет он попадает из build\CadHelpers,
 # см. Files.App.csproj. Раньше его клала только портативная сборка, и в установленной версии геометрии этих форматов не было
 & (Join-Path $PSScriptRoot 'Get-CadHelpers.ps1') -Destination (Join-Path $stageFiles 'build\CadHelpers')
+if ($WithParasolid) { & (Join-Path $PSScriptRoot 'Get-ParasolidHelpers.ps1') -Destination (Join-Path $stageFiles 'build\Parasolid') }
 
 # 3. Сборка: запускатель (C++), затем приложение с пакетом
-& $msbuild (Join-Path $stageFiles 'src\Files.App.Launcher\Files.App.Launcher.vcxproj') -restore -t:Build -p:Platform=x64 -p:Configuration=Release -p:RestorePackagesConfig=true -v:minimal -nologo
+& $msbuild (Join-Path $stageFiles 'src\Files.App.Launcher\Files.App.Launcher.vcxproj') -restore -t:Build -p:Platform=x64 -p:Configuration=Release -p:RestorePackagesConfig=true -v:quiet -clp:ErrorsOnly -nologo
 if ($LASTEXITCODE -ne 0) { throw 'Запускатель не собрался.' }
 
 # Внутренние проекты (Files.App.Server) собираются из цели MSBuild без восстановления, поэтому решение восстанавливается заранее, как в CI
-& $msbuild (Join-Path $stageFiles 'Files.slnx') -t:Restore -p:Platform=x64 -p:Configuration=Release -p:PublishReadyToRun=true -v:minimal -nologo
+& $msbuild (Join-Path $stageFiles 'Files.slnx') -t:Restore -p:Platform=x64 -p:Configuration=Release -p:PublishReadyToRun=true -v:quiet -clp:ErrorsOnly -nologo
 if ($LASTEXITCODE -ne 0) { throw 'Пакеты NuGet не восстановились.' }
 
 $packageDirectory = Join-Path $StagingDirectory 'AppxPackages'
-if (Test-Path -LiteralPath $packageDirectory) { Remove-Item -LiteralPath $packageDirectory -Recurse -Force }
+Move-BuildOutputToQuarantine $packageDirectory $StagingDirectory
 $arguments = @(
     (Join-Path $stageFiles 'src\Files.App\Files.App.csproj'),
     '-restore', '-t:Build',
     '-p:Platform=x64', '-p:Configuration=Release',
     "-p:AppxPackageDir=$packageDirectory\",
     '-p:AppxBundle=Never', '-p:GenerateAppxPackageOnBuild=true', "-p:UapAppxPackageBuildMode=$(if ($Store) { 'StoreUpload' } else { 'SideloadOnly' })",
-    '-p:RestorePackagesConfig=true', '-v:minimal', '-nologo'
+    '-p:RestorePackagesConfig=true', '-v:quiet', '-clp:ErrorsOnly', '-nologo',
+    "-p:ConsystoParasolid=$(if ($WithParasolid) { 'true' } else { 'false' })"
 )
 if ($Unsigned) {
     $arguments += '-p:AppxPackageSigningEnabled=false'

@@ -1,0 +1,43 @@
+{
+  "sources": [
+    {
+      "name": "FreeImage3180.zip",
+      "url": "https://downloads.sourceforge.net/freeimage/FreeImage3180.zip",
+      "sha256": "f41379682f9ada94ea7b34fe86bf9ee00935a3147be41b6569c9605a53e438fd"
+    },
+    {
+      "name": "LibRaw-0.21.5.tar.gz",
+      "url": "https://codeload.github.com/LibRaw/LibRaw/tar.gz/refs/tags/0.21.5",
+      "sha256": "4b7f183a68f6e46e579e80ba32ab121687e75bd30a2e5566f34c36a6bcba1679"
+    },
+    {
+      "name": "LibRaw-cmake-eb98e432.tar.gz",
+      "url": "https://codeload.github.com/LibRaw/LibRaw-cmake/tar.gz/eb98e4325aef2ce85d2eb031c2ff18640ca616d3",
+      "sha256": "3cd218bf6d1254de86e27269541277fbfc5bae57a9002ce0b46fbe2a97088b43"
+    },
+    {
+      "name": "OCCT-V7_9_3.tar.gz",
+      "url": "https://codeload.github.com/Open-Cascade-SAS/OCCT/tar.gz/refs/tags/V7_9_3",
+      "sha256": "5ecf094ec6b12d5413dfb851d8c3590c354058aee556e32e408bdfbf8c357d57"
+    },
+    {
+      "name": "ocp-build-system-v7.9.3.1.1.tar.gz",
+      "url": "https://codeload.github.com/CadQuery/ocp-build-system/tar.gz/refs/tags/v7.9.3.1.1",
+      "sha256": "2099d943d14af3dd7a81be6c09925353bafece575246ca72298998ab2dd6fc50"
+    }
+  ],
+  "recipes": [
+    {
+      "package": "freeimage",
+      "version": "3.18.0",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/freeimage-3.18.0-hf4481c9_24.conda",
+      "sha256": "2ce0b1b16c8a902c701c2397efc3943230ebb380ade1691e2df61ea250a53534"
+    },
+    {
+      "package": "libraw",
+      "version": "0.21.5",
+      "url": "https://conda.anaconda.org/conda-forge/win-64/libraw-0.21.5-h345c428_0.conda",
+      "sha256": "e8deadcca9dc9371e36778638bb3b3869dc79576a3d2ddfc40b5d92efbf49dbc"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "runtime": {
+    "name": "python-3.14.8-embed-amd64.zip",
+    "url": "https://www.python.org/ftp/python/3.14.8/python-3.14.8-embed-amd64.zip",
+    "sha256": "a93abe456ab01bd96d7a085b3cdb6566b3063f4241360d114142fbdb07f0a310"
+  },
+  "wheels": [
+    {
+      "name": "parasolid_kit-0.3.7-cp310-abi3-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/6c/36/fc1ff5550aed74a626fd4c1ad96659f17c6e8904bc91922f8b14403a3c7d/parasolid_kit-0.3.7-cp310-abi3-win_amd64.whl",
+      "sha256": "18c75c1c1cc34f144ca38b053dc6965361d8f3ad0286a3796ed436566d43ed1a"
+    },
+    {
+      "name": "cadquery_ocp_novtk-7.9.3.1.1-cp314-cp314-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/ee/8a/8423862301a23078f3f34612c058f0c121fc7749182811f903a78445e77a/cadquery_ocp_novtk-7.9.3.1.1-cp314-cp314-win_amd64.whl",
+      "sha256": "eabb9e4eceb4d44b1555981aec8821c3b133300ed4a3929e4fea4510b6737cd5"
+    },
+    {
+      "name": "cadquery_ocp_proxy-7.9.3.1.1-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/30/c0/04e9363a99fee892de2776820e3dcf04f8825b6edc9580efe3416c9465a7/cadquery_ocp_proxy-7.9.3.1.1-py3-none-any.whl",
+      "sha256": "ca4164ec4b54956d9fc3e68c67d555b5486cb963c2f71e18df005ba16b921c91"
+    }
+  ]
+}
