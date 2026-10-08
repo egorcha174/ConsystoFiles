@@ -1,5 +1,7 @@
 using System.Buffers.Binary;
 using System.IO.Compression;
+using System.Net;
+using System.Text;
 
 namespace Consysto.CadPreview.Artwork;
 
@@ -9,8 +11,9 @@ namespace Consysto.CadPreview.Artwork;
 ///
 /// The two formats give it up differently:
 ///
-/// * An Illustrator document saved the usual way <em>is</em> a PDF — it begins with the PDF signature and the artwork is
-///   its first page. Such a file is handed on to be drawn as a page; the host has a PDF engine for that.
+/// * An Illustrator document saved the usual way <em>is</em> a PDF — it begins with the PDF signature. Most files draw
+///   from their first page; newer Illustrator files may keep that page empty and retain the visible art in private data,
+///   while their XMP thumbnail remains a safe preview for the host.
 /// * A CorelDRAW document carries a finished picture of itself. Newer ones are zips with it among the entries; older
 ///   ones are RIFF containers with it in a DISP chunk.
 /// </summary>
@@ -67,7 +70,13 @@ public static class ArtworkPreviewReader
 			// and inside a string literal they are invisible and easy to lose in an edit
 			ReadOnlySpan<byte> zip = [(byte)'P', (byte)'K', 0x03, 0x04];
 
-			return signature.SequenceEqual(zip) ? FromZip(stream)
+			// Illustrator 29 can save a PDF-shaped .ai whose visible artwork is kept in
+			// Illustrator's private data. The PDF page then contains only empty layer
+			// markers, while XMP still carries a finished thumbnail. Prefer that safe,
+			// embedded picture before handing the file to the host PDF renderer.
+			return Path.GetExtension(path).Equals(".ai", StringComparison.OrdinalIgnoreCase)
+				? FromIllustratorThumbnail(stream)
+				: signature.SequenceEqual(zip) ? FromZip(stream)
 				: signature.SequenceEqual("RIFF"u8) ? FromRiff(stream)
 				: null;
 		}
@@ -76,6 +85,56 @@ public static class ArtworkPreviewReader
 			// A damaged file, a file being written, or one built to trip the reader up: the picture is simply absent
 			return null;
 		}
+	}
+
+	/// <summary>Reads the XMP thumbnail written by Illustrator into a PDF-compatible AI file.</summary>
+	private static byte[]? FromIllustratorThumbnail(Stream stream)
+	{
+		if (stream.Length > MaximumFileBytes)
+			return null;
+
+		stream.Position = 0;
+		using var buffer = new MemoryStream((int)stream.Length);
+		stream.CopyTo(buffer);
+		var text = Encoding.Latin1.GetString(buffer.GetBuffer(), 0, checked((int)buffer.Length));
+		const string open = "<xmpGImg:image";
+		const string close = "</xmpGImg:image>";
+		byte[]? best = null;
+		var offset = 0;
+
+		while ((offset = text.IndexOf(open, offset, StringComparison.OrdinalIgnoreCase)) >= 0)
+		{
+			var tagEnd = text.IndexOf('>', offset + open.Length);
+			if (tagEnd < 0)
+				break;
+
+			var start = tagEnd + 1;
+			var end = text.IndexOf(close, start, StringComparison.OrdinalIgnoreCase);
+			if (end < 0)
+				break;
+
+			var encoded = WebUtility.HtmlDecode(text[start..end]);
+			var compact = new StringBuilder(encoded.Length);
+			foreach (var character in encoded)
+				if (char.IsLetterOrDigit(character) || character is '+' or '/' or '=')
+					compact.Append(character);
+
+			try
+			{
+				var picture = Convert.FromBase64String(compact.ToString());
+				if (picture.Length <= MaximumPreviewBytes && IsPicture(picture)
+					&& (best is null || picture.Length > best.Length))
+					best = picture;
+			}
+			catch (FormatException)
+			{
+				// A malformed XMP thumbnail must not make the file fail to preview.
+			}
+
+			offset = end + close.Length;
+		}
+
+		return best;
 	}
 
 	/// <summary>

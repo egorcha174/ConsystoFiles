@@ -222,7 +222,7 @@ namespace Files.App.ViewModels.UserControls
 				return;
 			}
 
-			var control = await GetBuiltInPreviewControlAsync(item, downloadItem);
+			var control = await GetBuiltInPreviewControlAsync(item, downloadItem, token);
 
 			if (token.IsCancellationRequested)
 				return;
@@ -237,7 +237,7 @@ namespace Files.App.ViewModels.UserControls
 			var basicModel = new BasicPreviewViewModel(item);
 			await basicModel.LoadAsync();
 
-			control = new BasicPreview(basicModel);
+			control = ShowCloudItemButton ? new BasicPreview(basicModel) : new UnsupportedPreview(basicModel);
 
 			if (token.IsCancellationRequested)
 				return;
@@ -247,7 +247,7 @@ namespace Files.App.ViewModels.UserControls
 		}
 
 		// Consysto fork: internal so the quick preview on Space builds its control through the same chain
-		internal async Task<UserControl?> GetBuiltInPreviewControlAsync(ListedItem item, bool downloadItem)
+		internal async Task<UserControl?> GetBuiltInPreviewControlAsync(ListedItem item, bool downloadItem, CancellationToken cancellation = default)
 		{
 			ShowCloudItemButton = false;
 
@@ -288,6 +288,7 @@ namespace Files.App.ViewModels.UserControls
 
 				if (model.HasPreview)
 					return new Files.App.Books.BookPreview(model);
+				return new UnsupportedPreview(model);
 			}
 
 			if (FileExtensionHelpers.IsBrowsableZipFile(item.FileExtension, out _))
@@ -344,7 +345,7 @@ namespace Files.App.ViewModels.UserControls
 				var model = new ImagePreviewViewModel(item);
 				await model.LoadAsync();
 
-				return new ImagePreview(model);
+				return model.HasPreview ? new ImagePreview(model) : new UnsupportedPreview(model);
 			}
 
 			if (FileExtensionHelpers.IsTextFile(ext))
@@ -352,7 +353,7 @@ namespace Files.App.ViewModels.UserControls
 				var model = new TextPreviewViewModel(item);
 				await model.LoadAsync();
 
-				return new TextPreview(model);
+				return model.HasPreview ? new TextPreview(model) : new UnsupportedPreview(model);
 			}
 
 			/*if (FileExtensionHelpers.IsPdfFile(ext))
@@ -384,17 +385,22 @@ namespace Files.App.ViewModels.UserControls
 				var model = new CodePreviewViewModel(item);
 				await model.LoadAsync();
 
-				return new CodePreview(model);
+				return model.HasPreview ? new CodePreview(model) : new UnsupportedPreview(model);
 			}
 
 			// Consysto fork: CAD formats (DWG/DXF, STL/OBJ/3MF, Inventor) have no usable shell preview handler; the fork draws them itself.
 			if (Files.App.Cad.CadPreviewViewModel.IsSupported(ext))
 			{
 				var model = new Files.App.Cad.CadPreviewViewModel(item);
+				using var stopping = cancellation.Register(model.LoadCancelledTokenSource.Cancel);
 				await model.LoadAsync();
 
 				if (model.HasPreview)
 					return new Files.App.Cad.CadPreview(model);
+				// An Inventor or SolidWorks file without a saved picture is not an unsupported format
+				return Consysto.CadPreview.CadPreviewSource.ShowsStoredPicture(ext)
+					? new UnsupportedPreview(model, Strings.ConsystoPreviewNoPicture.GetLocalizedResource())
+					: new UnsupportedPreview(model);
 			}
 
 			if (ShellPreviewViewModel.FindPreviewHandlerFor(item.FileExtension, 0) is not null &&
@@ -452,7 +458,7 @@ namespace Files.App.ViewModels.UserControls
 					// If that fails, revert to no preview/details available as long as the item is not a shortcut or folder
 					if (SelectedItem is not null && !SelectedItem.IsShortcut && SelectedItem.PrimaryItemAttribute != StorageItemTypes.Folder)
 					{
-						await LoadBasicPreviewAsync(token);
+						await LoadBasicPreviewAsync(token, unsupported: true);
 						return;
 					}
 
@@ -534,7 +540,7 @@ namespace Files.App.ViewModels.UserControls
 			}
 		}
 
-		private async Task LoadBasicPreviewAsync(CancellationToken token)
+		private async Task LoadBasicPreviewAsync(CancellationToken token, bool unsupported = false)
 		{
 			try
 			{
@@ -547,7 +553,7 @@ namespace Files.App.ViewModels.UserControls
 				if (token.IsCancellationRequested)
 					return;
 
-				PreviewPaneContent = new BasicPreview(basicModel);
+				PreviewPaneContent = unsupported ? new UnsupportedPreview(basicModel) : new BasicPreview(basicModel);
 				PreviewPaneState = SelectedDriveItem is not null ? PreviewPaneStates.DriveStorageDetailsAvailable : PreviewPaneStates.PreviewAndDetailsAvailable;
 			}
 			catch (Exception ex)
@@ -559,8 +565,8 @@ namespace Files.App.ViewModels.UserControls
 				if (token.IsCancellationRequested)
 					return;
 
-				PreviewPaneContent = null;
-				PreviewPaneState = PreviewPaneStates.NoPreviewOrDetailsAvailable;
+				PreviewPaneContent = unsupported ? new UnsupportedPreview() : null;
+				PreviewPaneState = unsupported ? PreviewPaneStates.PreviewAndDetailsAvailable : PreviewPaneStates.NoPreviewOrDetailsAvailable;
 			}
 		}
 

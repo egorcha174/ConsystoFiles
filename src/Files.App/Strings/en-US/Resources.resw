@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -5816,5 +5816,11 @@
   </data>
   <data name="ConsystoPrintMillimeters" xml:space="preserve">
     <value>{0} mm</value>
+  </data>
+  <data name="ConsystoPreviewNoPicture" xml:space="preserve">
+    <value>The file has no saved preview picture</value>
+  </data>
+  <data name="ConsystoPreviewUnsupported" xml:space="preserve">
+    <value>Not supported</value>
   </data>
 </root>

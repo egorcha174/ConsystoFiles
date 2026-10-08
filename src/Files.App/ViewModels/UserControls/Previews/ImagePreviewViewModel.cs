@@ -12,6 +12,7 @@ namespace Files.App.ViewModels.Previews
 	public sealed partial class ImagePreviewViewModel : BasePreviewModel
 	{
 		private ImageSource? imageSource;
+		public bool HasPreview => ImageSource is not null;
 		public ImageSource? ImageSource
 		{
 			get => imageSource;

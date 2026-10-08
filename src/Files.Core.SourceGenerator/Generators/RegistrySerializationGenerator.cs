@@ -279,10 +279,20 @@ namespace Files.Core.SourceGenerator.Generators
 
 				switch (propertyType)
 				{
+					// Consysto fork: RegistryKey.SetValue throws on null, and a nullable string (ColumnOrder) aborted the whole
+					// layout save before LayoutMode was written: a folder's view was lost on restart. Null removes the value,
+					// which reads back as null.
 					case { SpecialType: SpecialType.System_String }:
 						_ = sb.AppendLine(
 							$$"""
-									key.SetValue($"{prefix}{{propertyName}}", source.{{propertyName}}, RegistryValueKind.String);
+									if (source.{{propertyName}} is null)
+									{
+										key.DeleteValue($"{prefix}{{propertyName}}", false);
+									}
+									else
+									{
+										key.SetValue($"{prefix}{{propertyName}}", source.{{propertyName}}, RegistryValueKind.String);
+									}
 							""");
 						break;
 					case { SpecialType: SpecialType.System_Boolean }:
@@ -357,6 +367,11 @@ namespace Files.Core.SourceGenerator.Generators
 					case IArrayTypeSymbol { TypeKind: TypeKind.Array, ElementType.SpecialType: SpecialType.System_String }:
 						_ = sb.AppendLine(
 							$$"""
+									if (source.{{propertyName}} is null)
+									{
+										key.DeleteValue($"{prefix}{{propertyName}}", false);
+									}
+									else
 									{
 										key.SetValue($"{prefix}{{propertyName}}", source.{{propertyName}}, RegistryValueKind.MultiString);
 									}

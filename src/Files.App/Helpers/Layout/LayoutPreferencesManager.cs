@@ -725,7 +725,7 @@ namespace Files.App.Helpers
 				}
 
 				dbInstance.SetPreferences(path, frn, preferencesItem);
-			});
+			}, App.Logger); // Consysto fork: a failed save used to vanish without a trace
 		}
 
 		private bool SetProperty<TValue>(Func<LayoutPreferencesItem, TValue> prop, Action<LayoutPreferencesItem> update, string propertyName)

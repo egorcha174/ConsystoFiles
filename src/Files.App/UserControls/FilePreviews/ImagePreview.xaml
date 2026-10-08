@@ -1,4 +1,4 @@
-﻿<!--  Copyright (c) Files Community. Licensed under the MIT License.  -->
+<!--  Copyright (c) Files Community. Licensed under the MIT License.  -->
 <UserControl
 	x:Class="Files.App.UserControls.FilePreviews.ImagePreview"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -15,7 +15,7 @@
 		CornerRadius="{StaticResource ControlCornerRadius}">
 		<Viewbox StretchDirection="Both">
 
-			<Image Source="{x:Bind ViewModel.ImageSource, Mode=OneWay}" />
+			<Image Source="{x:Bind ViewModel.ImageSource, Mode=OneWay}" ImageFailed="ImagePreview_ImageFailed" />
 
 		</Viewbox>
 	</Border>

@@ -12,6 +12,7 @@ namespace Files.App.ViewModels.Previews
 		private static readonly FrozenDictionary<string, ILanguage> extensions = GetDictionary();
 
 		private string? textValue;
+		public bool HasPreview => TextValue is not null;
 		public string? TextValue
 		{
 			get => textValue;
@@ -69,6 +70,9 @@ namespace Files.App.ViewModels.Previews
 				[Languages.JavaScript] = "js,jsx",
 				[Languages.Php] = "php",
 				[Languages.PowerShell] = "pwsh,ps1,psd1,psm1",
+				// Consysto fork: Python went through the "guess it is text" fallback, which gives up on files over 500 KB
+				[Languages.Python] = "py,pyw,pyi",
+				[Languages.Sql] = "sql",
 				[Languages.Typescript] = "ts,tsx",
 				[Languages.VbDotNet] = "vb,vbs",
 				[Languages.Xml] = "xml,axml,xaml,xsd,xsl,xslt,xlf",

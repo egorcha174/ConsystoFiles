@@ -22,12 +22,35 @@ namespace Files.App.Cad
 		// Parsing a drawing is CPU-bound; a folder full of them must not starve the UI.
 		private static readonly SemaphoreSlim renderGate = new(Math.Max(1, Environment.ProcessorCount / 2));
 
+		// One folder per program version: a fixed drawing reader must not be hidden behind pictures rendered by the old
+		// one (07.10.2026: broken DXF splines and blank AI pages stayed in the grid while the preview pane was right).
+		// Folders of other versions and the loose PNGs of the first layout are removed in the background.
 		private static readonly Lazy<string> cacheDirectory = new(() =>
 		{
-			var directory = SystemIO.Path.Combine(AppStorage.LocalCacheFolderPath, "cad-thumbnails");
+			var root = SystemIO.Path.Combine(AppStorage.LocalCacheFolderPath, "cad-thumbnails");
+			var v = AppStorage.PackageVersion;
+			var name = $"{CacheVersion}-{v.Major}.{v.Minor}.{v.Build}.{v.Revision}";
+			var directory = SystemIO.Path.Combine(root, name);
 			SystemIO.Directory.CreateDirectory(directory);
+			_ = Task.Run(() => RemoveStaleCache(root, name));
 			return directory;
 		});
+
+		private static void RemoveStaleCache(string root, string current)
+		{
+			try
+			{
+				foreach (var file in SystemIO.Directory.EnumerateFiles(root, "*.png"))
+					try { SystemIO.File.Delete(file); } catch (SystemIO.IOException) { } catch (UnauthorizedAccessException) { }
+				foreach (var folder in SystemIO.Directory.EnumerateDirectories(root))
+					if (!string.Equals(SystemIO.Path.GetFileName(folder), current, StringComparison.OrdinalIgnoreCase))
+						try { SystemIO.Directory.Delete(folder, recursive: true); } catch (SystemIO.IOException) { } catch (UnauthorizedAccessException) { }
+			}
+			catch (Exception)
+			{
+				// A cache that cannot be tidied only costs disk space
+			}
+		}
 
 		public static bool IsSupported(string? extension)
 			=> CadPreviewSetup.IsSupported(extension);

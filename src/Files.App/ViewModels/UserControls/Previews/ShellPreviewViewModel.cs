@@ -119,8 +119,10 @@ namespace Files.App.ViewModels.Previews
 					_previewHandler.InitWithFileWithEveryWay(Item.ItemPath!);
 					_previewHandler.DoPreview();
 				}
-				catch
+				catch (Exception ex)
 				{
+					// Consysto fork: the reason used to be swallowed, and a dead handler looked like an empty pane
+					App.Logger.LogWarning(ex, $"ShellPreview: handler {clsid} failed for {Item?.FileExtension}");
 					UnloadPreview();
 				}
 			}
@@ -136,7 +138,7 @@ namespace Files.App.ViewModels.Previews
 			return PInvoke.DefWindowProc(hwnd, msg, wParam, lParam);
 		}
 
-		public unsafe void LoadPreview(UIElement presenter)
+		public unsafe bool LoadPreview(UIElement presenter)
 		{
 			App.Logger.LogInformation($"ShellPreview.LoadPreview: Item={LogPathHelper.RedactPath(Item?.ItemPath)}");
 
@@ -182,7 +184,18 @@ namespace Files.App.ViewModels.Previews
 					hInst);
 			}
 
-			_ = ChildWindowToXaml(parent, presenter);
+			if (_hWnd == HWND.Null || _previewHandler is null)
+			{
+				App.Logger.LogWarning($"ShellPreview: no preview for {Item?.FileExtension} (window={_hWnd != HWND.Null}, handler={_previewHandler is not null})");
+				return false;
+			}
+			return ChildWindowToXaml(parent, presenter);
+		}
+
+		private static bool CompositionFailed(string step, HRESULT hr)
+		{
+			App.Logger.LogWarning($"ShellPreview: {step} failed, hr=0x{hr.Value:X8}");
+			return false;
 		}
 
 		private unsafe bool ChildWindowToXaml(nint parent, UIElement presenter)
@@ -210,26 +223,26 @@ namespace Files.App.ViewModels.Previews
 			}
 
 			if (_d3d11Device is null)
-				return false;
+				return CompositionFailed("D3D11CreateDevice", hr);
 
 			// Create the DComp device
 			var pDXGIDevice = (IDXGIDevice)_d3d11Device;
 			hr = PInvoke.DCompositionCreateDevice(pDXGIDevice, out _dCompositionDevice);
 			if (hr.Failed || _dCompositionDevice is null)
-				return false;
+				return CompositionFailed("DCompositionCreateDevice", hr);
 
 			// Create the visual
 			hr = _dCompositionDevice.CreateVisual(out _childVisual);
 			if (hr.Failed)
-				return false;
+				return CompositionFailed("CreateVisual", hr);
 
 			hr = _dCompositionDevice.CreateSurfaceFromHwnd(_hWnd, out _controlSurface);
 			if (hr.Failed)
-				return false;
+				return CompositionFailed("CreateSurfaceFromHwnd", hr);
 
 			hr = _childVisual.SetContent(_controlSurface);
 			if (hr.Failed || _childVisual is null || _controlSurface is null)
-				return false;
+				return CompositionFailed("SetContent", hr);
 
 			// Get the compositor and set the visual on it
 			var compositor = ElementCompositionPreview.GetElementVisual(presenter).Compositor;
@@ -247,13 +260,15 @@ namespace Files.App.ViewModels.Previews
 
 			var dwAttrib = Convert.ToUInt32(true);
 
-			return
-				PInvoke.DwmSetWindowAttribute(
-					new((nint)_hWnd),
-					DWMWINDOWATTRIBUTE.DWMWA_CLOAK,
-					&dwAttrib,
-					(uint)Marshal.SizeOf(dwAttrib))
-				.Succeeded;
+			// Consysto fork: cloaking is best effort, as upstream had it. DWM refuses DWMWA_CLOAK for this child window,
+			// and treating that as a failure turned every PDF/Word/Excel preview into "not supported" (07.10.2026)
+			_ = PInvoke.DwmSetWindowAttribute(
+				new((nint)_hWnd),
+				DWMWINDOWATTRIBUTE.DWMWA_CLOAK,
+				&dwAttrib,
+				(uint)Marshal.SizeOf(dwAttrib));
+
+			return true;
 		}
 
 		public unsafe void UnloadPreview()

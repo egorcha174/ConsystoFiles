@@ -13,6 +13,7 @@ namespace Files.App.UserControls.FilePreviews
 	public sealed partial class ShellPreview : UserControl
 	{
 		private ShellPreviewViewModel ViewModel { get; set; }
+		private bool previewLoaded;
 
 		public ShellPreview(ShellPreviewViewModel model)
 		{
@@ -24,7 +25,20 @@ namespace Files.App.UserControls.FilePreviews
 		[DynamicWindowsRuntimeCast(typeof(FrameworkElement))]
 		private void PreviewHost_Loaded(object sender, RoutedEventArgs e)
 		{
-			ViewModel.LoadPreview(contentPresenter);
+			try
+			{
+				previewLoaded = ViewModel.LoadPreview(contentPresenter);
+			}
+			catch (Exception)
+			{
+				previewLoaded = false;
+			}
+			if (!previewLoaded)
+			{
+				ViewModel.UnloadPreview();
+				Content = new UnsupportedPreview(ViewModel);
+				return;
+			}
 			ViewModel.SizeChanged(GetPreviewSize());
 
 			if (XamlRoot.Content is FrameworkElement element)
@@ -36,7 +50,8 @@ namespace Files.App.UserControls.FilePreviews
 
 		private void PreviewHost_SizeChanged(object sender, SizeChangedEventArgs e)
 		{
-			ViewModel.SizeChanged(GetPreviewSize());
+			if (previewLoaded)
+				ViewModel.SizeChanged(GetPreviewSize());
 		}
 
 		private RECT GetPreviewSize()

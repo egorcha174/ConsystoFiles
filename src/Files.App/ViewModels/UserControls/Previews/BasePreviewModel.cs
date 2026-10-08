@@ -42,8 +42,27 @@ namespace Files.App.ViewModels.Previews
 			return temp.LoadAsync();
 		}
 
-		public static Task<string> ReadFileAsTextAsync(BaseStorageFile file, int maxLength = 10 * 1024 * 1024)
-			=> file.ReadTextAsync(maxLength);
+		// Consysto fork: the text is decoded in the file's own encoding. Reading everything as UTF-8 turned old Russian
+		// cp1251/cp866 files into garbage (and, with the binary check on U+FFFD, into "not supported").
+		public static async Task<string> ReadFileAsTextAsync(BaseStorageFile file, int maxLength = 10 * 1024 * 1024)
+		{
+			var bytes = await ReadFileBytesAsync(file, maxLength);
+			return TextFileDecoder.Decode(bytes, truncated: bytes.Length >= maxLength);
+		}
+
+		public static async Task<byte[]> ReadFileBytesAsync(BaseStorageFile file, int maxLength)
+		{
+			using var inputStream = await file.OpenReadAsync()
+				?? throw new IOException("The file could not be opened for reading.");
+			await using var stream = inputStream.AsStreamForRead();
+			// Size is not trusted: streams from archives and remote providers may report 0
+			using var result = new MemoryStream();
+			var chunk = new byte[81920];
+			int n;
+			while (result.Length < maxLength && (n = await stream.ReadAsync(chunk.AsMemory(0, (int)Math.Min(chunk.Length, maxLength - result.Length)))) > 0)
+				result.Write(chunk, 0, n);
+			return result.ToArray();
+		}
 
 		/// <summary>
 		/// Call this function when you are ready to load the preview and details.

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Windows.Storage;
 
 namespace Files.App.MacStyle
 {
@@ -19,6 +20,7 @@ namespace Files.App.MacStyle
 
 		private ListedItem? _item;
 		private int _loadVersion;
+		private CancellationTokenSource? _loadCancellation;
 
 		public QuickPreviewOverlay()
 		{
@@ -37,6 +39,10 @@ namespace Files.App.MacStyle
 				return;
 
 			_item = item;
+			_loadCancellation?.Cancel();
+			_loadCancellation?.Dispose();
+			_loadCancellation = new CancellationTokenSource();
+			var token = _loadCancellation.Token;
 			var version = ++_loadVersion;
 			FileNameText.Text = item.ItemNameRaw ?? item.Name;
 			PreviewHost.Content = null;
@@ -45,17 +51,23 @@ namespace Files.App.MacStyle
 			UIElement? control = null;
 			try
 			{
-				control = await _infoPaneViewModel.GetBuiltInPreviewControlAsync(item, false);
+				control = await _infoPaneViewModel.GetBuiltInPreviewControlAsync(item, false, token);
 				if (control is null)
 				{
 					var model = new BasicPreviewViewModel(item);
 					await model.LoadAsync();
-					control = new BasicPreview(model);
+					control = item.PrimaryItemAttribute == StorageItemTypes.Folder || _infoPaneViewModel.ShowCloudItemButton
+						? new BasicPreview(model) : new UnsupportedPreview(model);
 				}
+			}
+			catch (OperationCanceledException) when (token.IsCancellationRequested)
+			{
+				return;
 			}
 			catch (Exception ex)
 			{
 				App.Logger.LogWarning(ex, "Quick preview failed to load");
+				control = new UnsupportedPreview();
 			}
 
 			// A newer item or a close came in while this one was loading.
@@ -69,6 +81,9 @@ namespace Files.App.MacStyle
 		public void Close()
 		{
 			_loadVersion++;
+			_loadCancellation?.Cancel();
+			_loadCancellation?.Dispose();
+			_loadCancellation = null;
 			_item = null;
 			LoadingRing.IsActive = false;
 			PreviewHost.Content = null;

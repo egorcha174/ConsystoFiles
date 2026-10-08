@@ -122,8 +122,21 @@ internal sealed class EntityFlattener(Drawing2D drawing)
                 break;
 
             case Spline spline:
-                if (spline.TryPolygonalVertexes(SplineSegments(spline.ControlPoints.Count), out var splinePoints))
+                // ACadSharp cannot evaluate several periodic splines written by Illustrator/laser CAM exports:
+                // TryPolygonalVertexes may return an origin point or coordinates many orders larger than the source.
+                // The control polygon is a safe, bounded approximation for a preview and preserves the real extents.
+                // A closed periodic spline (laser CAM, CorelDRAW) comes back from ACadSharp with a first vertex at the
+                // origin: two rays to (0,0) per curve, inside the extents check when the part lies near the origin
+                // (08.10.2026, «Мини печь буржуйка.dxf»: 10 splines, 20 rays). Its knot vector is stored in full, so the
+                // same curve evaluates correctly as an ordinary one: that is tried first.
+                if (spline.Flags.HasFlag(SplineFlags.Periodic) && TryEvaluateAsNonPeriodic(spline, out var plainPoints))
+                    AddPolyline(color, layerName, ToPoints(plainPoints), spline.IsClosed);
+                else if (spline.TryPolygonalVertexes(SplineSegments(spline.ControlPoints.Count), out var splinePoints)
+                    && IsSane(splinePoints, spline.ControlPoints))
                     AddPolyline(color, layerName, ToPoints(splinePoints), spline.IsClosed);
+                else if (spline.ControlPoints.Count >= 2
+                    && spline.ControlPoints.All(p => double.IsFinite(p.X) && double.IsFinite(p.Y)))
+                    AddPolyline(color, layerName, ToPoints(spline.ControlPoints), spline.IsClosed);
                 else
                     Skip("Spline(invalid)");
                 break;
@@ -202,6 +215,46 @@ internal sealed class EntityFlattener(Drawing2D drawing)
     }
 
     private void Skip(string what) => drawing.Skipped[what] = drawing.Skipped.GetValueOrDefault(what) + 1;
+
+    private static bool TryEvaluateAsNonPeriodic(Spline spline, out List<XYZ> points)
+    {
+        points = [];
+        try
+        {
+            var plain = (Spline)spline.Clone();
+            plain.Flags &= ~SplineFlags.Periodic;
+            if (!plain.TryPolygonalVertexes(SplineSegments(plain.ControlPoints.Count), out var evaluated)
+                || !IsSane(evaluated, spline.ControlPoints))
+                return false;
+            points = evaluated;
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    private static bool IsSane(IReadOnlyList<XYZ> evaluated, IReadOnlyList<XYZ> controls)
+    {
+        if (evaluated.Count < 2 || evaluated.Any(p => !double.IsFinite(p.X) || !double.IsFinite(p.Y)))
+            return false;
+
+        var source = controls.Where(p => double.IsFinite(p.X) && double.IsFinite(p.Y)).ToList();
+        if (source.Count == 0)
+            return false;
+
+        var minX = source.Min(p => p.X); var maxX = source.Max(p => p.X);
+        var minY = source.Min(p => p.Y); var maxY = source.Max(p => p.Y);
+        var width = Math.Max(maxX - minX, 1e-6);
+        var height = Math.Max(maxY - minY, 1e-6);
+
+        // A valid spline can overshoot a little, but an evaluator that emits (0, 0) for a
+        // part whose control points are hundreds of units away is corrupt. Two extents
+        // leave room for a real curve while rejecting that jump.
+        return evaluated.All(p => p.X >= minX - width * 2 && p.X <= maxX + width * 2
+            && p.Y >= minY - height * 2 && p.Y <= maxY + height * 2);
+    }
 
     private static Rgb Resolve(Color color, Layer? layer, Rgb blockColor)
     {

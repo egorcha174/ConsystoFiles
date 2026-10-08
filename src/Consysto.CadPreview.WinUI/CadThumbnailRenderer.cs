@@ -94,6 +94,9 @@ public static class CadThumbnailRenderer
             return null;
 
         var markup = await File.ReadAllTextAsync(path);
+        // Style sheets and a DOCTYPE (CorelDRAW, Inkscape) are beyond the system engine: they are rewritten into attributes
+        try { markup = Consysto.CadPreview.Artwork.SvgNormalizer.Normalize(markup); }
+        catch (System.Xml.XmlException) { }
         using var document = CanvasSvgDocument.LoadFromXml(device, markup);
 
         using var target = new CanvasRenderTarget(device, size, size, 96);
