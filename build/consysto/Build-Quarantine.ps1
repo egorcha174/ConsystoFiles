@@ -6,7 +6,9 @@ function Move-BuildOutputToQuarantine([string]$Path, [string]$Boundary) {
     if (-not $target.StartsWith($root, [StringComparison]::OrdinalIgnoreCase)) {
         throw 'Путь результата сборки выходит за разрешённый каталог.'
     }
-    $quarantineRoot = [IO.Path]::GetFullPath(('D:\_trash_' + (Get-Date -Format yyyyMMdd)))
+    # Old build output goes to the quarantine folder of the machine (D:\_trash_<date>), or the temp folder without a D: drive
+    $quarantineBase = if (Test-Path -LiteralPath 'D:\') { 'D:\' } else { [IO.Path]::GetTempPath() }
+    $quarantineRoot = [IO.Path]::GetFullPath((Join-Path $quarantineBase ('_trash_' + (Get-Date -Format yyyyMMdd))))
     $quarantine = [IO.Path]::GetFullPath((Join-Path $quarantineRoot ('Build-' + [Guid]::NewGuid().ToString('N') + '-' + [IO.Path]::GetFileName($target))))
     if (-not $quarantine.StartsWith($quarantineRoot + '\', [StringComparison]::OrdinalIgnoreCase)) {
         throw 'Недопустимый путь карантина сборки.'

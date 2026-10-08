@@ -21,6 +21,8 @@ I am a mechanical designer, and this project started from what my own work kept 
 - **SolidWorks, KOMPAS-3D, Autodesk Fusion, Siemens NX, CATIA, Rhino, FreeCAD** — the part appears as a model that can be turned with the mouse; where the format is closed and the geometry cannot be reached, the picture the program itself saved inside the file is shown instead;
 - **STEP and IGES** — exchange formats, tessellated by the Open CASCADE engine.
 
+**Parasolid (`.x_t`, `.x_b`) is not supported, and here is why.** We tried. The only open reader, [parasolid-kit](https://github.com/monozukuri-ai/parasolid-kit), knows a few versions of the Parasolid data schema, and every real file we tested (Onshape and other CAD exports) used a schema it does not know; the schema catalogs come with CAD installations and may not be redistributed. The reader would also need about 250 MB of helpers (Python and Open CASCADE), more than Files itself, and we run foreign files only in an isolated sandbox that has not passed its checks yet. The code stays in the repository, switched off by default (built only with `-WithParasolid`); such files show “Not supported”, as does any other file without a preview.
+
 **An Inventor assembly opens like a folder.** Inside are the parts and subassemblies it uses; the parts stay ordinary files on disk, and references that cannot be found are shown as missing.
 
 **Artwork.** Illustrator (`.ai`, saved PDF-compatible, which is the default) and CorelDRAW (`.cdr`, old and new versions) are shown by the picture stored inside the file. Neither program is started, and nothing inside the file is run.
@@ -116,6 +118,8 @@ This project is not affiliated with Files Community and is not supported by them
 Thanks to the authors of Files and of the libraries everything rests on: ACadSharp, MonoTorrent, OpenMcdf, Win2D, CommunityToolkit.
 
 The geometry of SolidWorks parts is read by [cadmpeg](https://github.com/cadmpeg/cadmpeg) under the Apache-2.0 licence. It sits as a separate program in the `CadHelpers` folder next to Files and runs only while a file is being read; its licence is there too.
+
+The experimental Parasolid helper, which is not part of the released builds, uses **parasolid-kit 0.3.7** (`MIT AND Apache-2.0`) with its built-in profiles; vendor schema catalogs are not bundled. Geometry conversion uses OCP (Apache-2.0) and Open CASCADE Technology (LGPL-2.1 with the OCCT exception). A build made with `-WithParasolid` includes a standalone Python runtime, licence texts and the applicable library source archives and build recipes.
 
 ## Saying thank you
 
