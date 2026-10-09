@@ -6,6 +6,12 @@
 
 [**Скачать готовую сборку**](https://github.com/egorcha174/ConsystoFiles/releases) · [**Подробный обзор, сценарий за сценарием**](docs/review.ru.md) · English version — [README.md](README.md)
 
+**Ролик на две минуты**
+
+[![Ролик о Consysto Files: чертежи DWG и DXF, детали и сборки Inventor, модели SolidWorks, STEP и CATIA без CAD-программ](docs/video/tour-ru.jpg)](https://youtu.be/Eyohi4TW5ZI)
+
+*[Смотреть на YouTube](https://youtu.be/Eyohi4TW5ZI) (2:16) · на английском: [youtu.be/z5Z5ccec0II](https://youtu.be/z5Z5ccec0II). Голос синтезированный, детали в ролике — открытые тестовые модели NIST.*
+
 ![Папка с деталями SolidWorks, Fusion и Siemens NX: каждая показана моделью](docs/screenshots/cad-formats.png)
 
 *Папка с деталями из разных CAD-систем. Ни одна из них в системе не установлена.*

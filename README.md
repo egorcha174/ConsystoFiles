@@ -8,6 +8,12 @@ I am a mechanical designer, and this project started from what my own work kept 
 
 [**Download a ready build**](https://github.com/egorcha174/ConsystoFiles/releases) · [**Full review, scenario by scenario**](docs/review.en.md) · Русская версия — [README.ru.md](README.ru.md)
 
+**Two-minute video tour**
+
+[![Consysto Files video tour: DWG and DXF drawings, Inventor parts and assemblies, SolidWorks, STEP and CATIA models without CAD](docs/video/tour-en.jpg)](https://youtu.be/z5Z5ccec0II)
+
+*[Watch on YouTube](https://youtu.be/z5Z5ccec0II) (2:13) · in Russian: [youtu.be/Eyohi4TW5ZI](https://youtu.be/Eyohi4TW5ZI). The voice is synthetic; the sample parts are public-domain NIST test models.*
+
 ![A folder of SolidWorks, Fusion and Siemens NX parts, each shown as a model](docs/screenshots/cad-formats.png)
 
 *A folder of parts from several CAD systems. None of those systems is installed.*
