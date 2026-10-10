@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/egorcha174/ConsystoFiles/releases/latest"><img alt="Скачать для Windows" src="https://img.shields.io/badge/%E2%AC%87%20%D0%A1%D0%BA%D0%B0%D1%87%D0%B0%D1%82%D1%8C-zip%2C%20%D0%B1%D0%B5%D0%B7%20%D1%83%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B8-ff7a1a?style=for-the-badge"></a>
+  <a href="https://github.com/egorcha174/ConsystoFiles/releases/latest"><img alt="Скачать для Windows" src="https://img.shields.io/badge/%E2%AC%87%20%D0%A1%D0%BA%D0%B0%D1%87%D0%B0%D1%82%D1%8C-setup.exe%20%D0%B8%D0%BB%D0%B8%20zip-ff7a1a?style=for-the-badge"></a>
   &nbsp;
   <a href="https://youtu.be/Eyohi4TW5ZI"><img alt="Ролик на 2 минуты" src="https://img.shields.io/badge/%E2%96%B6%20%D0%A0%D0%BE%D0%BB%D0%B8%D0%BA-2%20%D0%BC%D0%B8%D0%BD-2b2f36?style=for-the-badge&logo=youtube"></a>
 </p>
@@ -23,7 +23,7 @@
   <img src="docs/brand/files-parts.gif" width="800" alt="Детали SolidWorks, Inventor и STEP показаны моделями в области просмотра — без CAD-программ">
 </p>
 
-<p align="center"><sub>Распакуйте zip → откройте <code>Запустить Consysto Files.cmd</code>. Синее окно «Система Windows защитила ваш компьютер»? <i>Подробнее → Выполнить в любом случае</i> — у программы пока нет платной подписи, код открыт здесь же. · <a href="README.md">English</a> · <a href="docs/review.ru.md">Подробный обзор по сценариям</a></sub></p>
+<p align="center"><sub><b>Установщик</b>: скачайте из выпуска <code>ConsystoFiles-setup_….exe</code>, запустите, «Далее» → готово (без прав администратора). <b>Портативная</b>: распакуйте zip → откройте <code>Запустить Consysto Files.cmd</code>. Синее окно «Система Windows защитила ваш компьютер»? <i>Подробнее → Выполнить в любом случае</i> — у программы пока нет платной подписи, код открыт здесь же. · <a href="README.md">English</a> · <a href="docs/review.ru.md">Подробный обзор по сценариям</a></sub></p>
 
 ## Что открывается без родной программы
 

@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/egorcha174/ConsystoFiles/releases/latest"><img alt="Download for Windows" src="https://img.shields.io/badge/%E2%AC%87%20Download%20for%20Windows-zip%2C%20no%20install-ff7a1a?style=for-the-badge"></a>
+  <a href="https://github.com/egorcha174/ConsystoFiles/releases/latest"><img alt="Download for Windows" src="https://img.shields.io/badge/%E2%AC%87%20Download%20for%20Windows-setup.exe%20or%20zip-ff7a1a?style=for-the-badge"></a>
   &nbsp;
   <a href="https://youtu.be/z5Z5ccec0II"><img alt="Watch the 2-minute tour" src="https://img.shields.io/badge/%E2%96%B6%20Watch%20the%20tour-2%20min-2b2f36?style=for-the-badge&logo=youtube"></a>
 </p>
@@ -24,7 +24,7 @@
   <img src="docs/brand/files-parts.gif" width="800" alt="Parts from SolidWorks, Inventor and STEP shown as models in the preview pane — no CAD installed">
 </p>
 
-<p align="center"><sub>Extract the zip → open <code>Запустить Consysto Files.cmd</code>. Blue “Windows protected your PC” screen? <i>More info → Run anyway</i> — the program is not code-signed yet; the source is right here. · <a href="README.ru.md">Русская версия</a> · <a href="docs/review.en.md">Full review, scenario by scenario</a></sub></p>
+<p align="center"><sub><b>Installer</b>: download <code>ConsystoFiles-setup_….exe</code> from the release, run it, Next → done (no admin rights). <b>Portable</b>: extract the zip → open <code>Запустить Consysto Files.cmd</code>. Blue “Windows protected your PC” screen? <i>More info → Run anyway</i> — the program is not code-signed yet; the source is right here. · <a href="README.ru.md">Русская версия</a> · <a href="docs/review.en.md">Full review, scenario by scenario</a></sub></p>
 
 ## What it opens without the original program
 
