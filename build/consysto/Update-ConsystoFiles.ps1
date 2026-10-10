@@ -53,6 +53,13 @@ Write-Host ''
 & (Join-Path $here 'Build-ConsystoPortable.ps1') -Version $Version -WithParasolid:$WithParasolid
 if ($LASTEXITCODE) { throw 'Портативная сборка не собралась.' }
 
+$portableRelease = Join-Path $filesRoot "artifacts\ConsystoFiles\ConsystoFiles-portable_$Version"
+foreach ($relativePath in 'app\Files.exe', 'Запустить Consysto Files.cmd', 'КАК ЗАПУСТИТЬ - HOW TO START.txt') {
+    if (-not (Test-Path -LiteralPath (Join-Path $portableRelease $relativePath) -PathType Leaf)) {
+        throw "Портативная сборка неполна: нет $relativePath в $portableRelease"
+    }
+}
+
 if ($PortableOnly) {
     Write-Host ''
     Write-Host 'Собрана только портативная: установленная копия осталась прежней версии.' -ForegroundColor Yellow

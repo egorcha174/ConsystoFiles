@@ -1,13 +1,13 @@
 ﻿#requires -Version 5.1
 <#
 .SYNOPSIS
-    Собирает портативную сборку Consysto Files: папка с Files.exe, без установки.
+    Собирает портативную сборку Consysto Files: приложение в app, запуск через .cmd, без установки.
 
 .DESCRIPTION
     Репозиторий не меняется: исходники копируются во временную папку, там сборке дают своё имя и тип сборки Consysto
     (без обновлений с files.community и без отчётов Sentry), затем собирается Release x64 с ключом ConsystoPortable.
 
-    Портативная сборка держит все свои данные в папке data рядом с Files.exe и не пишет ни в реестр Windows,
+    Портативная сборка держит все свои данные в папке app\data рядом с Files.exe и не пишет ни в реестр Windows,
     ни в профиль пользователя. Часть возможностей установленной версии в ней недоступна: замена Проводника,
     уведомления Windows и обновление через магазин.
 
@@ -118,22 +118,46 @@ Move-BuildOutputToQuarantine $data $StagingDirectory
 $release = Join-Path $OutputDirectory "ConsystoFiles-${releaseKind}_$Version"
 Move-BuildOutputToQuarantine $release $OutputDirectory
 New-Item -ItemType Directory -Force -Path (Split-Path $release -Parent) | Out-Null
-robocopy $build $release /MIR /NFL /NDL /NJH /NJS /NP | Out-Null
+$app = Join-Path $release 'app'
+robocopy $build $app /MIR /NFL /NDL /NJH /NJS /NP | Out-Null
 if ($LASTEXITCODE -ge 8) { throw "Не удалось собрать папку раздачи (robocopy $LASTEXITCODE)." }
 
-foreach ($name in 'README.md', 'README.ru.md', 'LICENSE-MIT', 'LICENSE-MPL', 'NOTICE.md') {
+$documents = 'README.md', 'README.ru.md', 'LICENSE-MIT', 'LICENSE-MPL', 'NOTICE.md'
+foreach ($name in $documents) {
     $source = Join-Path $filesRoot $name
     if (Test-Path -LiteralPath $source) { Copy-Item -LiteralPath $source -Destination $release -Force }
 }
 
+$launcherName = 'Запустить Consysto Files.cmd'
+$instructionsName = 'КАК ЗАПУСТИТЬ - HOW TO START.txt'
+[IO.File]::WriteAllText((Join-Path $release $launcherName), '@start "" "%~dp0app\Files.exe" %*' + "`r`n", [Text.Encoding]::ASCII)
+$instructions = @'
+РУССКИЙ
+1. До распаковки: правый клик по ZIP → Свойства → «Разблокировать» (если есть) → OK. Иначе Windows помечает файлы как скачанные из интернета.
+2. Распакуйте архив в любую папку, например C:\Programs\Consysto Files. Не запускайте программу прямо из архива.
+3. Запустите «Запустить Consysto Files.cmd». Если появится синее окно «Система Windows защитила ваш компьютер»: «Подробнее» → «Выполнить в любом случае». Программа бесплатная, исходники: https://github.com/egorcha174/ConsystoFiles
+4. Для удобства: правый клик по app\Files.exe → Отправить → Рабочий стол (создать ярлык).
+5. Вопросы и отзывы: https://github.com/egorcha174/ConsystoFiles/issues и https://t.me/print3d_lasercut
+Обновление: закройте программу и сохраните папку app\data. При переходе со старой раскладки скопируйте прежнюю папку data в app\data новой сборки до первого запуска.
+
+ENGLISH
+1. Before extracting: right-click the ZIP → Properties → Unblock (if shown) → OK. Otherwise Windows marks the extracted files as downloaded from the internet.
+2. Extract the archive to any folder, for example C:\Programs\Consysto Files. Do not run the program directly from the archive.
+3. Run "Запустить Consysto Files.cmd". If the blue "Windows protected your PC" window appears: "More info" → "Run anyway". The program is free; source code: https://github.com/egorcha174/ConsystoFiles
+4. For convenience: right-click app\Files.exe → Send to → Desktop (create shortcut).
+5. Questions and feedback: https://github.com/egorcha174/ConsystoFiles/issues and https://t.me/print3d_lasercut
+Updating: close the program and keep app\data. When upgrading from the old layout, copy the old data folder to app\data in the new build before the first launch.
+'@
+[IO.File]::WriteAllText((Join-Path $release $instructionsName), ($instructions -replace '\r?\n', "`r`n") + "`r`n", (New-Object Text.UTF8Encoding $true))
+
 # Помощник для чтения чужих CAD-форматов: в репозитории его нет, скрипт берёт официальный выпуск
-& (Join-Path $PSScriptRoot 'Get-CadHelpers.ps1') -Destination (Join-Path $release 'CadHelpers')
+& (Join-Path $PSScriptRoot 'Get-CadHelpers.ps1') -Destination (Join-Path $app 'CadHelpers')
 
 # Движок OpenCascade: им читаются STEP и IGES. Собирается отдельно (native\StepMesher\build.ps1),
 # потому что требует исходников OpenCascade; без него эти форматы просто не показываются.
 $occtSource = Join-Path $filesRoot 'native\out\occt'
 if (Test-Path -LiteralPath $occtSource) {
-    $occtTarget = Join-Path $release 'occt'
+    $occtTarget = Join-Path $app 'occt'
     robocopy $occtSource $occtTarget /MIR /NFL /NDL /NJH /NJS /NP | Out-Null
     if ($LASTEXITCODE -ge 8) { throw "Не удалось скопировать движок STEP (robocopy $LASTEXITCODE)." }
     $occtSize = [math]::Round((Get-ChildItem $occtTarget -Recurse -File | Measure-Object Length -Sum).Sum / 1MB)
@@ -142,8 +166,14 @@ if (Test-Path -LiteralPath $occtSource) {
     Write-Warning "Движка STEP нет ($occtSource) — в этой сборке STEP и IGES показываться не будут. Соберите native\StepMesher\build.ps1."
 }
 
+if (-not (Test-Path -LiteralPath (Join-Path $app 'Files.exe') -PathType Leaf)) { throw 'В папке раздачи нет app\Files.exe.' }
+$allowedRootItems = @('app', $launcherName, $instructionsName) + $documents
+$unexpected = @(Get-ChildItem -LiteralPath $release -Force | Where-Object { $_.Name -notin $allowedRootItems })
+if ($unexpected.Count -gt 0) { throw "Лишние файлы в корне раздачи: $($unexpected.Name -join ', ')" }
+
 $size = [math]::Round((Get-ChildItem $release -Recurse -File | Measure-Object Length -Sum).Sum / 1MB)
 Write-Host "Папка: $release ($size МБ)"
+Write-Host "Запуск: $(Join-Path $release $launcherName)"
 
 if (-not $SkipArchive) {
     $archive = "$release.zip"

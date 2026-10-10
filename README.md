@@ -6,7 +6,9 @@ A file manager for Windows 11 that shows what is inside your files — CAD model
 
 I am a mechanical designer, and this project started from what my own work kept needing. The program is free and open. This is an early version: it works, but rough edges are still there, and reports about them are welcome.
 
-[**Download a ready build**](https://github.com/egorcha174/ConsystoFiles/releases) · [**Full review, scenario by scenario**](docs/review.en.md) · Русская версия — [README.ru.md](README.ru.md)
+**[⬇ Download (zip)](https://github.com/egorcha174/ConsystoFiles/releases/latest)** — extract, open `Запустить Consysto Files.cmd`. Blue “Windows protected your PC” screen? *More info → Run anyway*. [Step by step](https://github.com/egorcha174/ConsystoFiles/releases/latest)
+
+[**Full review, scenario by scenario**](docs/review.en.md) · Русская версия — [README.ru.md](README.ru.md)
 
 **Two-minute video tour**
 
@@ -61,13 +63,13 @@ Only the head and the tail of a G-code file are read, so a folder of large jobs 
 
 ## The portable build
 
-Unpack the archive anywhere and run `Files.exe`. No installation, no administrator rights.
+Unpack the archive anywhere and run `Запустить Consysto Files.cmd`. The application is in `app\Files.exe`; see `КАК ЗАПУСТИТЬ - HOW TO START.txt` for instructions. No installation, no administrator rights.
 
-Everything the program keeps — settings, collection indexes, thumbnails — lives in a `data` folder next to it. Nothing is written to the Windows registry or to your profile: delete the folder and nothing of it remains.
+Everything the program keeps — settings, collection indexes, thumbnails — lives in `app\data`, next to `Files.exe`. Nothing is written to the Windows registry or to your profile: delete the folder and nothing of it remains.
 
 What the system needs: Windows 11, or Windows 10 version 1809 or newer. Nothing has to be installed alongside; every library ships in the folder. The one exception is the terminal, which needs the WebView2 component: Windows 11 always has it, Windows 10 may not.
 
-What the portable build does not do: replace File Explorer on Win+E, show Windows notifications, or update itself through the Store. Updating means replacing the folder — keep your `data` folder, your settings are in it.
+What the portable build does not do: replace File Explorer on Win+E, show Windows notifications, or update itself through the Store. To update, close the program and keep `app\data`, which contains your settings. When upgrading from the old layout, copy the old `data` folder to `app\data` in the new build before the first launch.
 
 ## Building from source
 
