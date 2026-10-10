@@ -1,24 +1,57 @@
-# Consysto Files
+<p align="center">
+  <a href="https://github.com/egorcha174/ConsystoFiles/releases/latest"><img src="docs/brand/files-hero.png" alt="Consysto Files — содержимое CAD-файлов, чертежей и G-code без CAD-программ"></a>
+</p>
 
-Файловый менеджер для Windows 11 — форк [Files](https://github.com/files-community/Files) с тем, чего мне не хватало в работе конструктора: просмотр чертежей и файлов 3D-печати, свои коллекции, встроенный терминал, торренты и синхронизация папок.
+<p align="center">
+  <a href="https://github.com/egorcha174/ConsystoFiles/releases/latest"><img alt="Последний выпуск" src="https://img.shields.io/github/v/release/egorcha174/ConsystoFiles?style=flat-square&color=ff7a1a&label=%D0%B2%D1%8B%D0%BF%D1%83%D1%81%D0%BA"></a>
+  <a href="https://github.com/egorcha174/ConsystoFiles/releases"><img alt="Скачивания" src="https://img.shields.io/github/downloads/egorcha174/ConsystoFiles/total?style=flat-square&color=2b2f36&label=%D1%81%D0%BA%D0%B0%D1%87%D0%B8%D0%B2%D0%B0%D0%BD%D0%B8%D0%B9"></a>
+  <img alt="Windows 10/11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-2b2f36?style=flat-square&logo=windows">
+  <img alt="Бесплатно" src="https://img.shields.io/badge/%D0%B1%D0%B5%D1%81%D0%BF%D0%BB%D0%B0%D1%82%D0%BD%D0%BE-%D0%B1%D0%B5%D0%B7%20%D1%83%D1%87%D1%91%D1%82%D0%BE%D0%BA%20%D0%B8%20%D1%82%D0%B5%D0%BB%D0%B5%D0%BC%D0%B5%D1%82%D1%80%D0%B8%D0%B8-2b2f36?style=flat-square">
+</p>
 
-Проект открытый и бесплатный. Сейчас это ранняя версия: она работает, но встречаются шероховатости, и я буду рад сообщениям о них.
+<p align="center">
+  <b>Файловый менеджер для Windows, который показывает, что внутри рабочих файлов, —<br>модели и чертежи CAD, задания 3D-печати, макеты и книги — без программ, в которых они сделаны.</b>
+</p>
 
-**[⬇ Скачать (zip)](https://github.com/egorcha174/ConsystoFiles/releases/latest)** — распакуйте и откройте `Запустить Consysto Files.cmd`. Синее окно «Система Windows защитила ваш компьютер»? *Подробнее → Выполнить в любом случае*. [По шагам](https://github.com/egorcha174/ConsystoFiles/releases/latest)
+<p align="center">
+  <a href="https://github.com/egorcha174/ConsystoFiles/releases/latest"><img alt="Скачать для Windows" src="https://img.shields.io/badge/%E2%AC%87%20%D0%A1%D0%BA%D0%B0%D1%87%D0%B0%D1%82%D1%8C-zip%2C%20%D0%B1%D0%B5%D0%B7%20%D1%83%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B8-ff7a1a?style=for-the-badge"></a>
+  &nbsp;
+  <a href="https://youtu.be/Eyohi4TW5ZI"><img alt="Ролик на 2 минуты" src="https://img.shields.io/badge/%E2%96%B6%20%D0%A0%D0%BE%D0%BB%D0%B8%D0%BA-2%20%D0%BC%D0%B8%D0%BD-2b2f36?style=for-the-badge&logo=youtube"></a>
+</p>
 
-[**Подробный обзор, сценарий за сценарием**](docs/review.ru.md) · English version — [README.md](README.md)
+<p align="center">
+  <img src="docs/brand/files-parts.gif" width="800" alt="Детали SolidWorks, Inventor и STEP показаны моделями в области просмотра — без CAD-программ">
+</p>
 
-**Ролик на две минуты**
+<p align="center"><sub>Распакуйте zip → откройте <code>Запустить Consysto Files.cmd</code>. Синее окно «Система Windows защитила ваш компьютер»? <i>Подробнее → Выполнить в любом случае</i> — у программы пока нет платной подписи, код открыт здесь же. · <a href="README.md">English</a> · <a href="docs/review.ru.md">Подробный обзор по сценариям</a></sub></p>
 
-[![Ролик о Consysto Files: чертежи DWG и DXF, детали и сборки Inventor, модели SolidWorks, STEP и CATIA без CAD-программ](docs/video/tour-ru.jpg)](https://youtu.be/Eyohi4TW5ZI)
+## Что открывается без родной программы
+
+| | Форматы | Что видно |
+|---|---|---|
+| 📐 **Чертежи** | DWG, DXF | сам чертёж, перерисованный по линиям |
+| 🧩 **Модели CAD** | Inventor, SolidWorks, КОМПАС-3D, Fusion, Siemens NX, CATIA, Rhino, FreeCAD | модель, которую можно вращать мышью; сборка Inventor открывается как папка |
+| 🔩 **Обменные** | STEP, IGES | геометрия через Open CASCADE |
+| 🖨️ **3D-печать** | G-code, .bgcode, .gx, .gcode.3mf | миниатюра слайсера, траектория, время печати, пластик, сопло |
+| 🎨 **Макеты** | Illustrator .ai, CorelDRAW .cdr | картинка, сохранённая внутри файла |
+| 📚 **Книги** | FB2, EPUB, PDF, DjVu | обложки и описание; OPDS-клиент и сервер |
+
+А ещё: коллекции поверх папок, терминал во вкладке, торрент-клиент, синхронизация и резервные копии, полноценные две панели, вид в стиле Finder или обычный Windows 11.
+
+<p align="center">
+  <img src="docs/brand/files-gcode.gif" width="800" alt="Папка заданий 3D-печати с траекторией и параметрами печати">
+</p>
+
+Я конструктор, и проект вырос из того, чего не хватало в работе. В основе — **[Files](https://github.com/files-community/Files) от Files Community**, хороший современный файловый менеджер. Всё перечисленное ниже — моя работа поверх него, остальное принадлежит авторам Files. Это ранняя версия: работает, но шероховатости есть, и я рад сообщениям о них.
+
+[![Ролик о Consysto Files](docs/video/tour-ru.jpg)](https://youtu.be/Eyohi4TW5ZI)
 
 *[Смотреть на YouTube](https://youtu.be/Eyohi4TW5ZI) (2:16) · на английском: [youtu.be/z5Z5ccec0II](https://youtu.be/z5Z5ccec0II). Голос синтезированный, детали в ролике — открытые тестовые модели NIST.*
 
-![Папка с деталями SolidWorks, Fusion и Siemens NX: каждая показана моделью](docs/screenshots/cad-formats.png)
+## Всё, что добавлено к Files
 
-*Папка с деталями из разных CAD-систем. Ни одна из них в системе не установлена.*
-
-## Что добавлено к Files
+<details>
+<summary><b>Открыть полный список</b> — чертежи, сборки Inventor, макеты, 3D-печать, коллекции, книги, терминал, торренты, резервные копии, управление извне, два вида, две панели</summary>
 
 **Чертежи и модели.** Просмотр прямо в панели, без запуска CAD и без установленных CAD-систем:
 
@@ -58,6 +91,8 @@
 **Два стиля оформления.** По умолчанию окно оформлено в духе Finder на macOS: круглые кнопки окна слева, вкладки как в Safari, строки через одну подкрашены. В «Настройки → Внешний вид → Стиль оформления» можно выбрать обычный вид Windows 11: кнопки окна справа, стандартные вкладки, системные цвета. Применяется после перезапуска, кнопка «Перезапустить» появляется там же.
 
 **Две панели.** Шапка над каждой панелью с дисками и свободным местом, обмен панелей местами, синхронное перемещение по папкам, сравнение открытых папок.
+
+</details>
 
 ## Портативная версия
 

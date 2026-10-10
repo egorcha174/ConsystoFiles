@@ -1,26 +1,58 @@
-# Consysto Files
+<p align="center">
+  <a href="https://github.com/egorcha174/ConsystoFiles/releases/latest"><img src="docs/brand/files-hero.png" alt="Consysto Files — see inside CAD files, drawings and G-code without CAD installed"></a>
+</p>
 
-A file manager for Windows 11 that shows what is inside your files — CAD models and drawings, 3D printing jobs, Illustrator and CorelDRAW artwork, e-books, music and photos — without the programs that made them. On top of that: collections over your folders, a terminal tab, a built-in torrent client, folder backups and a proper two-pane mode for those who grew up on Total Commander.
+<p align="center">
+  <a href="https://github.com/egorcha174/ConsystoFiles/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/egorcha174/ConsystoFiles?style=flat-square&color=ff7a1a&label=release"></a>
+  <a href="https://github.com/egorcha174/ConsystoFiles/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/egorcha174/ConsystoFiles/total?style=flat-square&color=2b2f36"></a>
+  <img alt="Windows 10/11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-2b2f36?style=flat-square&logo=windows">
+  <img alt="Free, no telemetry" src="https://img.shields.io/badge/free-no%20accounts%2C%20no%20telemetry-2b2f36?style=flat-square">
+  <img alt="License MPL-2.0" src="https://img.shields.io/badge/license-MPL--2.0-2b2f36?style=flat-square">
+</p>
 
-**It is built on [Files](https://github.com/files-community/Files) by Files Community.** I chose Files because it already is a good modern file manager — tabs, panes, a preview pane, a clean Windows 11 interface. Everything listed under "What is added" below is my work on top of it; the rest belongs to the Files authors.
+<p align="center">
+  <b>A Windows file manager that shows what is inside your work files —<br>CAD models and drawings, 3D printing jobs, artwork and books — without the programs that made them.</b>
+</p>
 
-I am a mechanical designer, and this project started from what my own work kept needing. The program is free and open. This is an early version: it works, but rough edges are still there, and reports about them are welcome.
+<p align="center">
+  <a href="https://github.com/egorcha174/ConsystoFiles/releases/latest"><img alt="Download for Windows" src="https://img.shields.io/badge/%E2%AC%87%20Download%20for%20Windows-zip%2C%20no%20install-ff7a1a?style=for-the-badge"></a>
+  &nbsp;
+  <a href="https://youtu.be/z5Z5ccec0II"><img alt="Watch the 2-minute tour" src="https://img.shields.io/badge/%E2%96%B6%20Watch%20the%20tour-2%20min-2b2f36?style=for-the-badge&logo=youtube"></a>
+</p>
 
-**[⬇ Download (zip)](https://github.com/egorcha174/ConsystoFiles/releases/latest)** — extract, open `Запустить Consysto Files.cmd`. Blue “Windows protected your PC” screen? *More info → Run anyway*. [Step by step](https://github.com/egorcha174/ConsystoFiles/releases/latest)
+<p align="center">
+  <img src="docs/brand/files-parts.gif" width="800" alt="Parts from SolidWorks, Inventor and STEP shown as models in the preview pane — no CAD installed">
+</p>
 
-[**Full review, scenario by scenario**](docs/review.en.md) · Русская версия — [README.ru.md](README.ru.md)
+<p align="center"><sub>Extract the zip → open <code>Запустить Consysto Files.cmd</code>. Blue “Windows protected your PC” screen? <i>More info → Run anyway</i> — the program is not code-signed yet; the source is right here. · <a href="README.ru.md">Русская версия</a> · <a href="docs/review.en.md">Full review, scenario by scenario</a></sub></p>
 
-**Two-minute video tour**
+## What it opens without the original program
 
-[![Consysto Files video tour: DWG and DXF drawings, Inventor parts and assemblies, SolidWorks, STEP and CATIA models without CAD](docs/video/tour-en.jpg)](https://youtu.be/z5Z5ccec0II)
+| | Formats | What you see |
+|---|---|---|
+| 📐 **Drawings** | DWG, DXF | the drawing itself, redrawn line by line |
+| 🧩 **CAD models** | Inventor, SolidWorks, KOMPAS-3D, Fusion, Siemens NX, CATIA, Rhino, FreeCAD | a model you can turn with the mouse; an Inventor assembly opens like a folder |
+| 🔩 **Exchange** | STEP, IGES | tessellated geometry (Open CASCADE) |
+| 🖨️ **3D printing** | G-code, .bgcode, .gx, .gcode.3mf | slicer thumbnail, toolpath, print time, filament, nozzle |
+| 🎨 **Artwork** | Illustrator .ai, CorelDRAW .cdr | the picture stored inside the file |
+| 📚 **Books** | FB2, EPUB, PDF, DjVu | covers and details; OPDS client and server |
+
+Plus: collections over your folders, a terminal tab, a torrent client, folder sync and backups, a real two-pane mode, and a Finder-style or plain Windows 11 look.
+
+<p align="center">
+  <img src="docs/brand/files-gcode.gif" width="800" alt="A folder of 3D printing jobs with toolpath preview and print details">
+</p>
+
+I am a mechanical designer, and this project grew out of what my own work kept needing. It is **built on [Files](https://github.com/files-community/Files) by Files Community** — a good modern file manager with tabs, panes and a clean Windows 11 interface. Everything below is my work on top of it; the rest belongs to the Files authors. This is an early version: it works, but rough edges are still there, and reports about them are welcome.
+
+[![Consysto Files video tour](docs/video/tour-en.jpg)](https://youtu.be/z5Z5ccec0II)
 
 *[Watch on YouTube](https://youtu.be/z5Z5ccec0II) (2:13) · in Russian: [youtu.be/Eyohi4TW5ZI](https://youtu.be/Eyohi4TW5ZI). The voice is synthetic; the sample parts are public-domain NIST test models.*
 
-![A folder of SolidWorks, Fusion and Siemens NX parts, each shown as a model](docs/screenshots/cad-formats.png)
+## Everything that is added to Files
 
-*A folder of parts from several CAD systems. None of those systems is installed.*
-
-## What is added to Files
+<details>
+<summary><b>Open the full list</b> — drawings, Inventor assemblies, artwork, 3D printing, collections, books, terminal, torrents, backups, remote control, two looks, two panes</summary>
 
 **Drawings and models.** Shown in the preview pane without starting a CAD system, and without having one installed:
 
@@ -60,6 +92,8 @@ Only the head and the tail of a G-code file are read, so a folder of large jobs 
 **Two looks.** By default the window is dressed like the macOS Finder: round window buttons on the left, Safari-style tabs, striped rows. Settings → Appearance → Visual style switches it to the ordinary Windows 11 look: caption buttons on the right, stock tabs, system colours. The change takes effect after a restart, and a Restart button appears right there.
 
 **Two panes.** Files already has two panes; here they get a header with drives and free space, swapping sides, moving through folders in step, copying or moving straight to the other pane, and comparing the two open folders.
+
+</details>
 
 ## The portable build
 
