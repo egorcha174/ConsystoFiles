@@ -170,7 +170,11 @@ namespace Files.App.Helpers
 				using var shellItem = SafetyExtensions.IgnoreExceptions(()
 					=> ShellFolderExtensions.GetShellItemFromPathOrPIDL(path));
 
-				if (shellItem is not null && shellItem.IShellItem is IShellItemImageFactory shellFactory)
+				// Consysto fork: Autodesk's in-process shell handler for Inventor files can crash with an access violation
+				// that corrupts the heap and takes the app down; their thumbnails come from the fork's CAD core instead.
+				var skipShellImage = Consysto.CadPreview.Inventor.InventorPreviewReader.IsSupported(SystemIO.Path.GetExtension(path));
+
+				if (!skipShellImage && shellItem is not null && shellItem.IShellItem is IShellItemImageFactory shellFactory)
 				{
 					var flags = SIIGBF.SIIGBF_BIGGERSIZEOK;
 
