@@ -28,6 +28,12 @@ namespace Files.App.UserControls.TabBar
 
 		private TabViewItem? hoveredTabViewItem;
 
+		// Tab that currently shows the drop indicator
+		private TabViewItem? dropTargetTabViewItem;
+
+		// Used to discard drag over results that resolved after the pointer already left the tab
+		private int dragOverRevision;
+
 		private bool _lockDropOperation = false;
 
 		// Starting position when dragging a tab
@@ -129,6 +135,9 @@ namespace Files.App.UserControls.TabBar
 			if (sender is not TabViewItem { DataContext: TabBarItem { TabItemContent: { } tabContent } })
 				return;
 
+			dragOverRevision++;
+			SetDropTargetTabViewItem(null);
+
 			// Consysto fork: a dragged tab is not a file drop; the tab strip reorders it on its own.
 			if (e.DataView.Properties.ContainsKey(TabPathIdentifier))
 				return;
@@ -149,19 +158,42 @@ namespace Files.App.UserControls.TabBar
 			if (e.DataView.Properties.ContainsKey(TabPathIdentifier))
 				return;
 
+			var revision = ++dragOverRevision;
+
 			await tabContent.TabItemDragOver(sender, e);
+
+			if (revision != dragOverRevision)
+				return;
+
 			if (e.AcceptedOperation != DataPackageOperation.None)
 			{
 				HorizontalTabView.CanReorderTabs = false;
 				tabHoverTimer.Start();
 				hoveredTabViewItem = tabViewItem;
+				SetDropTargetTabViewItem(tabViewItem);
 			}
 		}
 
 		private void TabViewItem_DragLeave(object sender, DragEventArgs e)
 		{
+			dragOverRevision++;
 			tabHoverTimer.Stop();
 			hoveredTabViewItem = null;
+			SetDropTargetTabViewItem(null);
+		}
+
+		private void SetDropTargetTabViewItem(TabViewItem? tabViewItem)
+		{
+			if (dropTargetTabViewItem == tabViewItem)
+				return;
+
+			if (dropTargetTabViewItem is not null)
+				VisualStateManager.GoToState(dropTargetTabViewItem, "NoStorageItemDragOver", true);
+
+			dropTargetTabViewItem = tabViewItem;
+
+			if (tabViewItem is not null)
+				VisualStateManager.GoToState(tabViewItem, "StorageItemDragOver", true);
 		}
 
 		// Select tab that is hovered over for a certain duration
@@ -223,6 +255,8 @@ namespace Files.App.UserControls.TabBar
 		private void TabView_DragLeave(object sender, DragEventArgs e)
 		{
 			HorizontalTabView.CanReorderTabs = WindowContext.CanDragAndDrop;
+			dragOverRevision++;
+			SetDropTargetTabViewItem(null);
 		}
 
 		[DynamicWindowsRuntimeCast(typeof(TabView))]
@@ -308,8 +342,9 @@ namespace Files.App.UserControls.TabBar
 			Items.Remove(tabItem);
 			if (!await NavigationHelpers.OpenTabInNewWindowAsync(tabViewItemArgs.Serialize(), droppedPoint.X, droppedPoint.Y))
 			{
-				Items.Insert(indexOfTabViewItem, tabItem);
-				sender.SelectedIndex = selectedTabViewItemIndex;
+				// Other tabs can close while the new window opens, so the remembered positions may no longer exist
+				Items.Insert(Math.Clamp(indexOfTabViewItem, 0, Items.Count), tabItem);
+				sender.SelectedIndex = Math.Clamp(selectedTabViewItemIndex, 0, Items.Count - 1);
 			}
 			else
 				// Dispose tab arguments
@@ -421,11 +456,11 @@ namespace Files.App.UserControls.TabBar
 			}
 		}
 
-		private async void DragAreaRectangle_Loaded(object sender, RoutedEventArgs e)
-		{
-			if (HorizontalTabView.ActualWidth <= 0 && TabBarAddNewTabButton.Width <= 0)
-				await Task.Delay(100);
+		private void DragAreaRectangle_Loaded(object sender, RoutedEventArgs e)
+			=> this.RunAfterNextRender(UpdateTitleBarInsets);
 
+		private void UpdateTitleBarInsets()
+		{
 			// Consysto fork: the caption buttons are hidden (traffic lights) and the tab row is no longer a window drag area
 			// (see MainPage), so the strip reserves no right padding. Upstream adds it after the first layout, which left
 			// the Safari-style full-width tabs overflowing into scroll buttons.

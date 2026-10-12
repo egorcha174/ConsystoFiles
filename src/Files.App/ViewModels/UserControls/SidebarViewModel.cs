@@ -1399,7 +1399,7 @@ namespace Files.App.ViewModels.UserControls
 					}
 				}
 				else if (isPathNull ||
-					(hasStorageItems && storageItems.AreItemsAlreadyInFolder(path!)) ||
+					(hasStorageItems && (storageItems.AreItemsAlreadyInFolder(path!) || storageItems.ContainsDestinationOrAncestor(path))) ||
 					path!.StartsWith("Home", StringComparison.OrdinalIgnoreCase) ||
 					path.StartsWith("ReleaseNotes", StringComparison.OrdinalIgnoreCase) ||
 					path.StartsWith("Settings", StringComparison.OrdinalIgnoreCase) ||
@@ -1472,7 +1472,7 @@ namespace Files.App.ViewModels.UserControls
 			var drivePath = driveItem.GetRequiredPath();
 
 			if (Strings.Unknown.GetLocalizedResource().Equals(driveItem.SpaceText, StringComparison.OrdinalIgnoreCase) ||
-				(hasStorageItems && storageItems.AreItemsAlreadyInFolder(drivePath)))
+				(hasStorageItems && (storageItems.AreItemsAlreadyInFolder(drivePath) || storageItems.ContainsDestinationOrAncestor(drivePath))))
 			{
 				args.RawEvent.AcceptedOperation = DataPackageOperation.None;
 			}

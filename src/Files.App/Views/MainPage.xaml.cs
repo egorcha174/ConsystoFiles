@@ -73,6 +73,10 @@ namespace Files.App.Views
 
 			ApplySidebarWidthState();
 
+			// Realize the navigation controls before the first measure pass.
+			FindName(nameof(InnerNavigationToolbar));
+			FindName(nameof(TabControl));
+			FindName(nameof(NavToolbar));
 			// Consysto fork: the Windows 11 look shows the system caption buttons instead of the traffic lights
 			if (!VisualStyle.IsMac)
 			{
@@ -433,10 +437,7 @@ namespace Files.App.Views
 
 			MainWindow.Instance.AppWindow.Changed += (_, _) => MainWindow.Instance.RaiseSetTitleBarDragRegion(SetTitleBarDragRegion);
 
-			// Defers loading until after the page has loaded to improve startup perf
-			FindName(nameof(InnerNavigationToolbar));
-			FindName(nameof(TabControl));
-			FindName(nameof(NavToolbar));
+			MainWindow.Instance.RaiseSetTitleBarDragRegion(SetTitleBarDragRegion);
 
 			// Notify user that drag and drop is disabled
 			// Prompt is disabled in the dev environment to prevent issues with the automation testing 
