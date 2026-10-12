@@ -86,13 +86,15 @@ namespace Files.App.Helpers
 		/// <summary>
 		/// Gets application icon path.
 		/// </summary>
-		public static string AppIconPath { get; } =
+		public static string AppIconPath => _appIconPath.Value;
+
+		private static readonly Lazy<string> _appIconPath = new(() =>
 			SystemIO.Path.Combine(AppStorage.InstalledPath, AppEnvironment switch
 			{
 				AppEnvironment.Dev => Constants.AssetPaths.DevLogo,
 				AppEnvironment.SideloadPreview or AppEnvironment.StorePreview => Constants.AssetPaths.PreviewLogo,
 				_ => Constants.AssetPaths.StableLogo
-			});
+			}));
 
 		/// <summary>
 		/// Initializes the app components.
@@ -174,10 +176,17 @@ namespace Files.App.Helpers
 				updateService.AreReleaseNotesAvailable &&
 				!ViewedReleaseNotes)
 			{
-				await MainWindow.Instance.DispatcherQueue.EnqueueOrInvokeAsync(async () =>
+				ViewedReleaseNotes = true;
+
+				// Open after the startup tabs have loaded so the release notes tab doesn't disturb the restored session order
+				_ = Task.Run(async () =>
 				{
-					await Ioc.Default.GetRequiredService<ICommandManager>().OpenReleaseNotes.ExecuteAsync();
-					ViewedReleaseNotes = true;
+					await MainPageViewModel.StartupTabsLoadedTask;
+
+					await MainWindow.Instance.DispatcherQueue.EnqueueOrInvokeAsync(async () =>
+					{
+						await Ioc.Default.GetRequiredService<ICommandManager>().OpenReleaseNotes.ExecuteAsync();
+					});
 				});
 			}
 

@@ -55,32 +55,35 @@ namespace Files.App.Extensions
 			return result;
 		}
 
-		private static readonly ResourceMap resourcesTree = AppStorage.CreateResourceManager().MainResourceMap.TryGetSubtree("Resources");
+		private static readonly ResourceManager resourceManager = AppStorage.CreateResourceManager();
+		private static readonly ResourceMap resourcesTree = resourceManager.MainResourceMap.TryGetSubtree("Resources");
+		private static readonly Lock resourceLookupLock = new();
+		private static ResourceContext? resourceContext;
 
 		private static readonly ConcurrentDictionary<string, string> cachedResources = new();
 
 		private static readonly Dictionary<string, string> abbreviations = new()
 		{
 			// Consysto fork: binary units read like Explorer's ("ГБ" for 1024³ bytes), first, so "GiB" is not half-replaced as "GB"
-			{ ByteSize.KibiByteSymbol, Strings.KiloByteSymbol.GetLocalizedResource() },
-			{ ByteSize.MebiByteSymbol, Strings.MegaByteSymbol.GetLocalizedResource() },
-			{ ByteSize.GibiByteSymbol, Strings.GigaByteSymbol.GetLocalizedResource() },
-			{ ByteSize.TebiByteSymbol, Strings.TeraByteSymbol.GetLocalizedResource() },
-			{ ByteSize.PebiByteSymbol, Strings.PetaByteSymbol.GetLocalizedResource() },
-			{ ByteSize.KiloByteSymbol, Strings.KiloByteSymbol.GetLocalizedResource() },
-			{ ByteSize.MegaByteSymbol, Strings.MegaByteSymbol.GetLocalizedResource() },
-			{ ByteSize.GigaByteSymbol, Strings.GigaByteSymbol.GetLocalizedResource() },
-			{ ByteSize.TeraByteSymbol, Strings.TeraByteSymbol.GetLocalizedResource() },
-			{ ByteSize.PetaByteSymbol, Strings.PetaByteSymbol.GetLocalizedResource() },
-			{ ByteSize.BitSymbol, Strings.ByteSymbol.GetLocalizedResource() },
-			{ ByteSize.ByteSymbol, Strings.ByteSymbol.GetLocalizedResource() }
+			{ ByteSize.KibiByteSymbol, Strings.KiloByteSymbol },
+			{ ByteSize.MebiByteSymbol, Strings.MegaByteSymbol },
+			{ ByteSize.GibiByteSymbol, Strings.GigaByteSymbol },
+			{ ByteSize.TebiByteSymbol, Strings.TeraByteSymbol },
+			{ ByteSize.PebiByteSymbol, Strings.PetaByteSymbol },
+			{ ByteSize.KiloByteSymbol, Strings.KiloByteSymbol },
+			{ ByteSize.MegaByteSymbol, Strings.MegaByteSymbol },
+			{ ByteSize.GigaByteSymbol, Strings.GigaByteSymbol },
+			{ ByteSize.TeraByteSymbol, Strings.TeraByteSymbol },
+			{ ByteSize.PetaByteSymbol, Strings.PetaByteSymbol },
+			{ ByteSize.BitSymbol, Strings.ByteSymbol },
+			{ ByteSize.ByteSymbol, Strings.ByteSymbol }
 		};
 
 		public static string ConvertSizeAbbreviation(this string value)
 		{
 			foreach (var item in abbreviations)
 			{
-				value = value.Replace(item.Key, item.Value, StringComparison.Ordinal);
+				value = value.Replace(item.Key, item.Value.GetLocalizedResource(), StringComparison.Ordinal);
 			}
 
 			return value;
@@ -108,9 +111,24 @@ namespace Files.App.Extensions
 				return value;
 			}
 
-			value = resourcesTree?.TryGetValue(resourceKey)?.ValueAsString;
+			lock (resourceLookupLock)
+			{
+				if (cachedResources.TryGetValue(resourceKey, out value))
+					return value;
 
-			return cachedResources[resourceKey] = value ?? string.Empty;
+				resourceContext ??= resourceManager.CreateResourceContext();
+				value = resourcesTree?.TryGetValue(resourceKey, resourceContext)?.ValueAsString;
+				return cachedResources[resourceKey] = value ?? string.Empty;
+			}
+		}
+
+		internal static void ResetLocalizedResources()
+		{
+			lock (resourceLookupLock)
+			{
+				resourceContext = null;
+				cachedResources.Clear();
+			}
 		}
 	}
 }

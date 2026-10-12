@@ -29,6 +29,7 @@ namespace Files.App
 		public static string? OutputPath { get; set; }
 
 		private static FlyoutBase? _LastOpenedFlyout;
+		private static bool _isWindowTeardownCompleted;
 		public static FlyoutBase? LastOpenedFlyout
 		{
 			set
@@ -85,6 +86,7 @@ namespace Files.App
 			{
 				// Build the DI container off-thread while the window initializes
 				var appModel = AppModel;
+				Task commandsWarmupTask = Task.CompletedTask;
 				var servicesTask = Task.Run(() =>
 				{
 					try
@@ -94,31 +96,36 @@ namespace Files.App
 						// Configure Ioc here so Ioc.Default-dependent constructions warm off-thread too
 						Ioc.Default.ConfigureServices(provider);
 
-						// Warm the settings file reads off the UI thread
+						// Load the appearance settings needed for the first frame off the UI thread.
 						_ = provider.GetRequiredService<IGeneralSettingsService>().LeaveAppRunning;
-						_ = provider.GetRequiredService<IAppearanceSettingsService>().AppThemeBackdropMaterial;
+						var appearanceSettings = provider.GetRequiredService<IAppearanceSettingsService>();
+						_ = appearanceSettings.AppThemeMode;
+						_ = appearanceSettings.AppThemeBackdropMaterial;
 
-						// Read through these statics by the action/context ctors warmed below
-						QuickAccessManager = provider.GetRequiredService<QuickAccessManager>();
-						HistoryWrapper = provider.GetRequiredService<StorageHistoryWrapper>();
-						FileTagsManager = provider.GetRequiredService<FileTagsManager>();
-						LibraryManager = provider.GetRequiredService<LibraryManager>();
+						// Commands are needed for the main page, not for the initial window and backdrop.
+						commandsWarmupTask = Task.Run(() =>
+						{
+							var previousPriority = Thread.CurrentThread.Priority;
+							Thread.CurrentThread.Priority = ThreadPriority.BelowNormal;
+							try
+							{
+								// Action and context constructors access these statics.
+								QuickAccessManager = provider.GetRequiredService<QuickAccessManager>();
+								HistoryWrapper = provider.GetRequiredService<StorageHistoryWrapper>();
+								FileTagsManager = provider.GetRequiredService<FileTagsManager>();
+								LibraryManager = provider.GetRequiredService<LibraryManager>();
 
-						// Warm every command and hotkey off-thread, below normal so window creation wins the cores
-						var previousPriority = Thread.CurrentThread.Priority;
-						Thread.CurrentThread.Priority = ThreadPriority.BelowNormal;
-						try
-						{
-							_ = provider.GetRequiredService<ICommandManager>();
-						}
-						catch (Exception)
-						{
-							// A command ctor that needs the UI thread aborts the warm-up; it runs on first use instead
-						}
-						finally
-						{
-							Thread.CurrentThread.Priority = previousPriority;
-						}
+								_ = provider.GetRequiredService<ICommandManager>();
+							}
+							catch (Exception)
+							{
+								// UI-thread-only constructors run on first use instead.
+							}
+							finally
+							{
+								Thread.CurrentThread.Priority = previousPriority;
+							}
+						});
 
 						return provider;
 					}
@@ -138,17 +145,8 @@ namespace Files.App
 
 				if (!isStartupTask)
 				{
-					// Initialize and activate MainWindow
-					MainWindow.Instance.Activate();
-
-					if (showSplashScreen)
-					{
-						// Wait for the Window to initialize
-						await Task.Delay(10);
-
-						SplashScreenLoadingTCS = new TaskCompletionSource();
-						MainWindow.Instance.ShowSplashScreen();
-					}
+					// Construct the window while appearance settings are loaded.
+					_ = MainWindow.Instance;
 				}
 
 				// Configure the DI (dependency injection) container
@@ -159,27 +157,26 @@ namespace Files.App
 					Ioc.Default.ConfigureServices(serviceProvider);
 				}
 
-				// Configure Sentry
-				if (AppLifecycleHelper.AppEnvironment is not (AppEnvironment.Dev or AppEnvironment.Consysto or AppEnvironment.ConsystoStore))
-					AppLifecycleHelper.ConfigureSentry();
-
 				var userSettingsService = Ioc.Default.GetRequiredService<IUserSettingsService>();
 				var isLeaveAppRunning = userSettingsService.GeneralSettingsService.LeaveAppRunning;
 
-				if (isStartupTask && !isLeaveAppRunning)
+				if (!isStartupTask || !isLeaveAppRunning)
 				{
-					// Initialize and activate MainWindow
-					MainWindow.Instance.Activate();
-
 					if (showSplashScreen)
 					{
-						// Wait for the Window to initialize
-						await Task.Delay(10);
-
 						SplashScreenLoadingTCS = new TaskCompletionSource();
 						MainWindow.Instance.ShowSplashScreen();
 					}
+
+					if (!await MainWindow.Instance.ActivateWithBackdropAsync())
+						return;
 				}
+
+				await commandsWarmupTask;
+
+				// Configure Sentry
+				if (AppLifecycleHelper.AppEnvironment is not (AppEnvironment.Dev or AppEnvironment.Consysto or AppEnvironment.ConsystoStore))
+					AppLifecycleHelper.ConfigureSentry();
 
 				// TODO: Replace with DI
 				QuickAccessManager = Ioc.Default.GetRequiredService<QuickAccessManager>();
@@ -222,20 +219,19 @@ namespace Files.App
 						SystemTrayIcon.Show();
 
 					// Sleep current instance
-					Program.Pool = new(0, 1, $"Files-{AppLifecycleHelper.AppEnvironment}-Instance");
-
-					Thread.Yield();
+					var pool = new Semaphore(0, 1, $"Files-{AppLifecycleHelper.AppEnvironment}-Instance");
+					Program.Pool = pool;
 
 					var cts = new CancellationTokenSource();
 					TryEmptyWorkingSetWhenIdle(cts.Token);
 
-					if (Program.Pool.WaitOne())
-					{
-						cts.Cancel();
-						// Resume the instance
-						Program.Pool.Dispose();
+					await WaitOneAsync(pool);
+
+					cts.Cancel();
+					// Resume the instance; a rapid close-reopen-close may have already replaced the semaphore
+					pool.Dispose();
+					if (ReferenceEquals(Program.Pool, pool))
 						Program.Pool = null;
-					}
 				}
 
 				await AppLifecycleHelper.InitializeAppComponentsAsync();
@@ -286,6 +282,10 @@ namespace Files.App
 		/// </remarks>
 		private async void Window_Closed(object sender, WindowEventArgs args)
 		{
+			// Let the final close after background teardown proceed
+			if (_isWindowTeardownCompleted)
+				return;
+
 			// Stop dispatcher timers before the close handler yields and window teardown begins.
 			AppModel.IsMainWindowClosed = true;
 
@@ -353,10 +353,15 @@ namespace Files.App
 			}
 
 			// Continue running the app on the background
+			var isClosedToBackground = false;
 			if (userSettingsService.GeneralSettingsService.LeaveAppRunning &&
 				!AppModel.ForceProcessTermination &&
 				!Process.GetProcessesByName("Files").Any(IsSameChannelInstance))
 			{
+				// Handled set after an await is read too late to cancel the close
+				args.Handled = true;
+				isClosedToBackground = true;
+
 				// Close open content dialogs
 				UIHelpers.CloseAllDialogs();
 
@@ -380,9 +385,8 @@ namespace Files.App
 				AppStorage.LocalSettings["INSTANCE_ACTIVE"] = -Environment.ProcessId;
 
 				// Sleep current instance
-				Program.Pool = new(0, 1, $"Files-{AppLifecycleHelper.AppEnvironment}-Instance");
-
-				Thread.Yield();
+				var pool = new Semaphore(0, 1, $"Files-{AppLifecycleHelper.AppEnvironment}-Instance");
+				Program.Pool = pool;
 
 				// Displays a notification the first time the app goes to the background
 				if (userSettingsService.AppSettingsService.ShowBackgroundRunningNotification)
@@ -398,19 +402,19 @@ namespace Files.App
 				var cts = new CancellationTokenSource();
 				TryEmptyWorkingSetWhenIdle(cts.Token);
 
-				if (Program.Pool.WaitOne())
-				{
-					cts.Cancel();
-					// Resume the instance
-					Program.Pool.Dispose();
+				// Waiting must not block the dispatcher; WinRT wrapper finalizers stall until it pumps again
+				await WaitOneAsync(pool);
+
+				cts.Cancel();
+				// Resume the instance; a rapid close-reopen-close may have already replaced the semaphore
+				pool.Dispose();
+				if (ReferenceEquals(Program.Pool, pool))
 					Program.Pool = null;
 
-					if (!AppModel.ForceProcessTermination)
-					{
-						args.Handled = true;
-						_ = AppLifecycleHelper.CheckAppUpdate();
-						return;
-					}
+				if (!AppModel.ForceProcessTermination)
+				{
+					_ = AppLifecycleHelper.CheckAppUpdate();
+					return;
 				}
 			}
 
@@ -439,6 +443,27 @@ namespace Files.App
 
 			// Wait for ongoing file operations
 			FileOperationsHelpers.WaitForCompletion();
+
+			// Close the still-alive window for real now that teardown is done
+			if (isClosedToBackground && !_isWindowTeardownCompleted)
+			{
+				_isWindowTeardownCompleted = true;
+				MainWindow.Instance.Close();
+			}
+		}
+
+		private static async Task WaitOneAsync(WaitHandle handle)
+		{
+			var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+			var registration = ThreadPool.RegisterWaitForSingleObject(
+				handle,
+				static (state, _) => ((TaskCompletionSource)state!).TrySetResult(),
+				tcs,
+				Timeout.InfiniteTimeSpan,
+				executeOnlyOnce: true);
+
+			await tcs.Task;
+			registration.Unregister(null);
 		}
 
 		private static void TryEmptyWorkingSetWhenIdle(CancellationToken cancellationToken)
