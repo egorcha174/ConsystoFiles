@@ -164,108 +164,96 @@ namespace Files.App.Helpers
 
 			byte[]? iconData = null;
 
-			try
+			// CAD thumbnails come from our providers. Native CAD shell handlers can crash the process.
+			if (isFolder || !Consysto.CadPreview.CadPreviewSource.IsSupported(SystemIO.Path.GetExtension(path)))
+				iconData = GetShellImage(path, size, iconOptions);
+
+			if (iconData is not null || iconOptions.HasFlag(IconOptions.ReturnThumbnailOnly))
+				return iconData;
+			else
 			{
-				// Attempt to get file icon/thumbnail using IShellItemImageFactory GetImage
-				using var shellItem = SafetyExtensions.IgnoreExceptions(()
-					=> ShellFolderExtensions.GetShellItemFromPathOrPIDL(path));
+				SHFILEINFOW shfi = default;
+				const SHGFI_FLAGS flags = SHGFI_FLAGS.SHGFI_OVERLAYINDEX | SHGFI_FLAGS.SHGFI_ICON | SHGFI_FLAGS.SHGFI_SYSICONINDEX | SHGFI_FLAGS.SHGFI_ICONLOCATION | SHGFI_FLAGS.SHGFI_USEFILEATTRIBUTES;
 
-				// Consysto fork: Autodesk's in-process shell handler for Inventor files can crash with an access violation
-				// that corrupts the heap and takes the app down; their thumbnails come from the fork's CAD core instead.
-				var skipShellImage = Consysto.CadPreview.Inventor.InventorPreviewReader.IsSupported(SystemIO.Path.GetExtension(path));
-
-				if (!skipShellImage && shellItem is not null && shellItem.IShellItem is IShellItemImageFactory shellFactory)
-				{
-					var flags = SIIGBF.SIIGBF_BIGGERSIZEOK;
-
-					if (iconOptions.HasFlag(IconOptions.ReturnIconOnly))
-						flags |= SIIGBF.SIIGBF_ICONONLY;
-
-					if (iconOptions.HasFlag(IconOptions.ReturnThumbnailOnly))
-						flags |= SIIGBF.SIIGBF_THUMBNAILONLY;
-
-					if (iconOptions.HasFlag(IconOptions.ReturnOnlyIfCached))
-						flags |= SIIGBF.SIIGBF_INCACHEONLY;
-
-					HBITMAP hbitmap = default;
-					var hres = shellFactory.GetImage(new(size, size), flags, &hbitmap);
-					try
-					{
-						if (hres == HRESULT.S_OK)
-						{
-							using var image = GetBitmapFromHBitmap(hbitmap);
-							if (image is not null)
-								iconData = (byte[]?)new ImageConverter().ConvertTo(image, typeof(byte[]));
-						}
-					}
-					finally
-					{
-						if (!hbitmap.IsNull)
-							PInvoke.DeleteObject(hbitmap);
-					}
-				}
-
-				if (iconData is not null || iconOptions.HasFlag(IconOptions.ReturnThumbnailOnly))
+				// Cannot access file, use file attributes
+				var ret = PInvoke.SHGetFileInfo(path, isFolder ? FILE_FLAGS_AND_ATTRIBUTES.FILE_ATTRIBUTE_DIRECTORY : 0, ref shfi, flags);
+				if (ret is 0)
 					return iconData;
-				else
-				{
-					SHFILEINFOW shfi = default;
-					const SHGFI_FLAGS flags = SHGFI_FLAGS.SHGFI_OVERLAYINDEX | SHGFI_FLAGS.SHGFI_ICON | SHGFI_FLAGS.SHGFI_SYSICONINDEX | SHGFI_FLAGS.SHGFI_ICONLOCATION | SHGFI_FLAGS.SHGFI_USEFILEATTRIBUTES;
 
-					// Cannot access file, use file attributes
-					var ret = PInvoke.SHGetFileInfo(path, isFolder ? FILE_FLAGS_AND_ATTRIBUTES.FILE_ATTRIBUTE_DIRECTORY : 0, ref shfi, flags);
-					if (ret is 0)
+				PInvoke.DestroyIcon(shfi.hIcon);
+
+				var imageListSize = GetImageListForSize(size);
+
+				lock (_iconLock)
+				{
+					if (PInvoke.SHGetImageList<IImageList>(imageListSize, out var imageList).Failed)
 						return iconData;
 
-					PInvoke.DestroyIcon(shfi.hIcon);
-
-					var imageListSize = GetImageListForSize(size);
-
-					lock (_iconLock)
+					if (iconData is null)
 					{
-						if (PInvoke.SHGetImageList<IImageList>(imageListSize, out var imageList).Failed)
-							return iconData;
-
-						if (iconData is null)
+						var iconIdx = shfi.iIcon & 0xFFFFFF;
+						if (iconIdx != 0)
 						{
-							var iconIdx = shfi.iIcon & 0xFFFFFF;
-							if (iconIdx != 0)
+							// Could not fetch thumbnail, load simple icon
+							imageList.GetIcon(iconIdx, 1, out var iconHandle).ThrowOnFailure();
+							using var hIcon = iconHandle;
+							if (!hIcon.IsClosed && !hIcon.IsInvalid)
 							{
-								// Could not fetch thumbnail, load simple icon
-								imageList.GetIcon(iconIdx, 1, out var iconHandle).ThrowOnFailure();
-								using var hIcon = iconHandle;
-								if (!hIcon.IsClosed && !hIcon.IsInvalid)
+								using (var image = GetBitmapFromHIcon(hIcon))
 								{
-									using (var image = GetBitmapFromHIcon(hIcon))
-									{
-										if (image is not null)
-											iconData = (byte[]?)new ImageConverter().ConvertTo(image, typeof(byte[]));
-									}
+									if (image is not null)
+										iconData = (byte[]?)new ImageConverter().ConvertTo(image, typeof(byte[]));
 								}
 							}
-							else if (isFolder)
-							{
-								// Could not icon, load generic icon
-								var icons = ExtractSelectedIconsFromDLL(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "imageres.dll"), [2], size);
-								var generic = icons.SingleOrDefault(x => x.Index == 2);
-								iconData = generic?.IconData;
-							}
-							else
-							{
-								// Could not icon, load generic icon
-								var icons = ExtractSelectedIconsFromDLL(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "shell32.dll"), [1], size);
-								var generic = icons.SingleOrDefault(x => x.Index == 1);
-								iconData = generic?.IconData;
-							}
+						}
+						else if (isFolder)
+						{
+							// Could not icon, load generic icon
+							var icons = ExtractSelectedIconsFromDLL(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "imageres.dll"), [2], size);
+							var generic = icons.SingleOrDefault(x => x.Index == 2);
+							iconData = generic?.IconData;
+						}
+						else
+						{
+							// Could not icon, load generic icon
+							var icons = ExtractSelectedIconsFromDLL(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "shell32.dll"), [1], size);
+							var generic = icons.SingleOrDefault(x => x.Index == 1);
+							iconData = generic?.IconData;
 						}
 					}
-
-					return iconData;
 				}
+
+				return iconData;
+			}
+		}
+
+		private static unsafe byte[]? GetShellImage(string path, int size, IconOptions iconOptions)
+		{
+			using var shellItem = SafetyExtensions.IgnoreExceptions(() => ShellFolderExtensions.GetShellItemFromPathOrPIDL(path));
+			if (shellItem?.IShellItem is not IShellItemImageFactory shellFactory)
+				return null;
+
+			var flags = SIIGBF.SIIGBF_BIGGERSIZEOK;
+			if (iconOptions.HasFlag(IconOptions.ReturnIconOnly))
+				flags |= SIIGBF.SIIGBF_ICONONLY;
+			if (iconOptions.HasFlag(IconOptions.ReturnThumbnailOnly))
+				flags |= SIIGBF.SIIGBF_THUMBNAILONLY;
+			if (iconOptions.HasFlag(IconOptions.ReturnOnlyIfCached))
+				flags |= SIIGBF.SIIGBF_INCACHEONLY;
+
+			HBITMAP hbitmap = default;
+			try
+			{
+				if (shellFactory.GetImage(new(size, size), flags, &hbitmap) != HRESULT.S_OK || hbitmap.IsNull)
+					return null;
+
+				using var image = GetBitmapFromHBitmap(hbitmap);
+				return image is null ? null : (byte[]?)new ImageConverter().ConvertTo(image, typeof(byte[]));
 			}
 			finally
 			{
-
+				if (!hbitmap.IsNull)
+					PInvoke.DeleteObject(hbitmap);
 			}
 		}
 

@@ -19,8 +19,8 @@ namespace Files.App.Cad
 		private const long MaximumFileBytes = 64 * 1024 * 1024;
 		private const string CacheVersion = "v1";
 
-		// Parsing a drawing is CPU-bound; a folder full of them must not starve the UI.
-		private static readonly SemaphoreSlim renderGate = new(Math.Max(1, Environment.ProcessorCount / 2));
+		// Parsing drawings uses large buffers; limit both CPU and memory pressure in crowded folders.
+		private static readonly SemaphoreSlim renderGate = new(Math.Clamp(Environment.ProcessorCount / 2, 1, 2));
 
 		// One folder per program version: a fixed drawing reader must not be hidden behind pictures rendered by the old
 		// one (07.10.2026: broken DXF splines and blank AI pages stayed in the grid while the preview pane was right).

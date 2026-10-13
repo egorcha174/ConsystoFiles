@@ -13,6 +13,7 @@ namespace Files.App.UserControls.FilePreviews
 	{
 		private IUserSettingsService UserSettingsService { get; } = Ioc.Default.GetRequiredService<IUserSettingsService>();
 		private bool unloaded;
+		private MediaPlayer? subscribedPlayer;
 
 		public MediaPreview(MediaPreviewViewModel model)
 		{
@@ -26,19 +27,36 @@ namespace Files.App.UserControls.FilePreviews
 
 		private void PlayerContext_Loaded(object sender, RoutedEventArgs e)
 		{
-			// Consysto fork: the element creates its MediaPlayer only once it has a source, so in the constructor it is
-			// still null. Subscribing there threw, and every video, playable or not, ended up «not supported» (08.10.2026)
-			PlayerContext.MediaPlayer.MediaFailed += MediaPlayer_MediaFailed;
-			PlayerContext.MediaPlayer.Volume = UserSettingsService.InfoPaneSettingsService.MediaVolume;
-			PlayerContext.MediaPlayer.VolumeChanged += MediaPlayer_VolumeChanged;
+			if (unloaded || PlayerContext.MediaPlayer is not { } player || ReferenceEquals(player, subscribedPlayer))
+				return;
+
+			DetachPlayer();
+			subscribedPlayer = player;
+			player.Volume = UserSettingsService.InfoPaneSettingsService.MediaVolume;
+			player.MediaFailed += MediaPlayer_MediaFailed;
+			player.VolumeChanged += MediaPlayer_VolumeChanged;
 			ViewModel.TogglePlaybackRequested += TogglePlaybackRequestInvoked;
+		}
+
+		private void DetachPlayer()
+		{
+			if (subscribedPlayer is { } player)
+			{
+				player.MediaFailed -= MediaPlayer_MediaFailed;
+				player.VolumeChanged -= MediaPlayer_VolumeChanged;
+				subscribedPlayer = null;
+			}
+			ViewModel.TogglePlaybackRequested -= TogglePlaybackRequestInvoked;
 		}
 
 		private void MediaPreview_Unloaded(object sender, RoutedEventArgs e)
 		{
+			if (unloaded)
+				return;
+
 			unloaded = true;
-			if (PlayerContext.MediaPlayer is { } player)
-				player.MediaFailed -= MediaPlayer_MediaFailed;
+			// Detach from the original player before clearing Source can release it.
+			DetachPlayer();
 			// The MediaPlayerElement isn't properly disposed by Windows so we set the source to null
 			// to avoid issues the next time the control is used.
 			PlayerContext.Source = null;
@@ -46,9 +64,6 @@ namespace Files.App.UserControls.FilePreviews
 
 			PlayerContext.Loaded -= PlayerContext_Loaded;
 			Unloaded -= MediaPreview_Unloaded;
-
-			PlayerContext.MediaPlayer.VolumeChanged -= MediaPlayer_VolumeChanged;
-			ViewModel.TogglePlaybackRequested -= TogglePlaybackRequestInvoked;
 		}
 
 		private void MediaPlayer_MediaFailed(MediaPlayer sender, MediaPlayerFailedEventArgs args)
@@ -56,8 +71,9 @@ namespace Files.App.UserControls.FilePreviews
 			App.Logger.LogWarning($"MediaPreview: {args.Error}, 0x{args.ExtendedErrorCode?.HResult:X8}, {args.ErrorMessage}");
 			DispatcherQueue.TryEnqueue(() =>
 			{
-				if (unloaded)
+				if (unloaded || !ReferenceEquals(sender, subscribedPlayer))
 					return;
+				DetachPlayer();
 				PlayerContext.Source = null;
 				Content = new UnsupportedPreview();
 			});
@@ -65,21 +81,29 @@ namespace Files.App.UserControls.FilePreviews
 
 		private void MediaPlayer_VolumeChanged(MediaPlayer sender, object args)
 		{
-			if (sender.Volume != UserSettingsService.InfoPaneSettingsService.MediaVolume)
+			DispatcherQueue.TryEnqueue(() =>
 			{
-				UserSettingsService.InfoPaneSettingsService.MediaVolume = sender.Volume;
-			}
+				if (unloaded || !ReferenceEquals(sender, subscribedPlayer))
+					return;
+
+				var volume = sender.Volume;
+				if (volume != UserSettingsService.InfoPaneSettingsService.MediaVolume)
+					UserSettingsService.InfoPaneSettingsService.MediaVolume = volume;
+			});
 		}
 
 		private void TogglePlaybackRequestInvoked(object? sender, EventArgs e)
 		{
-			if (PlayerContext.MediaPlayer.PlaybackSession.PlaybackState is not MediaPlaybackState.Playing)
+			if (unloaded || subscribedPlayer is not { } player)
+				return;
+
+			if (player.PlaybackSession.PlaybackState is not MediaPlaybackState.Playing)
 			{
-				PlayerContext.MediaPlayer.Play();
+				player.Play();
 			}
 			else
 			{
-				PlayerContext.MediaPlayer.Pause();
+				player.Pause();
 			}
 		}
 

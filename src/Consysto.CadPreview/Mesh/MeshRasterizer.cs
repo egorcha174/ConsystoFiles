@@ -37,6 +37,8 @@ public sealed class MeshRasterizer
 {
     private const float MarginFraction = 0.06f;
 
+    private const int MaximumSamplePixels = 4 * 1024 * 1024;
+
     // The same neutral steel for thumbnails and the interactive view.
     private static readonly Vector3 BaseColor = new(0.62f, 0.66f, 0.70f);
 
@@ -56,6 +58,15 @@ public sealed class MeshRasterizer
         width = Math.Max(width, 1);
         height = Math.Max(height, 1);
         supersample = Math.Clamp(supersample, 1, 4);
+
+        // Limit retained buffers even when a high-DPI preview fills a large display.
+        int maximumOutputPixels = MaximumSamplePixels / (supersample * supersample);
+        double resolution = Math.Min(1, Math.Min(
+            Math.Sqrt(maximumOutputPixels / ((double)width * height)),
+            maximumOutputPixels / (double)Math.Max(width, height)));
+        width = Math.Max(1, (int)(width * resolution));
+        height = Math.Max(1, (int)(height * resolution));
+        view = view with { PanX = view.PanX * (float)resolution, PanY = view.PanY * (float)resolution };
         int sampleWidth = width * supersample;
         int sampleHeight = height * supersample;
 

@@ -449,10 +449,10 @@ namespace Files.App.ViewModels.UserControls
 				}
 				catch (Exception e)
 				{
-					Debug.WriteLine(e);
-
 					if (token.IsCancellationRequested)
 						return;
+
+					App.Logger.LogWarning(e, "Preview loading failed; trying the basic preview.");
 
 					// If initial loading fails, attempt to load a basic preview (thumbnail and details only)
 					// If that fails, revert to no preview/details available as long as the item is not a shortcut or folder
@@ -494,10 +494,10 @@ namespace Files.App.ViewModels.UserControls
 				}
 				catch (Exception e)
 				{
-					Debug.WriteLine(e);
-
 					if (token.IsCancellationRequested)
 						return;
+
+					App.Logger.LogWarning(e, "Folder preview loading failed.");
 
 					PreviewPaneContent = null;
 					PreviewPaneState = PreviewPaneStates.NoPreviewOrDetailsAvailable;
@@ -558,12 +558,12 @@ namespace Files.App.ViewModels.UserControls
 			}
 			catch (Exception ex)
 			{
-				Debug.WriteLine(ex);
-
 				// Consysto fork: this is the last fallback, so it must leave the pane in a final state.
 				// Returning with the state still at LoadingPreview kept the spinner turning forever.
 				if (token.IsCancellationRequested)
 					return;
+
+				App.Logger.LogWarning(ex, "Basic preview loading failed.");
 
 				PreviewPaneContent = unsupported ? new UnsupportedPreview() : null;
 				PreviewPaneState = unsupported ? PreviewPaneStates.PreviewAndDetailsAvailable : PreviewPaneStates.NoPreviewOrDetailsAvailable;

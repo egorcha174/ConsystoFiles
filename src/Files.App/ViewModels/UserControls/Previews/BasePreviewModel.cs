@@ -137,7 +137,7 @@ namespace Files.App.ViewModels.Previews
 			if (Item.IsShortcut)
 				return null;
 			if (Item.ItemFile is null)
-				throw new InvalidOperationException("The preview item could not be opened as a file.");
+				return null;
 
 			var list = await FileProperty.RetrieveAndInitializePropertiesAsync(Item.ItemFile,
 				Constants.ResourceFilePaths.PreviewPaneDetailsPropertiesJsonPath);
