@@ -5504,7 +5504,7 @@
     <value>Версия</value>
   </data>
   <data name="ConsystoCadPrintTime" xml:space="preserve">
-    <value>????? ??????</value>
+    <value>Время печати</value>
   </data>
   <data name="ConsystoTorrentDefault" xml:space="preserve">
     <value>Качать торренты через Files</value>
