@@ -29,6 +29,24 @@ namespace Files.App.Services.Settings
 			set => Set(value);
 		}
 
+		public bool CheckForUpdatesAutomatically
+		{
+			get => Get(true);
+			set => Set(value);
+		}
+
+		public string SkippedUpdateVersion
+		{
+			get => Get(string.Empty);
+			set => Set(value);
+		}
+
+		public string LastOfferedUpdateVersion
+		{
+			get => Get(string.Empty);
+			set => Set(value);
+		}
+
 		public ApplicationSettingsService(ISettingsSharingContext settingsSharingContext)
 		{
 			RegisterSettingsContext(settingsSharingContext);

@@ -1,6 +1,6 @@
 # Consysto Files — Privacy Policy
 
-Last updated: September 28, 2026
+Last updated: October 23, 2026
 
 Consysto Files is a free file manager for Windows made by Egor Chayka. This policy covers the app as installed from the Microsoft Store, from GitHub releases or as a portable folder.
 
@@ -14,7 +14,7 @@ Settings, tags, collections, thumbnail caches and similar data are stored only o
 
 Only when you ask it to:
 
-- **Updates.** The Store version is updated by the Microsoft Store. The portable version checks GitHub for a newer release and, if there is one, opens its page; it sends nothing but a standard request to the GitHub API.
+- **Updates.** The Store version is updated by the Microsoft Store. The installed and portable versions check the release list on consysto.pro (GitHub if the site is unavailable) at startup and every few hours, and read the release notes from GitHub when there is a newer version. These are plain requests for public files: nothing about you or your files is sent. If there is a newer version, the app shows what changed and offers to download it; it is downloaded only when you press the button. Automatic checking can be turned off in Settings → About.
 - **Book catalogs (OPDS).** The app connects to catalogs whose addresses you add yourself.
 - **Book sharing to your phone.** If you turn on the built-in catalog server, devices on your local network can browse the folders you chose to share. It is off by default.
 - **Torrents.** If you add a torrent, the app exchanges data with other peers in the usual way for BitTorrent; they can see your IP address.
@@ -43,13 +43,13 @@ Egor Chayka — consysto@gmail.com, Telegram [@egor_chayka](https://t.me/egor_ch
 
 # Consysto Files — политика конфиденциальности
 
-Обновлено: 28 сентября 2026 г.
+Обновлено: 23 октября 2026 г.
 
 Consysto Files — бесплатный файловый менеджер для Windows, автор — Егор Чайка. Политика относится к версии из Microsoft Store, к выпускам на GitHub и к портативной папке.
 
 **Что собирает программа.** Ничего. Нет учётных записей, аналитики, телеметрии и отчётов об ошибках. Программа не отправляет ни автору, ни кому-либо ещё ваши файлы, их имена, содержимое папок или сведения о работе. Настройки, метки, коллекции и кэш миниатюр хранятся только на вашем компьютере.
 
-**Когда программа выходит в сеть** — только по вашему действию: обновления (версию из магазина обновляет Microsoft Store, портативная проверяет новые выпуски на GitHub); каталоги книг OPDS, адреса которых вы добавили сами; раздача книг на телефон по локальной сети (по умолчанию выключена); торренты (участники раздачи видят ваш IP-адрес, как в любом клиенте BitTorrent); операции Git с указанными вами серверами; канал управления (по умолчанию выключен); название места для фотографии с GPS-координатами — его программа может запросить у картографической службы Windows (Microsoft), когда вы смотрите сведения о фото; ссылки, которые вы открываете в браузере.
+**Когда программа выходит в сеть** — только по вашему действию: обновления (версию из магазина обновляет Microsoft Store, установленная и портативная при запуске и раз в несколько часов смотрят список выпусков на consysto.pro, а если сайт недоступен — на GitHub; описание изменений берут с GitHub; это обычные запросы общедоступных файлов, о вас и ваших файлах ничего не передаётся; новую версию программа скачивает только по кнопке, автоматическую проверку можно выключить в «Настройки → О программе»); каталоги книг OPDS, адреса которых вы добавили сами; раздача книг на телефон по локальной сети (по умолчанию выключена); торренты (участники раздачи видят ваш IP-адрес, как в любом клиенте BitTorrent); операции Git с указанными вами серверами; канал управления (по умолчанию выключен); название места для фотографии с GPS-координатами — его программа может запросить у картографической службы Windows (Microsoft), когда вы смотрите сведения о фото; ссылки, которые вы открываете в браузере.
 
 **Разрешения.** Программе нужен широкий доступ к файловой системе, потому что это файловый менеджер. Действия с правами администратора выполняются только после подтверждения в окне Windows.
 

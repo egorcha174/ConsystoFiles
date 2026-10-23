@@ -5829,4 +5829,58 @@
   <data name="ConsystoPreviewUnsupported" xml:space="preserve">
     <value>Not supported</value>
   </data>
+  <data name="ConsystoUpdates" xml:space="preserve">
+    <value>Updates</value>
+  </data>
+  <data name="ConsystoUpdatesDescription" xml:space="preserve">
+    <value>Checks consysto.pro, or GitHub when the site is unavailable</value>
+  </data>
+  <data name="ConsystoUpdateCheckNow" xml:space="preserve">
+    <value>Check now</value>
+  </data>
+  <data name="ConsystoUpdateCheckAutomatically" xml:space="preserve">
+    <value>Check for updates automatically</value>
+  </data>
+  <data name="ConsystoUpdateChecking" xml:space="preserve">
+    <value>Checking...</value>
+  </data>
+  <data name="ConsystoUpdateUpToDate" xml:space="preserve">
+    <value>You have the latest version</value>
+  </data>
+  <data name="ConsystoUpdateFailed" xml:space="preserve">
+    <value>Could not check: consysto.pro and GitHub are unreachable</value>
+  </data>
+  <data name="ConsystoUpdateAvailableStatus" xml:space="preserve">
+    <value>Version {0} is available</value>
+  </data>
+  <data name="ConsystoUpdateDialogTitle" xml:space="preserve">
+    <value>Consysto Files {0} is available</value>
+  </data>
+  <data name="ConsystoUpdateDialogInstalled" xml:space="preserve">
+    <value>You have version {0}. What's new:</value>
+  </data>
+  <data name="ConsystoUpdateDownload" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="ConsystoUpdateSkip" xml:space="preserve">
+    <value>Skip</value>
+  </data>
+  <data name="ConsystoUpdateLater" xml:space="preserve">
+    <value>Later</value>
+  </data>
+  <data name="ConsystoUpdateInstallerHint" xml:space="preserve">
+    <value>Run the downloaded installer; it will ask you to close Consysto Files. Your settings are kept.</value>
+  </data>
+  <data name="ConsystoUpdatePortableHint" xml:space="preserve">
+    <value>Unpack the new folder and copy app\data from the old one into it to keep your settings.</value>
+  </data>
+  <data name="ConsystoUpdateNotesLoading" xml:space="preserve">
+    <value>Loading the list of changes...</value>
+  </data>
+  <data name="ConsystoUpdateNotesUnavailable" xml:space="preserve">
+    <value>The list of changes is on the [release page]({0}).</value>
+  </data>
+  <data name="ConsystoUpdateNotesLanguage" xml:space="preserve">
+    <value>en</value>
+  </data>
 </root>

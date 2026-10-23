@@ -1,0 +1,48 @@
+﻿<!--  Consysto fork: a newer release and what it changed  -->
+<ContentDialog
+	x:Class="Files.App.Dialogs.UpdateAvailableDialog"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:controls="using:CommunityToolkit.Labs.WinUI.MarkdownTextBlock"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:helpers="using:Files.App.Helpers"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	Title="{x:Bind ViewModel.Title}"
+	CloseButtonText="{helpers:ResourceString Name=ConsystoUpdateLater}"
+	CornerRadius="{StaticResource OverlayCornerRadius}"
+	DefaultButton="Primary"
+	HighContrastAdjustment="None"
+	Loaded="UpdateAvailableDialog_Loaded"
+	PrimaryButtonText="{helpers:ResourceString Name=ConsystoUpdateDownload}"
+	RequestedTheme="{x:Bind RootAppElement.RequestedTheme, Mode=OneWay}"
+	SecondaryButtonText="{helpers:ResourceString Name=ConsystoUpdateSkip}"
+	Style="{StaticResource DefaultContentDialogStyle}"
+	mc:Ignorable="d">
+
+	<ContentDialog.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="/Styles/TransparentMarkdownTextBlock.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</ContentDialog.Resources>
+
+	<StackPanel Width="440" Spacing="12">
+		<TextBlock Text="{x:Bind ViewModel.InstalledVersion}" TextWrapping="Wrap" />
+
+		<ScrollViewer MaxHeight="320">
+			<controls:MarkdownTextBlock
+				x:Name="NotesMarkdownTextBlock"
+				Padding="0,0,16,0"
+				OnLinkClicked="NotesMarkdownTextBlock_OnLinkClicked"
+				Text="{x:Bind ViewModel.Notes, Mode=OneWay}" />
+		</ScrollViewer>
+
+		<TextBlock
+			Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+			Style="{StaticResource CaptionTextBlockStyle}"
+			Text="{x:Bind ViewModel.Hint}"
+			TextWrapping="Wrap" />
+	</StackPanel>
+
+</ContentDialog>

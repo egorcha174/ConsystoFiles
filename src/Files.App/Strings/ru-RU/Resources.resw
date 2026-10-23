@@ -5828,4 +5828,58 @@
   <data name="ConsystoPreviewUnsupported" xml:space="preserve">
     <value>Не поддерживается</value>
   </data>
+  <data name="ConsystoUpdates" xml:space="preserve">
+    <value>Обновления</value>
+  </data>
+  <data name="ConsystoUpdatesDescription" xml:space="preserve">
+    <value>Проверяет consysto.pro, а если сайт недоступен — GitHub</value>
+  </data>
+  <data name="ConsystoUpdateCheckNow" xml:space="preserve">
+    <value>Проверить сейчас</value>
+  </data>
+  <data name="ConsystoUpdateCheckAutomatically" xml:space="preserve">
+    <value>Проверять обновления автоматически</value>
+  </data>
+  <data name="ConsystoUpdateChecking" xml:space="preserve">
+    <value>Проверяю…</value>
+  </data>
+  <data name="ConsystoUpdateUpToDate" xml:space="preserve">
+    <value>Установлена последняя версия</value>
+  </data>
+  <data name="ConsystoUpdateFailed" xml:space="preserve">
+    <value>Не удалось проверить: нет связи с consysto.pro и GitHub</value>
+  </data>
+  <data name="ConsystoUpdateAvailableStatus" xml:space="preserve">
+    <value>Доступна версия {0}</value>
+  </data>
+  <data name="ConsystoUpdateDialogTitle" xml:space="preserve">
+    <value>Вышла Consysto Files {0}</value>
+  </data>
+  <data name="ConsystoUpdateDialogInstalled" xml:space="preserve">
+    <value>У вас версия {0}. Что нового:</value>
+  </data>
+  <data name="ConsystoUpdateDownload" xml:space="preserve">
+    <value>Скачать</value>
+  </data>
+  <data name="ConsystoUpdateSkip" xml:space="preserve">
+    <value>Пропустить</value>
+  </data>
+  <data name="ConsystoUpdateLater" xml:space="preserve">
+    <value>Позже</value>
+  </data>
+  <data name="ConsystoUpdateInstallerHint" xml:space="preserve">
+    <value>Запустите скачанный установщик — он попросит закрыть Consysto Files. Настройки сохранятся.</value>
+  </data>
+  <data name="ConsystoUpdatePortableHint" xml:space="preserve">
+    <value>Распакуйте новую папку и перенесите в неё app\data из старой — так сохранятся настройки.</value>
+  </data>
+  <data name="ConsystoUpdateNotesLoading" xml:space="preserve">
+    <value>Загружаю список изменений…</value>
+  </data>
+  <data name="ConsystoUpdateNotesUnavailable" xml:space="preserve">
+    <value>Список изменений — на [странице выпуска]({0}).</value>
+  </data>
+  <data name="ConsystoUpdateNotesLanguage" xml:space="preserve">
+    <value>ru</value>
+  </data>
 </root>

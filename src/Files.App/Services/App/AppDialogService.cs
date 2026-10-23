@@ -30,6 +30,8 @@ namespace Files.App.Services
 				{ typeof(BulkRenameDialogViewModel), () => new BulkRenameDialog() },
 				{ typeof(CloneRepoDialogViewModel), () => new CloneRepoDialog() },
 				{ typeof(CompressSkippedItemsDialogViewModel), () => new CompressSkippedItemsDialog() },
+				// Consysto fork
+				{ typeof(UpdateAvailableDialogViewModel), () => new UpdateAvailableDialog() },
 			}.ToFrozenDictionary();
 		}
 

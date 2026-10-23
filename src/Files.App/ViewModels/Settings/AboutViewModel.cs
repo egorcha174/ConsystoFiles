@@ -19,6 +19,10 @@ namespace Files.App.ViewModels.Settings
 		// Dependency injections
 
 		private IGeneralSettingsService GeneralSettingsService { get; } = Ioc.Default.GetRequiredService<IGeneralSettingsService>();
+		private IApplicationSettingsService ApplicationSettingsService { get; } = Ioc.Default.GetRequiredService<IApplicationSettingsService>();
+
+		/// <summary>Consysto fork: the release check of our own builds; the Store version is updated by the Store.</summary>
+		private PortableUpdateService? ConsystoUpdateService { get; } = Ioc.Default.GetRequiredService<IUpdateService>() as PortableUpdateService;
 
 
 		// Properties
@@ -34,8 +38,32 @@ namespace Files.App.ViewModels.Settings
 
 		public ObservableCollection<OpenSourceLibraryItem> OpenSourceLibraries { get; }
 
+		public bool CanCheckForUpdates
+			=> ConsystoUpdateService is not null;
+
+		public bool CheckForUpdatesAutomatically
+		{
+			get => ApplicationSettingsService.CheckForUpdatesAutomatically;
+			set
+			{
+				if (value == ApplicationSettingsService.CheckForUpdatesAutomatically)
+					return;
+
+				ApplicationSettingsService.CheckForUpdatesAutomatically = value;
+				OnPropertyChanged();
+			}
+		}
+
+		private string _updateStatus = Strings.ConsystoUpdatesDescription.GetLocalizedResource();
+		public string UpdateStatus
+		{
+			get => _updateStatus;
+			private set => SetProperty(ref _updateStatus, value);
+		}
+
 		// Commands
 
+		public ICommand CheckForUpdatesCommand { get; }
 		public ICommand CopyAppVersionCommand { get; }
 		public ICommand CopyWindowsVersionCommand { get; }
 		public ICommand CopyUserIDCommand { get; }
@@ -89,6 +117,7 @@ namespace Files.App.ViewModels.Settings
 				new ("https://github.com/leeqwind/PESignAnalyzer", "PESignAnalyzer"),
 			];
 
+			CheckForUpdatesCommand = new AsyncRelayCommand(CheckForUpdatesAsync);
 			CopyAppVersionCommand = new RelayCommand(CopyAppVersion);
 			CopyWindowsVersionCommand = new RelayCommand(CopyWindowsVersion);
 			CopyUserIDCommand = new RelayCommand(CopyUserID);
@@ -177,6 +206,20 @@ namespace Files.App.ViewModels.Settings
 		public Task DoOpenCrowdin()
 		{
 			return Launcher.LaunchUriAsync(new Uri(Constants.ExternalUrl.CrowdinUrl)).AsTask();
+		}
+
+		private async Task CheckForUpdatesAsync()
+		{
+			if (ConsystoUpdateService is null)
+				return;
+
+			UpdateStatus = Strings.ConsystoUpdateChecking.GetLocalizedResource();
+			UpdateStatus = await ConsystoUpdateService.CheckNowAsync() switch
+			{
+				true => string.Format(Strings.ConsystoUpdateAvailableStatus.GetLocalizedResource(), ConsystoUpdateService.LatestRelease?.Version),
+				false => Strings.ConsystoUpdateUpToDate.GetLocalizedResource(),
+				null => Strings.ConsystoUpdateFailed.GetLocalizedResource(),
+			};
 		}
 
 		public void CopyAppVersion()
