@@ -47,6 +47,24 @@
 				</Button>
 			</wctcontrols:SettingsCard>
 
+			<!--  Consysto fork: release check of the installed and portable builds  -->
+			<wctcontrols:SettingsExpander
+				x:Name="UpdatesCard"
+				HorizontalAlignment="Stretch"
+				x:Load="{x:Bind ViewModel.CanCheckForUpdates}"
+				Description="{x:Bind ViewModel.UpdateStatus, Mode=OneWay}"
+				Header="{helpers:ResourceString Name=ConsystoUpdates}">
+				<wctcontrols:SettingsExpander.HeaderIcon>
+					<FontIcon Glyph="&#xE895;" />
+				</wctcontrols:SettingsExpander.HeaderIcon>
+				<Button Command="{x:Bind ViewModel.CheckForUpdatesCommand}" Content="{helpers:ResourceString Name=ConsystoUpdateCheckNow}" />
+				<wctcontrols:SettingsExpander.Items>
+					<wctcontrols:SettingsCard Header="{helpers:ResourceString Name=ConsystoUpdateCheckAutomatically}">
+						<ToggleSwitch AutomationProperties.Name="{helpers:ResourceString Name=ConsystoUpdateCheckAutomatically}" IsOn="{x:Bind ViewModel.CheckForUpdatesAutomatically, Mode=TwoWay}" />
+					</wctcontrols:SettingsCard>
+				</wctcontrols:SettingsExpander.Items>
+			</wctcontrols:SettingsExpander>
+
 			<!--  Consysto fork: Russian payment pages; GitHub Sponsors does not work from Russia  -->
 			<wctcontrols:SettingsExpander
 				x:Name="SponsorCard"

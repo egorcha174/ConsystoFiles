@@ -25,5 +25,20 @@ namespace Files.App.Data.Contracts
 		/// </summary>
 		bool ShowDataStreamsAreHiddenPrompt { get; set; }
 
+		/// <summary>
+		/// Consysto fork: gets or sets whether the app looks for a newer release on its own.
+		/// </summary>
+		bool CheckForUpdatesAutomatically { get; set; }
+
+		/// <summary>
+		/// Consysto fork: gets or sets the release the user chose to skip.
+		/// </summary>
+		string SkippedUpdateVersion { get; set; }
+
+		/// <summary>
+		/// Consysto fork: gets or sets the release whose dialog was already shown on its own, so it is offered only once.
+		/// </summary>
+		string LastOfferedUpdateVersion { get; set; }
+
 	}
 }
