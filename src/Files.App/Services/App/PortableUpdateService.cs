@@ -9,13 +9,14 @@ namespace Files.App.Services
 {
 	/// <summary>
 	/// Learns about a newer release from the consysto.pro catalog, or from GitHub when the site is unreachable, and offers it
-	/// together with what changed since the running version. The new file is opened in the browser; nothing is replaced on its own.
+	/// together with what changed since the running version. The installed copy updates itself when the user agrees;
+	/// the portable one opens the new zip in the browser.
 	/// </summary>
 	internal sealed partial class PortableUpdateService : ObservableObject, IUpdateService
 	{
 		private const string SiteAddress = "https://consysto.pro";
 
-		private const string CatalogAddress = SiteAddress + "/downloads/releases/catalog.json";
+		private const string CatalogPath = "/downloads/releases/catalog.json";
 
 		private const string SiteFilesPrefix = "/downloads/releases/files/";
 
@@ -30,6 +31,18 @@ namespace Files.App.Services
 		private const string GitHubReleasesPage = "https://github.com/" + Repository + "/releases";
 
 		private static readonly HttpClient Client = CreateClient();
+
+		/// <summary>
+		/// For trying an update before a release: CONSYSTO_UPDATE_TEST_SITE=http://localhost:8911 serves its own
+		/// downloads/releases/catalog.json and files. Only this computer can be named, and GitHub is then not asked.
+		/// </summary>
+		private static readonly string? TestSite = Environment.GetEnvironmentVariable("CONSYSTO_UPDATE_TEST_SITE") is { } site &&
+			Uri.TryCreate(site, UriKind.Absolute, out var uri) && uri.IsLoopback && uri.Scheme == Uri.UriSchemeHttp
+				? uri.GetLeftPart(UriPartial.Authority)
+				: null;
+
+		private static string Site
+			=> TestSite ?? SiteAddress;
 
 		private readonly IApplicationSettingsService _settings;
 
@@ -70,9 +83,19 @@ namespace Files.App.Services
 			private set => SetProperty(ref _isUpdateAvailable, value);
 		}
 
-		public bool IsUpdating => false;
+		private bool _isUpdating;
+		public bool IsUpdating
+		{
+			get => _isUpdating;
+			private set => SetProperty(ref _isUpdating, value);
+		}
 
-		public int UpdateProgress => 0;
+		private int _updateProgress;
+		public int UpdateProgress
+		{
+			get => _updateProgress;
+			private set => SetProperty(ref _updateProgress, value);
+		}
 
 		public bool IsAppUpdated => AppLifecycleHelper.IsAppUpdated;
 
@@ -86,6 +109,9 @@ namespace Files.App.Services
 		/// <summary>The scheduled check: respects the switch in settings, a skipped version, and offers each version once.</summary>
 		public async Task CheckForUpdatesAsync()
 		{
+			if (!IsUpdating)
+				RemoveDownloadedSetup();
+
 			if (!_settings.CheckForUpdatesAutomatically)
 				return;
 
@@ -125,14 +151,18 @@ namespace Files.App.Services
 
 		private async Task OfferUpdateAsync()
 		{
-			if (LatestRelease is not { } release)
+			if (LatestRelease is not { } release || IsUpdating)
 				return;
 
+			var canInstall = IsInstalledCopy && release.Installer is not null;
 			var asset = IsInstalledCopy ? release.Installer ?? release.Portable : release.Portable ?? release.Installer;
-			var viewModel = new UpdateAvailableDialogViewModel(release, CurrentVersion, IsInstalledCopy, GetReleaseNotesAsync);
+			var viewModel = new UpdateAvailableDialogViewModel(release, CurrentVersion, IsInstalledCopy, canInstall, GetReleaseNotesAsync);
 
 			switch (await _dialogs.ShowDialogAsync(viewModel))
 			{
+				case DialogResult.Primary when canInstall:
+					await InstallAsync(release, release.Installer!);
+					break;
 				case DialogResult.Primary:
 					await Launcher.LaunchUriAsync(asset?.DownloadUri ?? release.Page);
 					break;
@@ -157,7 +187,9 @@ namespace Files.App.Services
 
 		private async Task<ConsystoReleaseModel?> FindLatestReleaseAsync()
 		{
-			var release = await TryAsync(ReadSiteCatalogAsync, "consysto.pro") ?? await TryAsync(ReadGitHubLatestAsync, "GitHub");
+			var release = await TryAsync(ReadSiteCatalogAsync, "consysto.pro");
+			if (release is null && TestSite is null)
+				release = await TryAsync(ReadGitHubLatestAsync, "GitHub");
 			if (release is not null)
 			{
 				if (release.Version != LatestRelease?.Version)
@@ -185,7 +217,7 @@ namespace Files.App.Services
 
 		private static async Task<ConsystoReleaseModel?> ReadSiteCatalogAsync()
 		{
-			using var document = JsonDocument.Parse(await Client.GetStringAsync(CatalogAddress));
+			using var document = JsonDocument.Parse(await Client.GetStringAsync(Site + CatalogPath));
 			var root = document.RootElement;
 			if (!root.TryGetProperty("schema", out var schema) || schema.GetInt32() != 1 ||
 				!root.TryGetProperty("products", out var products) || !products.TryGetProperty("files", out var files) ||
@@ -203,7 +235,10 @@ namespace Files.App.Services
 					!item.TryGetProperty("size", out var size) || !size.TryGetInt64(out var length))
 					continue;
 
-				var asset = new ConsystoReleaseAsset(name, length, sha256, new Uri(SiteAddress + siteUrl));
+				var mirror = GetString(item, "githubUrl") is { } githubUrl && githubUrl.StartsWith(GitHubDownloadPrefix, StringComparison.Ordinal)
+					? new Uri(githubUrl)
+					: null;
+				var asset = new ConsystoReleaseAsset(name, length, sha256, new Uri(Site + siteUrl), mirror);
 				switch (GetString(item, "role"))
 				{
 					case "installer":
@@ -215,12 +250,15 @@ namespace Files.App.Services
 				}
 			}
 
-			return new(version, installer, portable, new Uri(SiteAddress + "/downloads.html?product=files"));
+			return new(version, installer, portable, new Uri(Site + "/downloads.html?product=files"), FromSite: true);
 		}
 
-		private static async Task<ConsystoReleaseModel?> ReadGitHubLatestAsync()
+		private static Task<ConsystoReleaseModel?> ReadGitHubLatestAsync()
+			=> ReadGitHubReleaseAsync(GitHubLatestAddress);
+
+		private static async Task<ConsystoReleaseModel?> ReadGitHubReleaseAsync(string address)
 		{
-			using var document = JsonDocument.Parse(await Client.GetStringAsync(GitHubLatestAddress));
+			using var document = JsonDocument.Parse(await Client.GetStringAsync(address));
 			var root = document.RootElement;
 			if (!TryGetVersion(root, "tag_name", out var version) || !root.TryGetProperty("assets", out var assets))
 				return null;
@@ -237,7 +275,7 @@ namespace Files.App.Services
 					!item.TryGetProperty("size", out var size) || !size.TryGetInt64(out var length))
 					continue;
 
-				var asset = new ConsystoReleaseAsset(name, length, digest["sha256:".Length..], new Uri(url));
+				var asset = new ConsystoReleaseAsset(name, length, digest["sha256:".Length..], new Uri(url), null);
 				if (name.StartsWith("ConsystoFiles-setup_", StringComparison.OrdinalIgnoreCase))
 					installer = asset;
 				else if (name.StartsWith("ConsystoFiles-portable_", StringComparison.OrdinalIgnoreCase))
@@ -248,7 +286,7 @@ namespace Files.App.Services
 				? new Uri(address)
 				: new Uri(GitHubReleasesPage);
 
-			return new(version, installer, portable, page);
+			return new(version, installer, portable, page, FromSite: false);
 		}
 
 		/// <summary>
