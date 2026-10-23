@@ -170,8 +170,8 @@ public static class StepMeshSource
         // Nine little-endian float32 per triangle map straight onto three Vector3.
         var vertices = new Vector3[triangles * 3];
         MemoryMarshal.Cast<byte, Vector3>(bytes.AsSpan(HeaderBytes)).CopyTo(vertices);
-        // Inventor exports STEP in its own frame, Y up.
-        return new Mesh3D(vertices, MeshUp.Y);
+        // Inventor exports STEP in its own frame, Y up. OpenCascade converts lengths to millimetres while it reads.
+        return new Mesh3D(vertices, MeshUp.Y) { Units = MeshUnits.StatedMillimeters };
     }
 
     private static string CacheKey(FileInfo file)

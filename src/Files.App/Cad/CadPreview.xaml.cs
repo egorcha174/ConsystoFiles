@@ -17,12 +17,32 @@ namespace Files.App.Cad
 			if (model.Drawing is not null)
 				Host.Children.Add(new CadDrawingView { Drawing = model.Drawing });
 			else if (model.Mesh is not null)
-				Host.Children.Add(new CadMeshView { Mesh = model.Mesh });
+				Host.Children.Add(new CadMeshView { Mesh = model.Mesh, MeasureText = MeasureText() });
 
 			Unloaded += CadPreview_Unloaded;
 		}
 
 		private CadPreviewViewModel ViewModel { get; }
+
+		private static CadMeasureText MeasureText() => new()
+		{
+			BoundsTool = Strings.ConsystoCadMeasureBounds.GetLocalizedResource(),
+			DistanceTool = Strings.ConsystoCadMeasureDistance.GetLocalizedResource(),
+			RadiusTool = Strings.ConsystoCadMeasureRadius.GetLocalizedResource(),
+			AngleTool = Strings.ConsystoCadMeasureAngle.GetLocalizedResource(),
+			Clear = Strings.ConsystoCadMeasureClear.GetLocalizedResource(),
+			Millimeters = Strings.ConsystoCadMeasureMillimeters.GetLocalizedResource(),
+			BoundsFormat = Strings.ConsystoCadMeasureBoundsFormat.GetLocalizedResource(),
+			DistanceFormat = Strings.ConsystoCadMeasureDistanceFormat.GetLocalizedResource(),
+			RadiusFormat = Strings.ConsystoCadMeasureRadiusFormat.GetLocalizedResource(),
+			AngleFormat = Strings.ConsystoCadMeasureAngleFormat.GetLocalizedResource(),
+			DistancePrompt = Strings.ConsystoCadMeasureDistancePrompt.GetLocalizedResource(),
+			RadiusPrompt = Strings.ConsystoCadMeasureRadiusPrompt.GetLocalizedResource(),
+			RadiusPointsPrompt = Strings.ConsystoCadMeasureRadiusPointsPrompt.GetLocalizedResource(),
+			AnglePrompt = Strings.ConsystoCadMeasureAnglePrompt.GetLocalizedResource(),
+			Preparing = Strings.ConsystoCadMeasurePreparing.GetLocalizedResource(),
+			UnitsAssumed = Strings.ConsystoCadMeasureUnitsAssumed.GetLocalizedResource(),
+		};
 
 		/// <summary>A part of the assembly is shown where it lies: its own folder, with the file selected.</summary>
 		private void References_ItemClick(object sender, ItemClickEventArgs e)

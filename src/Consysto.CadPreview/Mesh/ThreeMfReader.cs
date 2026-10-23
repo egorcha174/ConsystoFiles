@@ -30,12 +30,24 @@ public static class ThreeMfReader
 
         var package = new Package(zip);
         var builder = new MeshBuilder();
-        foreach (var item in package.GetModel(modelPath).BuildItems)
+        var root = package.GetModel(modelPath);
+        foreach (var item in root.BuildItems)
             package.AddObject(builder, item.Path ?? modelPath, item.ObjectId, item.Transform, depth: 0);
 
         byte[]? thumbnail = thumbnailPath is null ? null : ReadEntry(zip, thumbnailPath, MaximumThumbnailBytes);
-        return new ThreeMfContent(builder.ToMesh(MeshUp.Z), thumbnail);
+        return new ThreeMfContent(builder.ToMesh(MeshUp.Z, UnitOf(root.Unit)), thumbnail);
     }
+
+    // The root model's unit applies to the whole build; millimetres when it names none.
+    private static MeshUnits UnitOf(string? unit) => unit switch
+    {
+        "micron" => new(0.001, true),
+        "centimeter" => new(10, true),
+        "inch" => new(25.4, true),
+        "foot" => new(304.8, true),
+        "meter" => new(1000, true),
+        _ => MeshUnits.StatedMillimeters,
+    };
 
     private static (string ModelPath, string? ThumbnailPath) ReadRootRelationships(ZipArchive zip)
     {
@@ -118,6 +130,8 @@ public static class ThreeMfReader
         public Dictionary<int, ObjectDefinition> Objects { get; } = [];
 
         public List<ObjectReference> BuildItems { get; } = [];
+
+        public string? Unit { get; set; }
     }
 
     private sealed class Package(ZipArchive zip)
@@ -179,6 +193,9 @@ public static class ThreeMfReader
 
                 switch (xml.LocalName)
                 {
+                    case "model":
+                        model.Unit = xml.GetAttribute("unit");
+                        break;
                     case "object":
                         current = new ObjectDefinition();
                         model.Objects[ParseInt(xml.GetAttribute("id"))] = current;

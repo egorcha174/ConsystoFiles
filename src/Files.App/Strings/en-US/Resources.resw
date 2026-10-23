@@ -5507,6 +5507,54 @@
   <data name="ConsystoCadPrintTime" xml:space="preserve">
     <value>Print time</value>
   </data>
+  <data name="ConsystoCadMeasureBounds" xml:space="preserve">
+    <value>Overall dimensions</value>
+  </data>
+  <data name="ConsystoCadMeasureDistance" xml:space="preserve">
+    <value>Distance</value>
+  </data>
+  <data name="ConsystoCadMeasureRadius" xml:space="preserve">
+    <value>Radius and diameter</value>
+  </data>
+  <data name="ConsystoCadMeasureAngle" xml:space="preserve">
+    <value>Angle</value>
+  </data>
+  <data name="ConsystoCadMeasureClear" xml:space="preserve">
+    <value>Clear measurements</value>
+  </data>
+  <data name="ConsystoCadMeasureMillimeters" xml:space="preserve">
+    <value>mm</value>
+  </data>
+  <data name="ConsystoCadMeasureBoundsFormat" xml:space="preserve">
+    <value>Overall: {0} × {1} × {2} {3}</value>
+  </data>
+  <data name="ConsystoCadMeasureDistanceFormat" xml:space="preserve">
+    <value>Distance: {0} {1} (ΔX {2}, ΔY {3}, ΔZ {4})</value>
+  </data>
+  <data name="ConsystoCadMeasureRadiusFormat" xml:space="preserve">
+    <value>Radius {0} {2}, diameter {1} {2}</value>
+  </data>
+  <data name="ConsystoCadMeasureAngleFormat" xml:space="preserve">
+    <value>Angle: {0}°</value>
+  </data>
+  <data name="ConsystoCadMeasureDistancePrompt" xml:space="preserve">
+    <value>Click two points on the model</value>
+  </data>
+  <data name="ConsystoCadMeasureRadiusPrompt" xml:space="preserve">
+    <value>Click a round edge or face, or three points on an arc</value>
+  </data>
+  <data name="ConsystoCadMeasureRadiusPointsPrompt" xml:space="preserve">
+    <value>No circle found here: click points on the arc ({0} of 3)</value>
+  </data>
+  <data name="ConsystoCadMeasureAnglePrompt" xml:space="preserve">
+    <value>Click two faces or edges</value>
+  </data>
+  <data name="ConsystoCadMeasurePreparing" xml:space="preserve">
+    <value>Preparing the model for measuring…</value>
+  </data>
+  <data name="ConsystoCadMeasureUnitsAssumed" xml:space="preserve">
+    <value>The file does not state its units; millimetres are assumed</value>
+  </data>
   <data name="ConsystoTorrentDefault" xml:space="preserve">
     <value>Download torrents with Files</value>
   </data>
