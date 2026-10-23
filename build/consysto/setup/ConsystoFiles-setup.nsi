@@ -3,6 +3,7 @@ Unicode true
 !include "MUI2.nsh"
 !include "LogicLib.nsh"
 !include "x64.nsh"
+!include "FileFunc.nsh"
 !ifndef PAYLOAD
   !error "PAYLOAD required"
 !endif
@@ -20,6 +21,12 @@ Unicode true
 !endif
 
 !define UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\ConsystoFiles"
+; Сюда переезжают файлы прежней версии перед установкой новой; занятые библиотеки можно переименовать, но не удалить.
+!define OLD_DIR "$INSTDIR\.old"
+; 1 — запуск из программы (/S /UPDATE): ждать её закрытия, сохранить выбор ярлыков, после установки запустить снова.
+Var IsUpdate
+; Папка внутри OLD_DIR с файлами прежней версии этой установки; пусто, пока ничего не переносили.
+Var PreviousDir
 Name "Consysto Files"
 OutFile "${OUTPUT}"
 InstallDir "$LOCALAPPDATA\Programs\Consysto Files"
@@ -62,6 +69,8 @@ LangString RunText ${LANG_RUSSIAN} "Запустить Consysto Files"
 LangString RunText ${LANG_ENGLISH} "Run Consysto Files"
 LangString CloseFiles ${LANG_RUSSIAN} "Consysto Files запущен из папки установки. Закройте его и нажмите «Повторить»."
 LangString CloseFiles ${LANG_ENGLISH} "Consysto Files is running from the installation folder. Close it and click Retry."
+LangString CloseFilesUpdate ${LANG_RUSSIAN} "Чтобы обновиться, закройте все окна Consysto Files (и значок у часов, если программа работает в фоне), затем нажмите «Повторить»."
+LangString CloseFilesUpdate ${LANG_ENGLISH} "To update, close every Consysto Files window (and the icon next to the clock if it runs in the background), then click Retry."
 LangString ProcessCheckFailed ${LANG_RUSSIAN} "Не удалось проверить запущенные копии Files.exe. Операция остановлена."
 LangString ProcessCheckFailed ${LANG_ENGLISH} "Unable to check running copies of Files.exe. The operation has been stopped."
 LangString RequiresX64 ${LANG_RUSSIAN} "Требуется 64-разрядная Windows."
@@ -72,6 +81,8 @@ LangString RemoveData ${LANG_RUSSIAN} "Удалить также настрой�
 LangString RemoveData ${LANG_ENGLISH} "Also delete Consysto Files settings and data?$\r$\n$INSTDIR\data$\r$\n$\r$\nChoose No to keep them for a future installation."
 LangString UninstallFailed ${LANG_RUSSIAN} "Некоторые файлы не удалось удалить. Закройте программы, использующие эту папку, и повторите удаление."
 LangString UninstallFailed ${LANG_ENGLISH} "Some files could not be removed. Close applications using this folder and run the uninstaller again."
+LangString ReplaceFailed ${LANG_RUSSIAN} "Не удалось убрать файлы прежней версии: их держит другая программа. Установленная версия оставлена как была."
+LangString ReplaceFailed ${LANG_ENGLISH} "Could not move the files of the previous version: another program is using them. The installed version was left as it was."
 
 !macro CheckFiles PREFIX
 Function ${PREFIX}CheckFiles
@@ -81,12 +92,27 @@ Function ${PREFIX}CheckFiles
     SetErrorLevel 20
     Abort
   ${EndIf}
+  ; Программа, запустившая обновление, закрывается сама: даём ей до 30 секунд
+  StrCpy $2 0
 check:
   ; NSIS — x86; Sysnative даёт 64-битный PowerShell, который читает путь x64 Files.exe.
   nsExec::ExecToStack /TIMEOUT=30000 '"$WINDIR\Sysnative\WindowsPowerShell\v1.0\powershell.exe" -NoLogo -NoProfile -NonInteractive -EncodedCommand ${PROCESS_CHECK}'
   Pop $0
   Pop $1
   ${If} $0 == 10
+  ${AndIf} $IsUpdate == 1
+  ${AndIf} $2 < 30
+    IntOp $2 $2 + 1
+    Sleep 1000
+    Goto check
+  ${EndIf}
+  ${If} $0 == 10
+  ${AndIf} $IsUpdate == 1
+    ; Без /SD: окно показывается и в тихом режиме, иначе обновление молча не состоится
+    MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "$(CloseFilesUpdate)" IDRETRY check
+    SetErrorLevel 10
+    Abort
+  ${ElseIf} $0 == 10
     MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "$(CloseFiles)" /SD IDCANCEL IDRETRY check
     SetErrorLevel 10
     Abort
@@ -104,6 +130,13 @@ Function .onInit
   SetShellVarContext current
   ; Фиксированный путь, включая тихий запуск с переданным /D=.
   StrCpy $INSTDIR "$LOCALAPPDATA\Programs\Consysto Files"
+  StrCpy $IsUpdate 0
+  ${GetParameters} $0
+  ClearErrors
+  ${GetOptions} $0 "/UPDATE" $1
+  ${IfNot} ${Errors}
+    StrCpy $IsUpdate 1
+  ${EndIf}
   ${IfNot} ${RunningX64}
     MessageBox MB_ICONSTOP "$(RequiresX64)" /SD IDOK
     SetErrorLevel 1
@@ -112,9 +145,74 @@ Function .onInit
   Call CheckFiles
 FunctionEnd
 
+; Переносит файлы прежней версии в OLD_DIR, чтобы в папке остались только файлы новой; data не трогает.
+Function MovePrevious
+  ; Остатки прошлых обновлений; то, что ещё занято, останется до следующего раза
+  RMDir /r "${OLD_DIR}"
+  System::Call 'kernel32::GetTickCount() i.r0'
+  StrCpy $PreviousDir "${OLD_DIR}\$0"
+  CreateDirectory "$PreviousDir"
+  FindFirst $0 $1 "$INSTDIR\*"
+loop:
+  StrCmp $1 "" done
+  StrCmp $1 "." next
+  StrCmp $1 ".." next
+  StrCmp $1 "data" next
+  StrCmp $1 ".old" next
+  ClearErrors
+  Rename "$INSTDIR\$1" "$PreviousDir\$1"
+  ${If} ${Errors}
+    FindClose $0
+    Call RestorePrevious
+    MessageBox MB_ICONSTOP "$(ReplaceFailed)" /SD IDOK
+    SetErrorLevel 1
+    Abort
+  ${EndIf}
+next:
+  FindNext $0 $1
+  Goto loop
+done:
+  FindClose $0
+FunctionEnd
+
+; Возвращает файлы прежней версии на место, если новую поставить не удалось.
+Function RestorePrevious
+  ${If} $PreviousDir == ""
+    Return
+  ${EndIf}
+  FindFirst $0 $1 "$PreviousDir\*"
+loop:
+  StrCmp $1 "" done
+  StrCmp $1 "." next
+  StrCmp $1 ".." next
+  RMDir /r "$INSTDIR\$1"
+  Delete "$INSTDIR\$1"
+  Rename "$PreviousDir\$1" "$INSTDIR\$1"
+next:
+  FindNext $0 $1
+  Goto loop
+done:
+  FindClose $0
+  RMDir "$PreviousDir"
+  StrCpy $PreviousDir ""
+FunctionEnd
+
+Function .onInstFailed
+  Call RestorePrevious
+FunctionEnd
+
+Function .onInstSuccess
+  RMDir /r "${OLD_DIR}"
+  ${If} $IsUpdate == 1
+    SetOutPath "$INSTDIR"
+    Exec '"$INSTDIR\Files.exe"'
+  ${EndIf}
+FunctionEnd
+
 Section "$(AppSection)" AppSectionId
   SectionIn RO
   Call CheckFiles
+  Call MovePrevious
   SetOutPath "$INSTDIR"
   SetOverwrite on
   File /r /x data "${PAYLOAD}\*"
@@ -135,6 +233,11 @@ Section "$(AppSection)" AppSectionId
 SectionEnd
 
 Section "$(DesktopSection)" DesktopSectionId
+  ; Обновление из программы не возвращает ярлык, который пользователь убрал
+  ${If} $IsUpdate == 1
+  ${AndIfNot} ${FileExists} "$DESKTOP\Consysto Files.lnk"
+    Return
+  ${EndIf}
   CreateShortcut "$DESKTOP\Consysto Files.lnk" "$INSTDIR\Files.exe" "" "$INSTDIR\Files.exe" 0
 SectionEnd
 

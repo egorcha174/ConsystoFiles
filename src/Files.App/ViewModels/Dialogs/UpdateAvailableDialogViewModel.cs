@@ -17,6 +17,9 @@ namespace Files.App.ViewModels.Dialogs
 
 		public string Hint { get; }
 
+		/// <summary>"Update" when the installed copy can replace itself, "Download" otherwise.</summary>
+		public string PrimaryText { get; }
+
 		private string _notes = Strings.ConsystoUpdateNotesLoading.GetLocalizedResource();
 		public string Notes
 		{
@@ -24,12 +27,13 @@ namespace Files.App.ViewModels.Dialogs
 			private set => SetProperty(ref _notes, value);
 		}
 
-		public UpdateAvailableDialogViewModel(ConsystoReleaseModel release, Version current, bool isInstalledCopy, Func<Task<IReadOnlyList<ConsystoReleaseNotes>>> loadNotes)
+		public UpdateAvailableDialogViewModel(ConsystoReleaseModel release, Version current, bool isInstalledCopy, bool canInstall, Func<Task<IReadOnlyList<ConsystoReleaseNotes>>> loadNotes)
 		{
 			Release = release;
 			_loadNotes = loadNotes;
 			InstalledVersion = string.Format(Strings.ConsystoUpdateDialogInstalled.GetLocalizedResource(), current);
-			Hint = (isInstalledCopy ? Strings.ConsystoUpdateInstallerHint : Strings.ConsystoUpdatePortableHint).GetLocalizedResource();
+			Hint = (canInstall ? Strings.ConsystoUpdateInstallHint : isInstalledCopy ? Strings.ConsystoUpdateInstallerHint : Strings.ConsystoUpdatePortableHint).GetLocalizedResource();
+			PrimaryText = (canInstall ? Strings.ConsystoUpdateInstall : Strings.ConsystoUpdateDownload).GetLocalizedResource();
 		}
 
 		public async Task LoadNotesAsync()

@@ -13,7 +13,7 @@
 	DefaultButton="Primary"
 	HighContrastAdjustment="None"
 	Loaded="UpdateAvailableDialog_Loaded"
-	PrimaryButtonText="{helpers:ResourceString Name=ConsystoUpdateDownload}"
+	PrimaryButtonText="{x:Bind ViewModel.PrimaryText}"
 	RequestedTheme="{x:Bind RootAppElement.RequestedTheme, Mode=OneWay}"
 	SecondaryButtonText="{helpers:ResourceString Name=ConsystoUpdateSkip}"
 	Style="{StaticResource DefaultContentDialogStyle}"
