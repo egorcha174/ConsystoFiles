@@ -11,7 +11,10 @@ public enum MeshSnap
 
 /// <summary>A point picked on the model, snapped to a corner or a sharp edge when the cursor was close to one.</summary>
 /// <param name="Normal">The normal of the face that was hit, towards the viewer.</param>
-/// <param name="EdgeStart">With <see cref="MeshSnap.Edge"/>: the welded vertices of the edge.</param>
+/// <param name="EdgeStart">
+/// With <see cref="MeshSnap.Edge"/>: the welded vertices of the edge; with <see cref="MeshSnap.Vertex"/>: the welded vertex,
+/// or -1 when the mesh has no recovered edges.
+/// </param>
 public readonly record struct MeshPick(Vector3 Point, MeshSnap Snap, Vector3 Normal, int Triangle, int EdgeStart, int EdgeEnd);
 
 /// <summary>A circle in model units.</summary>
@@ -112,22 +115,28 @@ public sealed class MeshMeasure
         var point = origin + direction * nearest;
         var normal = Vector3.Dot(normals[hit], projection.Toward) < 0 ? -normals[hit] : normals[hit];
 
+        // A snap must stay near the hit in depth too: a face seen almost edge-on (a thin fin, a wall seen along its
+        // length) has corners that land next to the cursor on screen while lying far behind the point that was hit.
+        float reach = snapDistance * 2 / projection.Scale;
+
         // Corners first: a click near a corner means the corner, even though it is also near two edges.
         float best = snapDistance;
         Vector3? corner = null;
+        int cornerIndex = -1;
         for (int k = 0; k < 3; k++)
         {
             var vertex = vertices[hit * 3 + k];
             float distance = Vector2.Distance(projection.ToScreen(vertex), screen);
-            if (distance <= best)
+            if (distance <= best && Vector3.Distance(vertex, point) <= reach)
             {
                 best = distance;
                 corner = vertex;
+                cornerIndex = HasEdges ? corners[hit * 3 + k] : -1;
             }
         }
 
         if (corner is { } snapped)
-            return new MeshPick(snapped, MeshSnap.Vertex, normal, hit, -1, -1);
+            return new MeshPick(snapped, MeshSnap.Vertex, normal, hit, cornerIndex, -1);
 
         if (!HasEdges)
             return new MeshPick(point, MeshSnap.Face, normal, hit, -1, -1);
@@ -150,10 +159,11 @@ public sealed class MeshMeasure
                 var screenEnd = projection.ToScreen(end);
                 float along = ClosestParameter(screenStart, screenEnd, screen);
                 float distance = Vector2.Distance(Vector2.Lerp(screenStart, screenEnd, along), screen);
-                if (distance <= best)
+                var onEdge = Vector3.Lerp(start, end, along);
+                if (distance <= best && Vector3.Distance(onEdge, point) <= reach)
                 {
                     best = distance;
-                    edgeHit = (a, b, Vector3.Lerp(start, end, along));
+                    edgeHit = (a, b, onEdge);
                 }
             }
         }
@@ -206,6 +216,47 @@ public sealed class MeshMeasure
         }
 
         return best;
+    }
+
+    /// <summary>
+    /// The hole or boss a pick lies on, for measuring from its centre: a picked point of a round rim, a picked round
+    /// edge, or a click on a cylinder wall. A click on a flat face next to a hole is not on the hole.
+    /// </summary>
+    public MeshCircle? FindHole(MeshPick pick)
+    {
+        if (!HasEdges)
+            return null;
+
+        switch (pick.Snap)
+        {
+            case MeshSnap.Edge:
+                return FitCircle(Chain(pick.EdgeStart, pick.EdgeEnd));
+
+            case MeshSnap.Vertex when pick.EdgeStart >= 0:
+                if (!sharpNeighbours.TryGetValue(pick.EdgeStart, out var neighbours))
+                    return null;
+                foreach (int next in neighbours)
+                {
+                    if (FitCircle(Chain(pick.EdgeStart, next)) is { } rim)
+                        return rim;
+                }
+
+                return null;
+
+            case MeshSnap.Face:
+                if (FindCircle(pick) is not { } wall)
+                    return null;
+
+                // The wall of a hole faces away from its axis and the click lies at the radius.
+                var offset = pick.Point - wall.Center;
+                var radial = offset - Vector3.Dot(offset, wall.Normal) * wall.Normal;
+                bool onWall = MathF.Abs(Vector3.Dot(pick.Normal, wall.Normal)) < 0.5f
+                    && MathF.Abs(radial.Length() - wall.Radius) <= 0.1f * wall.Radius;
+                return onWall ? wall : null;
+
+            default:
+                return null;
+        }
     }
 
     /// <summary>The circle through three points, or null when they lie on one line.</summary>

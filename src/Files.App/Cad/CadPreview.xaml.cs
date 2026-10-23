@@ -34,6 +34,7 @@ namespace Files.App.Cad
 			Millimeters = Strings.ConsystoCadMeasureMillimeters.GetLocalizedResource(),
 			BoundsFormat = Strings.ConsystoCadMeasureBoundsFormat.GetLocalizedResource(),
 			DistanceFormat = Strings.ConsystoCadMeasureDistanceFormat.GetLocalizedResource(),
+			CentresFormat = Strings.ConsystoCadMeasureCentresFormat.GetLocalizedResource(),
 			RadiusFormat = Strings.ConsystoCadMeasureRadiusFormat.GetLocalizedResource(),
 			AngleFormat = Strings.ConsystoCadMeasureAngleFormat.GetLocalizedResource(),
 			DistancePrompt = Strings.ConsystoCadMeasureDistancePrompt.GetLocalizedResource(),

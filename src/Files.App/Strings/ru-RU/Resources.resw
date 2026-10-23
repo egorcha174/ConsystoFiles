@@ -5530,6 +5530,9 @@
   <data name="ConsystoCadMeasureDistanceFormat" xml:space="preserve">
     <value>Расстояние: {0} {1} (ΔX {2}, ΔY {3}, ΔZ {4})</value>
   </data>
+  <data name="ConsystoCadMeasureCentresFormat" xml:space="preserve">
+    <value>Между центрами: {0} {1}, между краями: {2} {1} (ΔX {3}, ΔY {4}, ΔZ {5})</value>
+  </data>
   <data name="ConsystoCadMeasureRadiusFormat" xml:space="preserve">
     <value>Радиус {0} {2}, диаметр {1} {2}</value>
   </data>
@@ -5537,7 +5540,7 @@
     <value>Угол: {0}°</value>
   </data>
   <data name="ConsystoCadMeasureDistancePrompt" xml:space="preserve">
-    <value>Щёлкните две точки на модели</value>
+    <value>Щёлкните две точки на модели; у отверстия берётся центр, с Ctrl — точно в точку</value>
   </data>
   <data name="ConsystoCadMeasureRadiusPrompt" xml:space="preserve">
     <value>Щёлкните круглую кромку или грань либо три точки на дуге</value>

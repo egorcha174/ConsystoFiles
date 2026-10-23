@@ -73,7 +73,7 @@ public static class CadMeshSource
 				{
 					try
 					{
-						return MeshCache.Read(cachePath);
+						return InMillimeters(MeshCache.Read(cachePath));
 					}
 					catch (InvalidDataException)
 					{
@@ -86,7 +86,7 @@ public static class CadMeshSource
 				{
 					var mesh = Decode(file.FullName, cancellationToken);
 					MeshCache.Write(cachePath, mesh);
-					return mesh;
+					return InMillimeters(mesh);
 				}
 				finally
 				{
@@ -104,6 +104,13 @@ public static class CadMeshSource
 			return Mesh3D.Empty;
 		}
 	}
+
+	/// <summary>
+	/// Both roads end in millimetres: cadmpeg converts what it reads into its own model, which states millimetres
+	/// (SolidWorks keeps metres inside), and OpenCascade reads the STEP it writes in millimetres too.
+	/// </summary>
+	private static Mesh3D InMillimeters(Mesh3D mesh)
+		=> mesh.IsEmpty ? mesh : new Mesh3D(mesh.Vertices, mesh.Up) { Units = MeshUnits.StatedMillimeters };
 
 	private static Mesh3D Decode(string input, CancellationToken cancellationToken)
 	{

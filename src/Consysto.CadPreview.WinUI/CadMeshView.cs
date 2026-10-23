@@ -70,8 +70,12 @@ public sealed partial class CadMeshView : UserControl
     private MeshMeasure? _measure;
     private bool _measurePreparing;
     private readonly List<MeshPick> _pending = [];
+
+    // With the distance tool: the hole each pending pick was taken from the centre of, or null for a plain point.
+    private readonly List<MeshCircle?> _pendingHoles = [];
     private readonly List<Measurement> _measurements = [];
     private MeshPick? _hover;
+    private MeshCircle? _hoverHole;
     private string? _notice;
 
     public CadMeshView()
@@ -178,7 +182,8 @@ public sealed partial class CadMeshView : UserControl
 
     /// <param name="Label">The short text drawn on the model.</param>
     /// <param name="Detail">The full line for the status bar, which can be selected and copied.</param>
-    private sealed record Measurement(MeasurementKind Kind, Vector3[] Points, MeshCircle? Circle, string Label, string Detail);
+    /// <param name="Holes">With a distance: the holes it was measured between the centres of.</param>
+    private sealed record Measurement(MeasurementKind Kind, Vector3[] Points, MeshCircle? Circle, string Label, string Detail, MeshCircle[]? Holes = null);
 
     public Mesh3D? Mesh
     {
@@ -188,9 +193,10 @@ public sealed partial class CadMeshView : UserControl
             _mesh = value;
             _measure = null;
             _measurePreparing = false;
-            _pending.Clear();
+            ClearPending();
             _measurements.Clear();
             _hover = null;
+            _hoverHole = null;
             _notice = null;
             ResetView();
             if (_tool != MeasureTool.None)
@@ -379,7 +385,7 @@ public sealed partial class CadMeshView : UserControl
         {
             var position = e.GetCurrentPoint(this).Position;
             if (measure.Pick(Projection(), new Vector2((float)position.X, (float)position.Y), SnapDistance) is { } pick)
-                AddPick(measure, pick);
+                AddPick(measure, pick, exact: e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control));
         }
     }
 
@@ -395,6 +401,9 @@ public sealed partial class CadMeshView : UserControl
         if (pick == _hover)
             return;
         _hover = pick;
+
+        // A rim is cheap to follow, so its centre is shown ahead of the click; a cylinder wall is found on the click only.
+        _hoverHole = _tool == MeasureTool.Distance && pick is { Snap: not MeshSnap.Face } rim ? _measure?.FindHole(rim) : null;
         _canvas.Invalidate();
     }
 
@@ -404,8 +413,9 @@ public sealed partial class CadMeshView : UserControl
         for (int i = 0; i < _toolButtons.Length; i++)
             _toolButtons[i].IsChecked = (int)tool == i + 1;
 
-        _pending.Clear();
+        ClearPending();
         _hover = null;
+        _hoverHole = null;
         _notice = null;
         if (tool != MeasureTool.None)
             PrepareMeasure();
@@ -431,21 +441,31 @@ public sealed partial class CadMeshView : UserControl
 
     private void ClearMeasurements()
     {
-        _pending.Clear();
+        ClearPending();
         _measurements.Clear();
         _notice = null;
         UpdateOverlay();
     }
 
-    private void AddPick(MeshMeasure measure, MeshPick pick)
+    private void ClearPending()
+    {
+        _pending.Clear();
+        _pendingHoles.Clear();
+    }
+
+    /// <param name="exact">Ctrl was held: the point itself, even on a hole.</param>
+    private void AddPick(MeshMeasure measure, MeshPick pick, bool exact)
     {
         _notice = null;
         switch (_tool)
         {
             case MeasureTool.Distance:
-                _pending.Add(pick);
+                // A hole is measured from its centre, the way drawings dimension holes.
+                var hole = exact ? null : measure.FindHole(pick);
+                _pending.Add(hole is { } h ? pick with { Point = h.Center } : pick);
+                _pendingHoles.Add(hole);
                 if (_pending.Count == 2)
-                    AddMeasurement(DistanceBetween(_pending[0].Point, _pending[1].Point));
+                    AddMeasurement(DistanceBetween(_pending[0].Point, _pendingHoles[0], _pending[1].Point, _pendingHoles[1]));
                 break;
 
             case MeasureTool.Angle:
@@ -478,7 +498,7 @@ public sealed partial class CadMeshView : UserControl
                     if (MeshMeasure.CircleThrough(_pending[0].Point, _pending[1].Point, _pending[2].Point) is { } circle)
                         AddMeasurement(CircleMeasurement(circle));
                     else
-                        _pending.Clear();
+                        ClearPending();
                 }
                 else
                 {
@@ -493,13 +513,48 @@ public sealed partial class CadMeshView : UserControl
 
     private void AddMeasurement(Measurement measurement)
     {
-        _pending.Clear();
+        ClearPending();
         _measurements.Add(measurement);
     }
 
-    private Measurement DistanceBetween(Vector3 a, Vector3 b)
+    private Measurement DistanceBetween(Vector3 a, MeshCircle? first, Vector3 b, MeshCircle? second)
     {
-        var delta = (b - a) * (float)_mesh!.Units.Millimeters;
+        float scale = (float)_mesh!.Units.Millimeters;
+        MeshCircle[]? holes = (first, second) switch
+        {
+            ({ } x, { } y) => [x, y],
+            ({ } x, null) => [x],
+            (null, { } y) => [y],
+            _ => null,
+        };
+
+        // Parallel holes are measured axis to axis, wherever along its depth each rim was picked, and the wall between them
+        // follows from the radii.
+        if (first is { } p && second is { } q && MathF.Abs(Vector3.Dot(p.Normal, q.Normal)) > 0.998f)
+        {
+            var offset = b - a;
+            offset -= Vector3.Dot(offset, p.Normal) * p.Normal;
+            var axes = offset * scale;
+            string centres = FormatLength(axes.Length());
+            float wall = axes.Length() - (p.Radius + q.Radius) * scale;
+            return new Measurement(
+                MeasurementKind.Distance,
+                [a, a + offset],
+                null,
+                centres + " " + _text.Millimeters,
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    _text.CentresFormat,
+                    centres,
+                    _text.Millimeters,
+                    FormatLength(Math.Max(0, wall)),
+                    FormatLength(MathF.Abs(axes.X)),
+                    FormatLength(MathF.Abs(axes.Y)),
+                    FormatLength(MathF.Abs(axes.Z))),
+                holes);
+        }
+
+        var delta = (b - a) * scale;
         string length = FormatLength(delta.Length());
         return new Measurement(
             MeasurementKind.Distance,
@@ -513,7 +568,8 @@ public sealed partial class CadMeshView : UserControl
                 _text.Millimeters,
                 FormatLength(MathF.Abs(delta.X)),
                 FormatLength(MathF.Abs(delta.Y)),
-                FormatLength(MathF.Abs(delta.Z))));
+                FormatLength(MathF.Abs(delta.Z))),
+            holes);
     }
 
     private Measurement CircleMeasurement(MeshCircle circle)
@@ -615,11 +671,25 @@ public sealed partial class CadMeshView : UserControl
                     break;
             }
 
+            foreach (var hole in measurement.Holes ?? [])
+                DrawCircle(session, projection, hole, accent);
+
             DrawLabel(session, format, measurement.Label, anchor, labelBack, labelInk);
         }
 
         foreach (var pick in _pending)
             DrawPoint(session, projection.ToScreen(pick.Point), accent);
+        foreach (var hole in _pendingHoles)
+        {
+            if (hole is { } pendingHole)
+                DrawCircle(session, projection, pendingHole, accent);
+        }
+
+        if (_hoverHole is { } hoverHole)
+        {
+            DrawCircle(session, projection, hoverHole, accent);
+            DrawCross(session, projection.ToScreen(hoverHole.Center), accent);
+        }
 
         if (_hover is { } hover)
         {

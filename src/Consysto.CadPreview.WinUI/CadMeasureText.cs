@@ -24,13 +24,16 @@ public sealed class CadMeasureText
     /// <summary>{0} distance; {1} unit; {2}, {3}, {4} offsets along X, Y, Z.</summary>
     public string DistanceFormat { get; init; } = "Distance: {0} {1} (ΔX {2}, ΔY {3}, ΔZ {4})";
 
+    /// <summary>{0} distance between the axes of two holes; {1} unit; {2} wall between them; {3}, {4}, {5} offsets along X, Y, Z.</summary>
+    public string CentresFormat { get; init; } = "Between centres: {0} {1}, between edges: {2} {1} (ΔX {3}, ΔY {4}, ΔZ {5})";
+
     /// <summary>{0} radius; {1} diameter; {2} unit.</summary>
     public string RadiusFormat { get; init; } = "Radius {0} {2}, diameter {1} {2}";
 
     /// <summary>{0} angle in degrees.</summary>
     public string AngleFormat { get; init; } = "Angle: {0}°";
 
-    public string DistancePrompt { get; init; } = "Click two points on the model";
+    public string DistancePrompt { get; init; } = "Click two points on the model; a hole is taken at its centre, hold Ctrl for the exact point";
 
     public string RadiusPrompt { get; init; } = "Click a round edge or face, or three points on an arc";
 

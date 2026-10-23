@@ -5531,6 +5531,9 @@
   <data name="ConsystoCadMeasureDistanceFormat" xml:space="preserve">
     <value>Distance: {0} {1} (ΔX {2}, ΔY {3}, ΔZ {4})</value>
   </data>
+  <data name="ConsystoCadMeasureCentresFormat" xml:space="preserve">
+    <value>Between centres: {0} {1}, between edges: {2} {1} (ΔX {3}, ΔY {4}, ΔZ {5})</value>
+  </data>
   <data name="ConsystoCadMeasureRadiusFormat" xml:space="preserve">
     <value>Radius {0} {2}, diameter {1} {2}</value>
   </data>
@@ -5538,7 +5541,7 @@
     <value>Angle: {0}°</value>
   </data>
   <data name="ConsystoCadMeasureDistancePrompt" xml:space="preserve">
-    <value>Click two points on the model</value>
+    <value>Click two points on the model; a hole is taken at its centre, hold Ctrl for the exact point</value>
   </data>
   <data name="ConsystoCadMeasureRadiusPrompt" xml:space="preserve">
     <value>Click a round edge or face, or three points on an arc</value>
