@@ -282,8 +282,8 @@ namespace Files.App.Services
 					portable = asset;
 			}
 
-			var page = GetString(root, "html_url") is { } address && address.StartsWith("https://github.com/" + Repository + "/", StringComparison.Ordinal)
-				? new Uri(address)
+			var page = GetString(root, "html_url") is { } pageUrl && pageUrl.StartsWith("https://github.com/" + Repository + "/", StringComparison.Ordinal)
+				? new Uri(pageUrl)
 				: new Uri(GitHubReleasesPage);
 
 			return new(version, installer, portable, page, FromSite: false);
