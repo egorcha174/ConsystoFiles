@@ -136,7 +136,8 @@ namespace Files.App.ViewModels.Previews
 		{
 			if (Item.IsShortcut)
 				return null;
-			if (Item.ItemFile is null)
+			// Consysto fork: a file read through a Win32 handle has no shell property store behind it
+			if (Item.ItemFile is null or NativeStorageFile)
 				return null;
 
 			var list = await FileProperty.RetrieveAndInitializePropertiesAsync(Item.ItemFile,
