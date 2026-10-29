@@ -63,7 +63,7 @@
 			<ColumnDefinition Width="2*" />
 		</Grid.ColumnDefinitions>
 
-		<!--  Consysto fork: one "Details" view with the preview on top and the properties below, instead of two tabs  -->
+		<!--  Consysto fork: one "Details" view with a preview card on top and an information card below, instead of two tabs  -->
 		<TextBlock
 			Grid.Row="0"
 			Grid.Column="0"
@@ -78,10 +78,14 @@
 			Grid.Row="1"
 			Grid.Column="0"
 			Grid.ColumnSpan="2"
-			Margin="8"
+			Margin="8,0,8,4"
 			HorizontalAlignment="Stretch"
 			VerticalAlignment="Stretch"
-			AutomationProperties.Name="{helpers:ResourceString Name=PreviewPaneFilePreview/AutomationProperties/Name}">
+			AutomationProperties.Name="{helpers:ResourceString Name=PreviewPaneFilePreview/AutomationProperties/Name}"
+			Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+			BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+			BorderThickness="1"
+			CornerRadius="8">
 			<Grid.ContextFlyout>
 				<MenuFlyout>
 					<MenuFlyoutItem
@@ -93,23 +97,30 @@
 				</MenuFlyout>
 			</Grid.ContextFlyout>
 			<Grid.RowDefinitions>
-				<RowDefinition Height="*" />
 				<RowDefinition Height="Auto" />
+				<RowDefinition Height="*" />
 			</Grid.RowDefinitions>
 			<TextBlock
+				Margin="12,8,12,0"
+				Style="{StaticResource Local.FileDetailsHeaderTextBlockStyle}"
+				Text="{helpers:ResourceString Name=ConsystoInfoPanePreviewHeader}" />
+			<TextBlock
 				x:Name="PreviewErrorText"
+				Grid.Row="1"
 				HorizontalAlignment="Center"
 				VerticalAlignment="Center"
 				Text="{helpers:ResourceString Name=NoItemSelected}"
 				TextWrapping="WrapWholeWords" />
 			<ContentPresenter
 				x:Name="PreviewControlPresenter"
+				Grid.Row="1"
 				HorizontalContentAlignment="Stretch"
 				VerticalContentAlignment="Stretch"
 				Content="{x:Bind ViewModel.PreviewPaneContent, Mode=OneWay}"
 				Visibility="Collapsed" />
 			<ProgressRing
 				x:Name="PreviewLoadingIndicator"
+				Grid.Row="1"
 				IsIndeterminate="True"
 				Visibility="Collapsed" />
 		</Grid>
@@ -119,9 +130,18 @@
 			Grid.Row="2"
 			Grid.Column="0"
 			Grid.ColumnSpan="2"
+			Margin="8,4,8,8"
 			AutomationProperties.Name="{helpers:ResourceString Name=PreviewPaneFileDetails/AutomationProperties/Name}"
+			Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+			BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+			BorderThickness="1"
+			CornerRadius="8"
 			Visibility="Visible">
-			<StackPanel Orientation="Vertical">
+			<StackPanel Padding="0,0,0,12" Orientation="Vertical">
+				<TextBlock
+					Margin="12,8,12,4"
+					Style="{StaticResource Local.FileDetailsHeaderTextBlockStyle}"
+					Text="{helpers:ResourceString Name=ConsystoInfoPaneDetailsHeader}" />
 				<TextBlock
 					x:Name="DetailsListHeader"
 					HorizontalAlignment="Center"
@@ -476,6 +496,8 @@
 						<Setter Target="RootPropertiesScrollViewer.(Grid.ColumnSpan)" Value="2" />
 						<Setter Target="RootPreviewGrid.(Grid.ColumnSpan)" Value="2" />
 						<Setter Target="RootPreviewGrid.(Grid.RowSpan)" Value="1" />
+						<Setter Target="RootPreviewGrid.Margin" Value="8,0,8,4" />
+						<Setter Target="RootPropertiesScrollViewer.Margin" Value="8,4,8,8" />
 					</VisualState.Setters>
 				</VisualState>
 				<VisualState x:Name="Horizontal">
@@ -486,6 +508,8 @@
 						<Setter Target="RootPreviewGrid.(Grid.ColumnSpan)" Value="1" />
 						<Setter Target="RootPreviewGrid.(Grid.RowSpan)" Value="2" />
 						<Setter Target="RootPropertiesScrollViewer.(Grid.Row)" Value="1" />
+						<Setter Target="RootPreviewGrid.Margin" Value="8,0,4,8" />
+						<Setter Target="RootPropertiesScrollViewer.Margin" Value="4,0,8,8" />
 					</VisualState.Setters>
 				</VisualState>
 			</VisualStateGroup>

@@ -5934,4 +5934,10 @@
   <data name="ConsystoUpdateNotesLanguage" xml:space="preserve">
     <value>en</value>
   </data>
+  <data name="ConsystoInfoPanePreviewHeader" xml:space="preserve">
+    <value>Preview</value>
+  </data>
+  <data name="ConsystoInfoPaneDetailsHeader" xml:space="preserve">
+    <value>Information</value>
+  </data>
 </root>

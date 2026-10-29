@@ -5933,4 +5933,10 @@
   <data name="ConsystoUpdateNotesLanguage" xml:space="preserve">
     <value>ru</value>
   </data>
+  <data name="ConsystoInfoPanePreviewHeader" xml:space="preserve">
+    <value>Превью</value>
+  </data>
+  <data name="ConsystoInfoPaneDetailsHeader" xml:space="preserve">
+    <value>Сведения</value>
+  </data>
 </root>

@@ -131,9 +131,12 @@ namespace Files.App.ViewModels.Previews
 		{
 			if (Item.IsShortcut)
 				return null;
-			// Consysto fork: a file read through a Win32 handle has no shell property store behind it
-			if (Item.ItemFile is null or NativeStorageFile)
+			if (Item.ItemFile is null)
 				return null;
+			// Consysto fork: a file read through a Win32 handle has no shell property store behind it, so the facts the
+			// file list already knows are shown instead
+			if (Item.ItemFile is NativeStorageFile)
+				return BasicFileProperties();
 
 			var list = await FileProperty.RetrieveAndInitializePropertiesAsync(Item.ItemFile,
 				Constants.ResourceFilePaths.PreviewPaneDetailsPropertiesJsonPath);
@@ -157,6 +160,15 @@ namespace Files.App.ViewModels.Previews
 
 			return list.Where(i => i.ValueText is not null).ToList();
 		}
+
+		private List<FileProperty> BasicFileProperties()
+			=> new[]
+			{
+				GetFileProperty("PropertyItemTypeText", Item.ItemType),
+				GetFileProperty("Size", Item.FileSize),
+				GetFileProperty("PropertyDateModified", Item.ItemDateModified),
+				GetFileProperty("PropertyDateCreated", Item.ItemDateCreated),
+			}.Where(i => !string.IsNullOrEmpty(i.ValueText)).ToList();
 
 		private sealed partial class DetailsOnlyPreviewModel : BasePreviewModel
 		{
