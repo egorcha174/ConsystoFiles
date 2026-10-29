@@ -168,7 +168,7 @@ namespace Files.App.Utils.Storage
 		public static IAsyncOperation<BaseStorageFile?> GetFileFromPathAsync(string path)
 		{
 			return AsyncInfo.Run<BaseStorageFile?>(async (cancellationToken)
-					=> await ZipStorageFile.FromPathAsync(path) ?? await FtpStorageFile.FromPathAsync(path) ?? await ShellStorageFile.FromPathAsync(path) ?? await NativeStorageFile.FromPathAsync(path) ?? await SystemStorageFile.FromPathAsync(path)
+					=> await ZipStorageFile.FromPathAsync(path) ?? await FtpStorageFile.FromPathAsync(path) ?? await ShellStorageFile.FromPathAsync(path) ?? await NativeStorageFile.FromPathAsync(path) ?? await SystemStorageFile.FromPathAsync(path) ?? await NativeStorageFile.FromReadablePathAsync(path)
 				);
 		}
 

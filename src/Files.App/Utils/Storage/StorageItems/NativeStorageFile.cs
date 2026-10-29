@@ -170,6 +170,15 @@ namespace Files.App.Utils.Storage
 			return Task.FromResult<BaseStorageFile?>(null).AsAsyncOperation();
 		}
 
+		// Consysto fork: when WinRT refuses a local file (the portable build is denied by StorageFile while plain Win32 reads
+		// work), the file is still worth reading through the handle; previews of pictures and text depend on it.
+		public static IAsyncOperation<BaseStorageFile?> FromReadablePathAsync(string path)
+		{
+			if (IO.Path.IsPathFullyQualified(path) && IO.File.Exists(path) && CheckAccess(path))
+				return Task.FromResult<BaseStorageFile?>(new NativeStorageFile(path, IO.Path.GetFileName(path), DateTime.Now)).AsAsyncOperation();
+			return Task.FromResult<BaseStorageFile?>(null).AsAsyncOperation();
+		}
+
 		private static bool CheckAccess(string path)
 		{
 			using var hFile = Win32Helper.OpenFileForRead(path);
