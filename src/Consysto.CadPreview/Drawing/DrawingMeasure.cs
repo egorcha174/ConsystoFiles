@@ -135,25 +135,58 @@ public sealed class DrawingMeasure
     public static DrawingCurve? HoleOf(DrawingPick pick)
         => pick.Curve is { Shape: CurveShape.Arc, Closed: true } circle ? circle : null;
 
-    /// <summary>The direction of the line at a pick, for angles; null at a free point or the centre of an arc.</summary>
-    public static (double X, double Y)? Direction(DrawingPick pick)
+    /// <summary>The straight piece a pick lies on, for angles; null at a free point or the centre of an arc.</summary>
+    public static (Point2 A, Point2 B)? SegmentOf(DrawingPick pick)
     {
         if (pick.Curve is not { } curve || pick.Snap is DrawingSnap.None or DrawingSnap.Center)
             return null;
 
         var points = curve.Points;
-        Point2 a, b;
         if (curve.Shape == CurveShape.Line)
-            (a, b) = (points[0], points[^1]);
-        else if (pick.Snap == DrawingSnap.Near)
-            (a, b) = (points[pick.Segment], points[(pick.Segment + 1) % points.Length]);
-        else if (Distance(pick.Point, points[0]) <= Distance(pick.Point, points[^1]))
-            (a, b) = (points[0], points[1]);
-        else
-            (a, b) = (points[^2], points[^1]);
+            return (points[0], points[^1]);
+        if (pick.Snap == DrawingSnap.Near)
+            return (points[pick.Segment], points[(pick.Segment + 1) % points.Length]);
+        return Distance(pick.Point, points[0]) <= Distance(pick.Point, points[^1])
+            ? (points[0], points[1])
+            : (points[^2], points[^1]);
+    }
 
-        double length = Distance(a, b);
-        return length > 0 ? ((b.X - a.X) / length, (b.Y - a.Y) / length) : null;
+    /// <summary>
+    /// The angle between two picked lines, as a drawing dimensions it: from the point where the lines, or their
+    /// extensions, cross, between the rays towards the two picks. Null for parallel lines.
+    /// </summary>
+    public static (Point2 Vertex, double Degrees)? Angle(DrawingPick first, DrawingPick second)
+    {
+        if (SegmentOf(first) is not { } one || SegmentOf(second) is not { } other)
+            return null;
+
+        var (a1, b1) = one;
+        var (a2, b2) = other;
+
+        double d1x = b1.X - a1.X, d1y = b1.Y - a1.Y, d2x = b2.X - a2.X, d2y = b2.Y - a2.Y;
+        double cross = d1x * d2y - d1y * d2x;
+        if (Math.Abs(cross) < 1e-12 * Math.Max(1, (d1x * d1x + d1y * d1y) * (d2x * d2x + d2y * d2y)))
+            return null;
+
+        double t = ((a2.X - a1.X) * d2y - (a2.Y - a1.Y) * d2x) / cross;
+        var vertex = new Point2(a1.X + d1x * t, a1.Y + d1y * t);
+
+        var (r1x, r1y) = Ray(vertex, first.Point, d1x, d1y);
+        var (r2x, r2y) = Ray(vertex, second.Point, d2x, d2y);
+        double degrees = Math.Acos(Math.Clamp(r1x * r2x + r1y * r2y, -1, 1)) * 180 / Math.PI;
+        return (vertex, degrees);
+    }
+
+    /// <summary>The unit direction from the vertex towards a pick; along the line when the pick is the vertex itself.</summary>
+    public static (double X, double Y) Ray(Point2 vertex, Point2 towards, double alongX, double alongY)
+    {
+        double x = towards.X - vertex.X, y = towards.Y - vertex.Y;
+        double length = Math.Sqrt(x * x + y * y);
+        if (length > 1e-9)
+            return (x / length, y / length);
+
+        length = Math.Sqrt(alongX * alongX + alongY * alongY);
+        return length > 0 ? (alongX / length, alongY / length) : (1, 0);
     }
 
     /// <summary>

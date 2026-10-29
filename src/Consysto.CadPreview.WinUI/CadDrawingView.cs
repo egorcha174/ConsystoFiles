@@ -151,7 +151,16 @@ public sealed partial class CadDrawingView : UserControl
         Angle,
     }
 
-    private sealed record Measurement(MeasurementKind Kind, Point2[] Points, DrawingCurve? Circle, string Label, string Detail, DrawingCurve[]? Holes = null);
+    /// <param name="Points">Two ends of a distance; for an angle the vertex and the two picks.</param>
+    /// <param name="Segments">For an angle: the two picked lines, end to end, drawn highlighted and extended to the vertex.</param>
+    private sealed record Measurement(
+        MeasurementKind Kind,
+        Point2[] Points,
+        DrawingCurve? Circle,
+        string Label,
+        string Detail,
+        DrawingCurve[]? Holes = null,
+        Point2[]? Segments = null);
 
     public Drawing2D? Drawing
     {
@@ -392,7 +401,7 @@ public sealed partial class CadDrawingView : UserControl
                 break;
 
             case MeasureTool.Angle:
-                if (DrawingMeasure.Direction(pick) is null)
+                if (DrawingMeasure.SegmentOf(pick) is null)
                 {
                     _notice = _text.DrawingAnglePrompt;
                     break;
@@ -400,18 +409,7 @@ public sealed partial class CadDrawingView : UserControl
 
                 _pending.Add(pick);
                 if (_pending.Count == 2)
-                {
-                    var (ax, ay) = DrawingMeasure.Direction(_pending[0])!.Value;
-                    var (bx, by) = DrawingMeasure.Direction(_pending[1])!.Value;
-                    double degrees = Math.Acos(Math.Clamp(Math.Abs(ax * bx + ay * by), 0, 1)) * 180 / Math.PI;
-                    string value = degrees.ToString("0.#", CultureInfo.CurrentCulture);
-                    AddMeasurement(new Measurement(
-                        MeasurementKind.Angle,
-                        [_pending[0].Point, _pending[1].Point],
-                        null,
-                        value + "°",
-                        string.Format(CultureInfo.CurrentCulture, _text.AngleFormat, value)));
-                }
+                    AddMeasurement(AngleBetween(_pending[0], _pending[1]));
 
                 break;
         }
@@ -459,6 +457,23 @@ public sealed partial class CadDrawingView : UserControl
             : string.Format(CultureInfo.CurrentCulture, _text.DrawingDistanceFormat, length, UnitName, Format(dx), Format(dy));
 
         return new Measurement(MeasurementKind.Distance, [a, b], null, length + " " + UnitName, detail, holes);
+    }
+
+    private Measurement AngleBetween(DrawingPick first, DrawingPick second)
+    {
+        var (a1, b1) = DrawingMeasure.SegmentOf(first)!.Value;
+        var (a2, b2) = DrawingMeasure.SegmentOf(second)!.Value;
+
+        // Parallel lines meet nowhere: nought degrees, shown between the picks
+        var (vertex, degrees) = DrawingMeasure.Angle(first, second) ?? (first.Point, 0);
+        string value = degrees.ToString("0.#", CultureInfo.CurrentCulture);
+        return new Measurement(
+            MeasurementKind.Angle,
+            [vertex, first.Point, second.Point],
+            null,
+            value + "°",
+            string.Format(CultureInfo.CurrentCulture, _text.AngleFormat, value),
+            Segments: [a1, b1, a2, b2]);
     }
 
     private Measurement CircleMeasurement(DrawingCurve arc)
@@ -545,6 +560,10 @@ public sealed partial class CadDrawingView : UserControl
                 anchor = ToScreen(circle.Center);
                 CadMeshView.DrawCross(session, anchor, accent);
             }
+            else if (measurement.Kind == MeasurementKind.Angle && measurement.Segments is { } segments)
+            {
+                anchor = DrawAngle(session, measurement.Points, segments, accent);
+            }
             else
             {
                 var a = ToScreen(measurement.Points[0]);
@@ -597,6 +616,75 @@ public sealed partial class CadDrawingView : UserControl
                     break;
             }
         }
+    }
+
+    /// <summary>
+    /// An angle the way a drawing dimensions it: the two lines highlighted and, where they stop short, extended to their
+    /// vertex with thin dashes; an arc between them with arrowheads at both ends.
+    /// </summary>
+    /// <returns>Where the label goes: outside the middle of the arc.</returns>
+    private Vector2 DrawAngle(CanvasDrawingSession session, Point2[] points, Point2[] segments, Color color)
+    {
+        var vertex = ToScreen(points[0]);
+        var first = ToScreen(points[1]);
+        var second = ToScreen(points[2]);
+
+        for (int i = 0; i < 4; i += 2)
+        {
+            var a = ToScreen(segments[i]);
+            var b = ToScreen(segments[i + 1]);
+            session.DrawLine(a, b, color, 2f);
+
+            // The end of the line nearer the vertex is extended to it when the lines do not reach each other
+            var near = Vector2.Distance(a, vertex) <= Vector2.Distance(b, vertex) ? a : b;
+            if (Vector2.Distance(near, vertex) > 2 && DistanceToSegment(vertex, a, b) > 2)
+                session.DrawLine(near, vertex, color, 1f, CadMeshView.DashedStroke);
+        }
+
+        float reach = Math.Min(Vector2.Distance(vertex, first), Vector2.Distance(vertex, second));
+        float radius = Math.Clamp(reach * 0.6f, 24f, 72f);
+        double start = Math.Atan2(first.Y - vertex.Y, first.X - vertex.X);
+        double end = Math.Atan2(second.Y - vertex.Y, second.X - vertex.X);
+        double sweep = end - start;
+        while (sweep > Math.PI)
+            sweep -= 2 * Math.PI;
+        while (sweep < -Math.PI)
+            sweep += 2 * Math.PI;
+
+        Vector2 At(double angle) => vertex + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
+
+        const int Steps = 48;
+        var previous = At(start);
+        for (int i = 1; i <= Steps; i++)
+        {
+            var next = At(start + sweep * i / Steps);
+            session.DrawLine(previous, next, color, 1.5f);
+            previous = next;
+        }
+
+        DrawArrowhead(session, At(start), start - Math.Sign(sweep) * Math.PI / 2, color);
+        DrawArrowhead(session, At(end), end + Math.Sign(sweep) * Math.PI / 2, color);
+
+        return At(start + sweep / 2) + new Vector2((float)Math.Cos(start + sweep / 2), (float)Math.Sin(start + sweep / 2)) * 4;
+    }
+
+    /// <param name="direction">Where the arrow points, in screen radians.</param>
+    private static void DrawArrowhead(CanvasDrawingSession session, Vector2 tip, double direction, Color color)
+    {
+        const float Length = 8f;
+        const double Spread = 0.4;
+        var left = tip - new Vector2((float)Math.Cos(direction - Spread), (float)Math.Sin(direction - Spread)) * Length;
+        var right = tip - new Vector2((float)Math.Cos(direction + Spread), (float)Math.Sin(direction + Spread)) * Length;
+        session.DrawLine(tip, left, color, 1.5f);
+        session.DrawLine(tip, right, color, 1.5f);
+    }
+
+    private static float DistanceToSegment(Vector2 point, Vector2 a, Vector2 b)
+    {
+        var along = b - a;
+        float lengthSquared = along.LengthSquared();
+        float t = lengthSquared > 0 ? Math.Clamp(Vector2.Dot(point - a, along) / lengthSquared, 0, 1) : 0;
+        return Vector2.Distance(point, a + along * t);
     }
 
     private void DrawArc(CanvasDrawingSession session, DrawingCurve arc, Color color)
