@@ -10,8 +10,6 @@ namespace Files.App.ViewModels.Previews
 {
 	public abstract partial class BasePreviewModel : ObservableObject
 	{
-		private readonly IUserSettingsService userSettingsService = Ioc.Default.GetRequiredService<IUserSettingsService>();
-
 		public ListedItem Item { get; }
 
 		protected BaseStorageFile PreviewFile
@@ -85,14 +83,11 @@ namespace Files.App.ViewModels.Previews
 			await Task.Run(async () =>
 			{
 				DetailsFromPreview = await LoadPreviewAndDetailsAsync();
-				if (userSettingsService.InfoPaneSettingsService.SelectedTab == InfoPaneTabs.Details)
-				{
-					// Add the details from the preview function, then the system file properties
-					DetailsFromPreview?.ForEach(i => detailsFull.Add(i));
-					List<FileProperty>? props = await GetSystemFilePropertiesAsync();
-					if (props is not null)
-						detailsFull.AddRange(props);
-				}
+				// Add the details from the preview function, then the system file properties
+				DetailsFromPreview?.ForEach(i => detailsFull.Add(i));
+				List<FileProperty>? props = await GetSystemFilePropertiesAsync();
+				if (props is not null)
+					detailsFull.AddRange(props);
 			});
 
 			Item.FileDetails = new System.Collections.ObjectModel.ObservableCollection<FileProperty>(detailsFull);
