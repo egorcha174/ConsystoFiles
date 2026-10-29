@@ -5975,4 +5975,16 @@
   <data name="ConsystoCadPierces" xml:space="preserve">
     <value>Врезки</value>
   </data>
+  <data name="ConsystoUpdateInstall" xml:space="preserve">
+    <value>Обновить</value>
+  </data>
+  <data name="ConsystoUpdateInstallHint" xml:space="preserve">
+    <value>Consysto Files закроется, поставит новую версию и откроется снова с теми же вкладками. Настройки сохранятся.</value>
+  </data>
+  <data name="ConsystoUpdateWaitForOperations" xml:space="preserve">
+    <value>Ещё идёт копирование или другая операция с файлами. Обновитесь, когда она закончится.</value>
+  </data>
+  <data name="ConsystoUpdateDownloadFailed" xml:space="preserve">
+    <value>Не удалось скачать или проверить новую версию. Откроется страница выпуска — скачайте установщик оттуда.</value>
+  </data>
 </root>

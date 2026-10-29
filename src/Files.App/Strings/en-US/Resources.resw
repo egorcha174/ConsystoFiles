@@ -5976,4 +5976,16 @@
   <data name="ConsystoCadPierces" xml:space="preserve">
     <value>Pierces</value>
   </data>
+  <data name="ConsystoUpdateInstall" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="ConsystoUpdateInstallHint" xml:space="preserve">
+    <value>Consysto Files will close, install the new version and open again with the same tabs. Your settings are kept.</value>
+  </data>
+  <data name="ConsystoUpdateWaitForOperations" xml:space="preserve">
+    <value>Copying or another file operation is still running. Update when it finishes.</value>
+  </data>
+  <data name="ConsystoUpdateDownloadFailed" xml:space="preserve">
+    <value>Could not download or verify the new version. The release page will open so you can download the installer yourself.</value>
+  </data>
 </root>
