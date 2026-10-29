@@ -3,6 +3,7 @@
 using Consysto.CadPreview;
 using Consysto.CadPreview.Step;
 using Consysto.CadPreview.Parasolid;
+using Microsoft.Extensions.Logging;
 using Windows.Storage;
 
 namespace Files.App.Cad
