@@ -12,6 +12,7 @@
 		</Grid.RowDefinitions>
 
 		<Image
+			x:Name="StoredPicture"
 			HorizontalAlignment="Center"
 			VerticalAlignment="Center"
 			Source="{x:Bind ViewModel.EmbeddedImage, Mode=OneWay}"

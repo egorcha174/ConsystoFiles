@@ -18,6 +18,8 @@ namespace Files.App.Cad
 			// Consysto.CadPreview.WinUI (Consysto.CadPreview.WinUI\occt in the package), which the core finds on its own.
 			StepMeshSource.CacheDirectory = SystemIO.Path.Combine(AppStorage.LocalCacheFolderPath, "cad-meshes");
 			ParasolidMeshSource.CacheDirectory = SystemIO.Path.Combine(AppStorage.LocalCacheFolderPath, "parasolid-meshes");
+			CadMeshSource.CacheDirectory = SystemIO.Path.Combine(AppStorage.LocalCacheFolderPath, "cad-shapes");
+			CadMeshSource.Log = (message, ex) => App.Logger.LogWarning(ex, "CAD preview: {Message}", message);
 			return true;
 		});
 

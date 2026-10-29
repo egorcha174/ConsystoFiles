@@ -26,7 +26,13 @@ namespace Files.App.Cad
 
 		public Drawing2D? Drawing { get; private set; }
 
-		public Mesh3D? Mesh { get; private set; }
+		private Mesh3D? mesh;
+		/// <summary>Set late for a document shown first by its saved picture, once its shape has been built.</summary>
+		public Mesh3D? Mesh
+		{
+			get => mesh;
+			private set => SetProperty(ref mesh, value);
+		}
 
 		private BitmapImage? embeddedImage;
 		public BitmapImage? EmbeddedImage
@@ -77,6 +83,25 @@ namespace Files.App.Cad
 
 		public override async Task<List<FileProperty>> LoadPreviewAndDetailsAsync()
 		{
+			// A document whose shape takes seconds shows its saved picture at once; the shape replaces it when ready
+			byte[]? quickPicture = null;
+			try
+			{
+				quickPicture = await Task.Run(() => CadPreviewSource.LoadQuickPicture(Item.ItemPath!), LoadCancelledTokenSource.Token);
+			}
+			catch (Exception ex) when (ex is not OperationCanceledException)
+			{
+				App.Logger.LogWarning(ex, "CAD preview could not read the saved picture");
+			}
+
+			if (quickPicture is not null)
+			{
+				await ShowImageAsync(quickPicture);
+				_ = LoadShapeLaterAsync();
+				await LoadReferencesAsync();
+				return await LoadPropertiesAsync();
+			}
+
 			CadPreviewContent content;
 			try
 			{
@@ -113,21 +138,42 @@ namespace Files.App.Cad
 			}
 
 			if (content.Image is { } image)
-			{
-				await MainWindow.Instance.DispatcherQueue.EnqueueOrInvokeAsync(async () =>
-				{
-					try
-					{
-						EmbeddedImage = await ToBitmapAsync(image);
-					}
-					catch (Exception ex)
-					{
-						App.Logger.LogWarning(ex, "CAD preview could not decode the embedded image");
-					}
-				});
-			}
+				await ShowImageAsync(image);
 
 			return details;
+		}
+
+		private Task ShowImageAsync(byte[] image)
+			=> MainWindow.Instance.DispatcherQueue.EnqueueOrInvokeAsync(async () =>
+			{
+				try
+				{
+					EmbeddedImage = await ToBitmapAsync(image);
+				}
+				catch (Exception ex)
+				{
+					App.Logger.LogWarning(ex, "CAD preview could not decode the embedded image");
+				}
+			});
+
+		private async Task LoadShapeLaterAsync()
+		{
+			var token = LoadCancelledTokenSource.Token;
+			try
+			{
+				// Not stopped when the user moves on: a build cut short leaves nothing in the cache and starts over next time
+				var content = await Task.Run(() => CadPreviewSource.Load(Item.ItemPath!), CancellationToken.None);
+				if (content.Mesh is { IsEmpty: false } shape && !token.IsCancellationRequested)
+					await MainWindow.Instance.DispatcherQueue.EnqueueOrInvokeAsync(() => Mesh = shape);
+			}
+			catch (OperationCanceledException)
+			{
+			}
+			catch (Exception ex)
+			{
+				// The saved picture stays; nothing is lost
+				App.Logger.LogWarning(ex, "CAD preview could not build the shape");
+			}
 		}
 
 		/// <summary>The iProperties of an Inventor document, shown above the file's own details.</summary>

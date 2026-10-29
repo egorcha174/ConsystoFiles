@@ -17,9 +17,23 @@ namespace Files.App.Cad
 			if (model.Drawing is not null)
 				Host.Children.Add(new CadDrawingView { Drawing = model.Drawing });
 			else if (model.Mesh is not null)
-				Host.Children.Add(new CadMeshView { Mesh = model.Mesh, MeasureText = MeasureText() });
+				ShowMesh(model.Mesh);
 
+			model.PropertyChanged += ViewModel_PropertyChanged;
 			Unloaded += CadPreview_Unloaded;
+		}
+
+		private void ShowMesh(Consysto.CadPreview.Mesh.Mesh3D mesh)
+		{
+			StoredPicture.Visibility = Visibility.Collapsed;
+			Host.Children.Add(new CadMeshView { Mesh = mesh, MeasureText = MeasureText() });
+		}
+
+		// The saved picture was shown while the shape was built; now the shape takes its place
+		private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if (e.PropertyName == nameof(CadPreviewViewModel.Mesh) && ViewModel.Mesh is { } mesh)
+				ShowMesh(mesh);
 		}
 
 		private CadPreviewViewModel ViewModel { get; }
@@ -61,6 +75,7 @@ namespace Files.App.Cad
 		private void CadPreview_Unloaded(object sender, RoutedEventArgs e)
 		{
 			ViewModel.PreviewControlBase_Unloaded(sender, e);
+			ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
 			Unloaded -= CadPreview_Unloaded;
 		}
 	}

@@ -79,6 +79,19 @@ public static class CadPreviewSource
                 || FusionPreviewReader.IsSupported(extension));
 
     /// <summary>
+    /// The picture a document saved, to show while its shape is built: the helper takes seconds on a large part the
+    /// first time. Null when there is none, or when the shape is already on disk and will be there at once.
+    /// </summary>
+    public static byte[]? LoadQuickPicture(string path)
+    {
+        string extension = Path.GetExtension(path);
+        if (!CadMeshSource.IsSupported(extension) || CadMeshSource.IsCached(path))
+            return null;
+
+        return SolidWorksPreviewReader.IsSupported(extension) ? SolidWorksPreviewReader.TryRead(path) : null;
+    }
+
+    /// <summary>
     /// For a thumbnail in a folder: a print job shows the picture its slicer stored, which is read from the head of the file,
     /// and is drawn from its moves only when there is none and the file is not too large to go through.
     /// </summary>
