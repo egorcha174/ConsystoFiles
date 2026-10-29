@@ -5939,4 +5939,40 @@
   <data name="ConsystoInfoPaneDetailsHeader" xml:space="preserve">
     <value>Сведения</value>
   </data>
+  <data name="ConsystoCadMeasureDrawingUnits" xml:space="preserve">
+    <value>ед.</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingBoundsFormat" xml:space="preserve">
+    <value>Габарит: {0} × {1} {2}</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingDistanceFormat" xml:space="preserve">
+    <value>Расстояние: {0} {1} (ΔX {2}, ΔY {3})</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingCentresFormat" xml:space="preserve">
+    <value>Между центрами: {0} {1}, между краями: {2} {1} (ΔX {3}, ΔY {4})</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingDistancePrompt" xml:space="preserve">
+    <value>Щёлкните две точки; у отверстия берётся центр, с Ctrl — точная точка</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingRadiusPrompt" xml:space="preserve">
+    <value>Щёлкните дугу или окружность</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingNoArc" xml:space="preserve">
+    <value>Это не дуга и не окружность</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingAnglePrompt" xml:space="preserve">
+    <value>Щёлкните две линии</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingUnitsUnknown" xml:space="preserve">
+    <value>В файле не указаны единицы, размеры в единицах чертежа</value>
+  </data>
+  <data name="ConsystoCadCuttingSection" xml:space="preserve">
+    <value>Резка</value>
+  </data>
+  <data name="ConsystoCadCutLength" xml:space="preserve">
+    <value>Длина реза</value>
+  </data>
+  <data name="ConsystoCadPierces" xml:space="preserve">
+    <value>Врезки</value>
+  </data>
 </root>

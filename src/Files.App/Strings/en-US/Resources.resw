@@ -5940,4 +5940,40 @@
   <data name="ConsystoInfoPaneDetailsHeader" xml:space="preserve">
     <value>Information</value>
   </data>
+  <data name="ConsystoCadMeasureDrawingUnits" xml:space="preserve">
+    <value>units</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingBoundsFormat" xml:space="preserve">
+    <value>Overall: {0} × {1} {2}</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingDistanceFormat" xml:space="preserve">
+    <value>Distance: {0} {1} (ΔX {2}, ΔY {3})</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingCentresFormat" xml:space="preserve">
+    <value>Between centres: {0} {1}, between edges: {2} {1} (ΔX {3}, ΔY {4})</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingDistancePrompt" xml:space="preserve">
+    <value>Click two points; a hole is taken at its centre, hold Ctrl for the exact point</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingRadiusPrompt" xml:space="preserve">
+    <value>Click an arc or a circle</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingNoArc" xml:space="preserve">
+    <value>This is not an arc or a circle</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingAnglePrompt" xml:space="preserve">
+    <value>Click two lines</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingUnitsUnknown" xml:space="preserve">
+    <value>The file does not state its units; sizes are in drawing units</value>
+  </data>
+  <data name="ConsystoCadCuttingSection" xml:space="preserve">
+    <value>Cutting</value>
+  </data>
+  <data name="ConsystoCadCutLength" xml:space="preserve">
+    <value>Cut length</value>
+  </data>
+  <data name="ConsystoCadPierces" xml:space="preserve">
+    <value>Pierces</value>
+  </data>
 </root>

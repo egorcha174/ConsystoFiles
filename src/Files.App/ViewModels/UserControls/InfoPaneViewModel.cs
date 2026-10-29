@@ -229,6 +229,8 @@ namespace Files.App.ViewModels.UserControls
 
 			if (control is not null)
 			{
+				// Consysto fork: the information card lists the iProperties already
+				(control as Files.App.Cad.CadPreview)?.HideProperties();
 				PreviewPaneContent = control;
 				PreviewPaneState = SelectedDriveItem is not null ? PreviewPaneStates.DriveStorageDetailsAvailable : PreviewPaneStates.PreviewAndDetailsAvailable;
 				return;

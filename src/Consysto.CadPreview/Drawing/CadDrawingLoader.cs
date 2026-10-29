@@ -2,6 +2,7 @@
 using ACadSharp.Entities;
 using ACadSharp.IO;
 using ACadSharp.Tables;
+using ACadSharp.Types.Units;
 using CSMath;
 
 namespace Consysto.CadPreview.Drawing;
@@ -35,6 +36,7 @@ public static class CadDrawingLoader
             SourcePath = path,
             Version = document.Header.VersionString,
             Space = spaceName,
+            MillimetersPerUnit = MillimetersPer(document.Header.InsUnits),
         };
         drawing.Notes.AddRange(notes);
 
@@ -67,12 +69,31 @@ public static class CadDrawingLoader
     }
 
     private static bool IsDrawable(Entity entity) => entity is not Viewport;
+
+    /// <summary>The $INSUNITS of the header in millimetres; null for a drawing that states no units.</summary>
+    private static double? MillimetersPer(UnitsType units) => units switch
+    {
+        UnitsType.Millimeters => 1,
+        UnitsType.Centimeters => 10,
+        UnitsType.Decimeters => 100,
+        UnitsType.Meters => 1000,
+        UnitsType.Kilometers => 1_000_000,
+        UnitsType.Microns => 0.001,
+        UnitsType.Inches or UnitsType.USSurveyInches => 25.4,
+        UnitsType.Feet or UnitsType.USSurveyFeet => 304.8,
+        UnitsType.Yards or UnitsType.USSurveyYards => 914.4,
+        UnitsType.Mils => 0.0254,
+        _ => null,
+    };
 }
 
 internal sealed class EntityFlattener(Drawing2D drawing)
 {
     private const int MaxDepth = 16;
     private const int FullCircleSegments = 72;
+
+    // Inside a dimension: drawn, but not part of the shape, so neither measured nor cut
+    private bool _annotation;
 
     public void Add(Entity entity, Rgb blockColor, int depth)
     {
@@ -90,36 +111,65 @@ internal sealed class EntityFlattener(Drawing2D drawing)
         switch (entity)
         {
             case Line line:
-                AddPolyline(color, layerName, [ToPoint(line.StartPoint), ToPoint(line.EndPoint)], false);
+            {
+                Point2[] ends = [ToPoint(line.StartPoint), ToPoint(line.EndPoint)];
+                AddPolyline(color, layerName, ends, false);
+                AddCurve(CurveShape.Line, layerName, ends, false);
                 break;
+            }
 
             case Arc arc:
-                AddPolyline(color, layerName, ToPoints(arc.PolygonalVertexes(SegmentsFor(arc.Sweep))), false);
+            {
+                var points = ToPoints(arc.PolygonalVertexes(SegmentsFor(arc.Sweep)));
+                AddPolyline(color, layerName, points, false);
+                AddArc(layerName, points, arc.Radius, arc.Radius * Math.Abs(arc.Sweep), false);
                 break;
+            }
 
             case Circle circle:
-                AddPolyline(color, layerName, ToPoints(circle.PolygonalVertexes(FullCircleSegments)), true);
+            {
+                var points = ToPoints(circle.PolygonalVertexes(FullCircleSegments));
+                AddPolyline(color, layerName, points, true);
+                AddArc(layerName, points, circle.Radius, 2 * Math.PI * circle.Radius, true);
                 break;
+            }
 
             case Ellipse ellipse:
-                AddPolyline(color, layerName, ToPoints(ellipse.PolygonalVertexes(FullCircleSegments)), ellipse.IsFullEllipse);
+            {
+                var points = ToPoints(ellipse.PolygonalVertexes(FullCircleSegments));
+                AddPolyline(color, layerName, points, ellipse.IsFullEllipse);
+
+                // A circle from a block comes back from Explode as an ellipse with equal axes; it is still a hole
+                if (Math.Abs(ellipse.RadiusRatio - 1) < 1e-6)
+                    AddArc(layerName, points, ellipse.MajorAxis / 2, PathLength(points, ellipse.IsFullEllipse), ellipse.IsFullEllipse);
+                else
+                    AddCurve(CurveShape.Curve, layerName, points, ellipse.IsFullEllipse);
                 break;
+            }
 
             case LwPolyline lwPolyline:
-                AddPolyline(color, layerName,
-                    BulgePoints(lwPolyline.Vertices.Select(v => (v.Location.X, v.Location.Y, v.Bulge)).ToList(), lwPolyline.IsClosed),
-                    lwPolyline.IsClosed);
+            {
+                var vertices = lwPolyline.Vertices.Select(v => (v.Location.X, v.Location.Y, v.Bulge)).ToList();
+                AddPolyline(color, layerName, BulgePoints(vertices, lwPolyline.IsClosed), lwPolyline.IsClosed);
+                AddSegments(layerName, vertices, lwPolyline.IsClosed);
                 break;
+            }
 
             case Polyline2D polyline2D:
-                AddPolyline(color, layerName,
-                    BulgePoints(polyline2D.Vertices.Select(v => (v.Location.X, v.Location.Y, v.Bulge)).ToList(), polyline2D.IsClosed),
-                    polyline2D.IsClosed);
+            {
+                var vertices = polyline2D.Vertices.Select(v => (v.Location.X, v.Location.Y, v.Bulge)).ToList();
+                AddPolyline(color, layerName, BulgePoints(vertices, polyline2D.IsClosed), polyline2D.IsClosed);
+                AddSegments(layerName, vertices, polyline2D.IsClosed);
                 break;
+            }
 
             case Polyline3D polyline3D:
-                AddPolyline(color, layerName, polyline3D.Vertices.Select(v => ToPoint(v.Location)).ToArray(), polyline3D.IsClosed);
+            {
+                var points = polyline3D.Vertices.Select(v => ToPoint(v.Location)).ToArray();
+                AddPolyline(color, layerName, points, polyline3D.IsClosed);
+                AddCurve(CurveShape.Curve, layerName, points, polyline3D.IsClosed);
                 break;
+            }
 
             case Spline spline:
                 // ACadSharp cannot evaluate several periodic splines written by Illustrator/laser CAM exports:
@@ -129,16 +179,24 @@ internal sealed class EntityFlattener(Drawing2D drawing)
                 // origin: two rays to (0,0) per curve, inside the extents check when the part lies near the origin
                 // (08.10.2026, «Мини печь буржуйка.dxf»: 10 splines, 20 rays). Its knot vector is stored in full, so the
                 // same curve evaluates correctly as an ordinary one: that is tried first.
+                Point2[]? curve = null;
                 if (spline.Flags.HasFlag(SplineFlags.Periodic) && TryEvaluateAsNonPeriodic(spline, out var plainPoints))
-                    AddPolyline(color, layerName, ToPoints(plainPoints), spline.IsClosed);
+                    curve = ToPoints(plainPoints);
                 else if (spline.TryPolygonalVertexes(SplineSegments(spline.ControlPoints.Count), out var splinePoints)
                     && IsSane(splinePoints, spline.ControlPoints))
-                    AddPolyline(color, layerName, ToPoints(splinePoints), spline.IsClosed);
+                    curve = ToPoints(splinePoints);
                 else if (spline.ControlPoints.Count >= 2
                     && spline.ControlPoints.All(p => double.IsFinite(p.X) && double.IsFinite(p.Y)))
-                    AddPolyline(color, layerName, ToPoints(spline.ControlPoints), spline.IsClosed);
-                else
+                    curve = ToPoints(spline.ControlPoints);
+
+                if (curve is null)
+                {
                     Skip("Spline(invalid)");
+                    break;
+                }
+
+                AddPolyline(color, layerName, curve, spline.IsClosed);
+                AddCurve(CurveShape.Curve, layerName, curve, spline.IsClosed);
                 break;
 
             case AttributeDefinition:
@@ -170,8 +228,11 @@ internal sealed class EntityFlattener(Drawing2D drawing)
                     Skip("Dimension(no block)");
                     break;
                 }
+                bool outer = _annotation;
+                _annotation = true;
                 foreach (var child in dimension.Block.Entities)
                     Add(child, color, depth + 1);
+                _annotation = outer;
                 break;
 
             case Solid solid:
@@ -207,6 +268,89 @@ internal sealed class EntityFlattener(Drawing2D drawing)
         if (points.Length >= 2)
             drawing.Primitives.Add(new PolylinePrimitive(color, layer, points, closed));
     }
+
+    private void AddCurve(CurveShape shape, string layer, Point2[] points, bool closed)
+    {
+        if (_annotation || points.Length < 2)
+            return;
+
+        double length = PathLength(points, closed);
+        if (length > 0 && double.IsFinite(length))
+            drawing.Curves.Add(new DrawingCurve { Shape = shape, Points = points, Closed = closed, Length = length, Layer = layer });
+    }
+
+    /// <summary>
+    /// The centre is found from the flattened points rather than taken from the entity: those are already where the
+    /// picture draws them, in world coordinates, whatever the extrusion direction or the block it came from.
+    /// </summary>
+    private void AddArc(string layer, Point2[] points, double radius, double length, bool closed)
+    {
+        if (_annotation || points.Length < 3 || !(radius > 0) || !double.IsFinite(length))
+            return;
+
+        int third = points.Length / 3;
+        if (CircleCenter(points[0], points[third], points[Math.Min(points.Length - 1, 2 * third)]) is not { } center)
+        {
+            AddCurve(CurveShape.Curve, layer, points, closed);
+            return;
+        }
+
+        drawing.Curves.Add(new DrawingCurve
+        {
+            Shape = CurveShape.Arc,
+            Points = points,
+            Closed = closed,
+            Center = center,
+            Radius = Distance(center, points[0]),
+            Length = length,
+            Layer = layer,
+        });
+    }
+
+    /// <summary>A polyline is measured piece by piece, so each of its corners can be picked.</summary>
+    private void AddSegments(string layer, List<(double X, double Y, double Bulge)> vertices, bool closed)
+    {
+        int count = closed ? vertices.Count : vertices.Count - 1;
+        for (int i = 0; i < count; i++)
+        {
+            var from = vertices[i];
+            var to = vertices[(i + 1) % vertices.Count];
+            if (Math.Abs(from.Bulge) < 1e-9)
+            {
+                AddCurve(CurveShape.Line, layer, [new Point2(from.X, from.Y), new Point2(to.X, to.Y)], false);
+                continue;
+            }
+
+            var points = BulgePoints([from, (to.X, to.Y, 0)], false);
+            double chord = Distance(new Point2(from.X, from.Y), new Point2(to.X, to.Y));
+            double theta = 4 * Math.Atan(Math.Abs(from.Bulge));
+            double radius = chord / (2 * Math.Sin(theta / 2));
+            AddArc(layer, points, radius, radius * theta, false);
+        }
+    }
+
+    internal static Point2? CircleCenter(Point2 a, Point2 b, Point2 c)
+    {
+        double d = 2 * (a.X * (b.Y - c.Y) + b.X * (c.Y - a.Y) + c.X * (a.Y - b.Y));
+        if (Math.Abs(d) < 1e-12)
+            return null;
+
+        double a2 = a.X * a.X + a.Y * a.Y, b2 = b.X * b.X + b.Y * b.Y, c2 = c.X * c.X + c.Y * c.Y;
+        var center = new Point2(
+            (a2 * (b.Y - c.Y) + b2 * (c.Y - a.Y) + c2 * (a.Y - b.Y)) / d,
+            (a2 * (c.X - b.X) + b2 * (a.X - c.X) + c2 * (b.X - a.X)) / d);
+        return double.IsFinite(center.X) && double.IsFinite(center.Y) ? center : null;
+    }
+
+    private static double PathLength(Point2[] points, bool closed)
+    {
+        double length = 0;
+        for (int i = 1; i < points.Length; i++)
+            length += Distance(points[i - 1], points[i]);
+        return closed && points.Length > 2 ? length + Distance(points[^1], points[0]) : length;
+    }
+
+    private static double Distance(Point2 a, Point2 b) => Math.Sqrt((a.X - b.X) * (a.X - b.X) + (a.Y - b.Y) * (a.Y - b.Y));
 
     private void AddText(Rgb color, string layer, Point2 position, double height, double rotation, string? value)
     {

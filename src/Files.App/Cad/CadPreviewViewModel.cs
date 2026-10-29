@@ -117,6 +117,8 @@ namespace Files.App.Cad
 			Mesh = content.Mesh;
 			await LoadReferencesAsync();
 			var details = await LoadPropertiesAsync();
+			if (Drawing is { } drawing)
+				details.AddRange(await Task.Run(() => CuttingDetails(drawing), LoadCancelledTokenSource.Token));
 			// Files the system draws itself — a page of an Illustrator document, a vector picture — are drawn here and
 			// then shown like any other picture
 			if (content.Drawn is { } drawn)
@@ -227,6 +229,28 @@ namespace Files.App.Cad
 				.Where(detail => detail.SectionResource != "ConsystoIPropertiesPartsSection")
 				.Select(detail => new CadPropertyRow(detail.Name, detail.Value?.ToString() ?? string.Empty)));
 			return details;
+		}
+
+		/// <summary>For a drawing sent to a laser: how long the cut is and how many times the beam pierces the sheet.</summary>
+		private static List<FileProperty> CuttingDetails(Drawing2D drawing)
+		{
+			if (drawing.Curves.Count == 0)
+				return [];
+
+			double perUnit = drawing.MillimetersPerUnit ?? 1;
+
+			// Ends closer than a hundredth of a millimetre belong to one outline
+			var cutting = DrawingMeasure.Cutting(drawing, 0.01 / perUnit);
+			var culture = System.Globalization.CultureInfo.CurrentCulture;
+			string length = drawing.MillimetersPerUnit is null
+				? $"{cutting.Length.ToString("#,0.#", culture)} {Strings.ConsystoCadMeasureDrawingUnits.GetLocalizedResource()}"
+				: $"{(cutting.Length * perUnit).ToString("#,0.#", culture)} {Strings.ConsystoCadMeasureMillimeters.GetLocalizedResource()}";
+
+			return
+			[
+				new FileProperty { NameResource = "ConsystoCadCutLength", SectionResource = "ConsystoCadCuttingSection", Value = length },
+				new FileProperty { NameResource = "ConsystoCadPierces", SectionResource = "ConsystoCadCuttingSection", Value = cutting.Pierces.ToString(culture) },
+			];
 		}
 
 		/// <summary>What the slicer wrote about a print job: time, plastic, layer, nozzle, printer.</summary>

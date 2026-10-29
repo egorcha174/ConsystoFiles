@@ -224,10 +224,10 @@ public sealed partial class CadMeshView : UserControl
         _canvas.Invalidate();
     }
 
-    private static ToggleButton ToolbarToggle(string glyph)
+    internal static ToggleButton ToolbarToggle(string glyph)
         => new() { Content = glyph, Padding = new Thickness(8, 2, 8, 4), MinWidth = 32 };
 
-    private static Brush? ThemeBrush(string key)
+    internal static Brush? ThemeBrush(string key)
         => Application.Current?.Resources.TryGetValue(key, out var value) == true ? value as Brush : null;
 
     private void ApplyText()
@@ -585,7 +585,7 @@ public sealed partial class CadMeshView : UserControl
             string.Format(CultureInfo.CurrentCulture, _text.RadiusFormat, r, d, _text.Millimeters));
     }
 
-    private static string FormatLength(float millimeters)
+    internal static string FormatLength(float millimeters)
     {
         string format = millimeters >= 1000 ? "0.#" : millimeters >= 1 ? "0.##" : "0.###";
         return millimeters.ToString(format, CultureInfo.CurrentCulture);
@@ -710,15 +710,15 @@ public sealed partial class CadMeshView : UserControl
         }
     }
 
-    private static readonly CanvasStrokeStyle DashedStroke = new() { DashStyle = CanvasDashStyle.Dash };
+    internal static readonly CanvasStrokeStyle DashedStroke = new() { DashStyle = CanvasDashStyle.Dash };
 
-    private static void DrawPoint(CanvasDrawingSession session, Vector2 at, Color color)
+    internal static void DrawPoint(CanvasDrawingSession session, Vector2 at, Color color)
     {
         session.FillCircle(at, 4, color);
         session.DrawCircle(at, 4, Colors.White, 1f);
     }
 
-    private static void DrawCross(CanvasDrawingSession session, Vector2 at, Color color)
+    internal static void DrawCross(CanvasDrawingSession session, Vector2 at, Color color)
     {
         session.DrawLine(at - new Vector2(5, 5), at + new Vector2(5, 5), color, 1.5f);
         session.DrawLine(at - new Vector2(5, -5), at + new Vector2(5, -5), color, 1.5f);
@@ -754,7 +754,7 @@ public sealed partial class CadMeshView : UserControl
         }
     }
 
-    private static void DrawLabel(CanvasDrawingSession session, CanvasTextFormat format, string text, Vector2 anchor, Color back, Color ink)
+    internal static void DrawLabel(CanvasDrawingSession session, CanvasTextFormat format, string text, Vector2 anchor, Color back, Color ink)
     {
         using var layout = new CanvasTextLayout(session, text, format, 1000, 100);
         var bounds = layout.LayoutBounds;

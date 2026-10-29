@@ -18,8 +18,9 @@
 			Source="{x:Bind ViewModel.EmbeddedImage, Mode=OneWay}"
 			Stretch="Uniform" />
 
-		<!--  iProperties: part number, material, mass and the user's own properties  -->
+		<!--  iProperties: part number, material, mass and the user's own properties. The info pane lists them in its own card instead.  -->
 		<ScrollViewer
+			x:Name="PropertiesList"
 			Grid.Row="1"
 			MaxHeight="240"
 			Padding="12,0"

@@ -1,7 +1,7 @@
 namespace Consysto.CadPreview.WinUI;
 
 /// <summary>
-/// The words the measuring tools of <see cref="CadMeshView"/> show. The library ships no resources of its own, so the
+/// The words the measuring tools of <see cref="CadMeshView"/> and <see cref="CadDrawingView"/> show. The library ships no resources of its own, so the
 /// host passes them in its language; the defaults are English. Format strings take numbers already formatted.
 /// </summary>
 public sealed class CadMeasureText
@@ -45,4 +45,28 @@ public sealed class CadMeasureText
     public string Preparing { get; init; } = "Preparing the model for measuring…";
 
     public string UnitsAssumed { get; init; } = "The file does not state its units; millimetres are assumed";
+
+    // The 2D drawing view
+
+    /// <summary>Shown after a size in a drawing that states no units.</summary>
+    public string DrawingUnits { get; init; } = "units";
+
+    /// <summary>{0}, {1} sizes along X, Y; {2} unit.</summary>
+    public string DrawingBoundsFormat { get; init; } = "Overall: {0} × {1} {2}";
+
+    /// <summary>{0} distance; {1} unit; {2}, {3} offsets along X, Y.</summary>
+    public string DrawingDistanceFormat { get; init; } = "Distance: {0} {1} (ΔX {2}, ΔY {3})";
+
+    /// <summary>{0} distance between the centres of two holes; {1} unit; {2} wall between them; {3}, {4} offsets along X, Y.</summary>
+    public string DrawingCentresFormat { get; init; } = "Between centres: {0} {1}, between edges: {2} {1} (ΔX {3}, ΔY {4})";
+
+    public string DrawingDistancePrompt { get; init; } = "Click two points; a hole is taken at its centre, hold Ctrl for the exact point";
+
+    public string DrawingRadiusPrompt { get; init; } = "Click an arc or a circle";
+
+    public string DrawingNoArc { get; init; } = "This is not an arc or a circle";
+
+    public string DrawingAnglePrompt { get; init; } = "Click two lines";
+
+    public string DrawingUnitsUnknown { get; init; } = "The file does not state its units; sizes are in drawing units";
 }
