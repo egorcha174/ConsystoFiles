@@ -9,6 +9,18 @@ public enum MeshUp
     Z,
 }
 
+/// <summary>The length of one model unit.</summary>
+/// <param name="IsStated">
+/// The file names its unit (3MF, STEP read by OpenCascade). STL and OBJ carry bare numbers, read as millimetres the way
+/// printers and slicers do, so measurements of them are a guess the viewer has to admit.
+/// </param>
+public readonly record struct MeshUnits(double Millimeters, bool IsStated)
+{
+    public static MeshUnits AssumedMillimeters => new(1, false);
+
+    public static MeshUnits StatedMillimeters => new(1, true);
+}
+
 /// <summary>
 /// Triangle soup in model units: every three vertices form one triangle. CAD meshes are full of sharp edges,
 /// so vertices are never shared between faces and the viewer shades each face flat.
@@ -37,6 +49,8 @@ public sealed class Mesh3D
     public Vector3[] Vertices { get; }
 
     public MeshUp Up { get; }
+
+    public MeshUnits Units { get; init; } = MeshUnits.AssumedMillimeters;
 
     public int TriangleCount => Vertices.Length / 3;
 
@@ -76,7 +90,7 @@ internal sealed class MeshBuilder
         vertices.Add(c);
     }
 
-    public Mesh3D ToMesh(MeshUp up) => new(vertices.ToArray(), up);
+    public Mesh3D ToMesh(MeshUp up, MeshUnits? units = null) => new(vertices.ToArray(), up) { Units = units ?? MeshUnits.AssumedMillimeters };
 
     private static bool IsFinite(Vector3 v) => float.IsFinite(v.X) && float.IsFinite(v.Y) && float.IsFinite(v.Z);
 }

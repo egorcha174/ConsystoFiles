@@ -87,6 +87,38 @@ public sealed class TextPrimitive(Rgb color, string layer, Point2 position, doub
     public override PrimitiveKind Kind => PrimitiveKind.Text;
 }
 
+public enum CurveShape
+{
+    Line,
+    Arc,
+    Curve,
+}
+
+/// <summary>
+/// A piece of the geometry as it was drawn, kept beside the flattened picture for measuring: a line keeps its exact ends,
+/// an arc or circle its centre and radius. Dimensions, text and hatching are not geometry and have none.
+/// </summary>
+public sealed class DrawingCurve
+{
+    public required CurveShape Shape { get; init; }
+
+    /// <summary>The path in drawing units; the first and last points are the real ends of the piece.</summary>
+    public required Point2[] Points { get; init; }
+
+    /// <summary>A full circle or a closed outline: a contour of its own, with no ends.</summary>
+    public bool Closed { get; init; }
+
+    /// <summary>Of an arc or circle only.</summary>
+    public Point2 Center { get; init; }
+
+    /// <summary>Of an arc or circle only.</summary>
+    public double Radius { get; init; }
+
+    public required double Length { get; init; }
+
+    public required string Layer { get; init; }
+}
+
 /// <summary>A flattened, renderer-neutral 2D drawing: everything is polylines, fills and text in world units.</summary>
 public sealed class Drawing2D
 {
@@ -97,6 +129,12 @@ public sealed class Drawing2D
     public required string Space { get; init; }
 
     public List<Primitive> Primitives { get; } = [];
+
+    /// <summary>The geometry for measuring and for the cutting figures; empty for a drawing read from a picture or a toolpath.</summary>
+    public List<DrawingCurve> Curves { get; } = [];
+
+    /// <summary>How long one drawing unit is, from the units the file states; null when it states none.</summary>
+    public double? MillimetersPerUnit { get; set; }
 
     public HashSet<string> Layers { get; } = [];
 

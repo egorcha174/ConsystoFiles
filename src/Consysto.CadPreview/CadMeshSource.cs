@@ -53,11 +53,28 @@ public static class CadMeshSource
 
 	public static string CacheDirectory { get; set; } = Path.Combine(Path.GetTempPath(), "Consysto.CadPreview", "cad");
 
-	public static TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(60);
+	// A large SolidWorks part keeps the helper busy for most of a minute, and the shape is built behind its saved picture
+	public static TimeSpan Timeout { get; set; } = TimeSpan.FromMinutes(3);
+
+	/// <summary>Receives the reason a document could not be read, for the program's log.</summary>
+	public static Action<string, Exception?>? Log { get; set; }
 
 	/// <summary>A document whose geometry this build can read; false when the helper is not deployed.</summary>
 	public static bool IsSupported(string? extension)
 		=> extension is not null && SupportedExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase) && HelperExists();
+
+	/// <summary>The shape of this file was built before and is waiting on disk, so loading it is quick.</summary>
+	public static bool IsCached(string path)
+	{
+		try
+		{
+			return File.Exists(CachePath(new FileInfo(path)));
+		}
+		catch (Exception)
+		{
+			return false;
+		}
+	}
 
 	public static Mesh3D Load(string path, CancellationToken cancellationToken = default)
 	{
@@ -65,7 +82,7 @@ public static class CadMeshSource
 		{
 			var file = new FileInfo(path);
 			Directory.CreateDirectory(CacheDirectory);
-			var cachePath = Path.Combine(CacheDirectory, CacheKey(file) + ".cadmesh");
+			var cachePath = CachePath(file);
 
 			lock (Gates.GetOrAdd(cachePath, _ => new object()))
 			{
@@ -73,7 +90,7 @@ public static class CadMeshSource
 				{
 					try
 					{
-						return MeshCache.Read(cachePath);
+						return InMillimeters(MeshCache.Read(cachePath));
 					}
 					catch (InvalidDataException)
 					{
@@ -82,28 +99,47 @@ public static class CadMeshSource
 				}
 
 				Slots.Wait(cancellationToken);
+				Mesh3D mesh;
 				try
 				{
-					var mesh = Decode(file.FullName, cancellationToken);
-					MeshCache.Write(cachePath, mesh);
-					return mesh;
+					mesh = Decode(file.FullName, cancellationToken);
+				}
+				catch (Exception ex) when (ex is not OperationCanceledException)
+				{
+					Log?.Invoke($"cadmpeg could not read {file.Name}", ex);
+					mesh = Mesh3D.Empty;
 				}
 				finally
 				{
 					Slots.Release();
 				}
+
+				if (mesh.IsEmpty)
+					Log?.Invoke($"cadmpeg gave no shape for {file.Name}", null);
+
+				// An empty shape is kept too, so a document the helper cannot read is not tried again on every visit
+				MeshCache.Write(cachePath, mesh);
+				return InMillimeters(mesh);
 			}
 		}
 		catch (OperationCanceledException)
 		{
 			throw;
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
 			// A document this build cannot decode is not a failure of the program: the saved picture is shown instead
+			Log?.Invoke($"CAD shape of {Path.GetFileName(path)} was not loaded", ex);
 			return Mesh3D.Empty;
 		}
 	}
+
+	/// <summary>
+	/// Both roads end in millimetres: cadmpeg converts what it reads into its own model, which states millimetres
+	/// (SolidWorks keeps metres inside), and OpenCascade reads the STEP it writes in millimetres too.
+	/// </summary>
+	private static Mesh3D InMillimeters(Mesh3D mesh)
+		=> mesh.IsEmpty ? mesh : new Mesh3D(mesh.Vertices, mesh.Up) { Units = MeshUnits.StatedMillimeters };
 
 	private static Mesh3D Decode(string input, CancellationToken cancellationToken)
 	{
@@ -173,6 +209,11 @@ public static class CadMeshSource
 			RedirectStandardOutput = true,
 			RedirectStandardError = true,
 		};
+
+		// The helper writes its scratch files next to its output, not into a temporary folder that may be closed to it
+		start.Environment["TEMP"] = CacheDirectory;
+		start.Environment["TMP"] = CacheDirectory;
+
 		foreach (var argument in arguments)
 			start.ArgumentList.Add(argument);
 
@@ -187,6 +228,7 @@ public static class CadMeshSource
 		if (!process.WaitForExit((int)Timeout.TotalMilliseconds))
 		{
 			KillQuietly(process);
+			Log?.Invoke($"cadmpeg {arguments[0]} did not finish in {Timeout.TotalSeconds:0} s", null);
 			return false;
 		}
 
@@ -194,7 +236,17 @@ public static class CadMeshSource
 
 		cancellationToken.ThrowIfCancellationRequested();
 
+		if (process.ExitCode != 0)
+			Log?.Invoke($"cadmpeg {arguments[0]} ended with code {process.ExitCode}: {LastLine(errors)}", null);
+
 		return process.ExitCode == 0;
+	}
+
+	private static string LastLine(Task<string> output)
+	{
+		var text = output.IsCompletedSuccessfully ? output.Result.TrimEnd() : string.Empty;
+		var start = text.LastIndexOf('\n') + 1;
+		return text[start..];
 	}
 
 	/// <summary>Takes the triangles out of the JSON of the tool and leaves everything else in it alone.</summary>
@@ -285,6 +337,9 @@ public static class CadMeshSource
 
 	private static string FindDefaultHelper()
 		=> Path.Combine(AppContext.BaseDirectory, "CadHelpers", HelperName);
+
+	private static string CachePath(FileInfo file)
+		=> Path.Combine(CacheDirectory, CacheKey(file) + ".cadmesh");
 
 	private static string CacheKey(FileInfo file)
 	{

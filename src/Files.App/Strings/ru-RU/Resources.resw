@@ -5506,6 +5506,57 @@
   <data name="ConsystoCadPrintTime" xml:space="preserve">
     <value>????? ??????</value>
   </data>
+  <data name="ConsystoCadMeasureBounds" xml:space="preserve">
+    <value>Габариты</value>
+  </data>
+  <data name="ConsystoCadMeasureDistance" xml:space="preserve">
+    <value>Расстояние</value>
+  </data>
+  <data name="ConsystoCadMeasureRadius" xml:space="preserve">
+    <value>Радиус и диаметр</value>
+  </data>
+  <data name="ConsystoCadMeasureAngle" xml:space="preserve">
+    <value>Угол</value>
+  </data>
+  <data name="ConsystoCadMeasureClear" xml:space="preserve">
+    <value>Очистить измерения</value>
+  </data>
+  <data name="ConsystoCadMeasureMillimeters" xml:space="preserve">
+    <value>мм</value>
+  </data>
+  <data name="ConsystoCadMeasureBoundsFormat" xml:space="preserve">
+    <value>Габариты: {0} × {1} × {2} {3}</value>
+  </data>
+  <data name="ConsystoCadMeasureDistanceFormat" xml:space="preserve">
+    <value>Расстояние: {0} {1} (ΔX {2}, ΔY {3}, ΔZ {4})</value>
+  </data>
+  <data name="ConsystoCadMeasureCentresFormat" xml:space="preserve">
+    <value>Между центрами: {0} {1}, между краями: {2} {1} (ΔX {3}, ΔY {4}, ΔZ {5})</value>
+  </data>
+  <data name="ConsystoCadMeasureRadiusFormat" xml:space="preserve">
+    <value>Радиус {0} {2}, диаметр {1} {2}</value>
+  </data>
+  <data name="ConsystoCadMeasureAngleFormat" xml:space="preserve">
+    <value>Угол: {0}°</value>
+  </data>
+  <data name="ConsystoCadMeasureDistancePrompt" xml:space="preserve">
+    <value>Щёлкните две точки на модели; у отверстия берётся центр, с Ctrl — точно в точку</value>
+  </data>
+  <data name="ConsystoCadMeasureRadiusPrompt" xml:space="preserve">
+    <value>Щёлкните круглую кромку или грань либо три точки на дуге</value>
+  </data>
+  <data name="ConsystoCadMeasureRadiusPointsPrompt" xml:space="preserve">
+    <value>Окружность здесь не найдена: укажите точки на дуге ({0} из 3)</value>
+  </data>
+  <data name="ConsystoCadMeasureAnglePrompt" xml:space="preserve">
+    <value>Щёлкните две грани или кромки</value>
+  </data>
+  <data name="ConsystoCadMeasurePreparing" xml:space="preserve">
+    <value>Подготовка модели к измерению…</value>
+  </data>
+  <data name="ConsystoCadMeasureUnitsAssumed" xml:space="preserve">
+    <value>В файле не указаны единицы — считаются миллиметры</value>
+  </data>
   <data name="ConsystoTorrentDefault" xml:space="preserve">
     <value>Качать торренты через Files</value>
   </data>
@@ -5881,6 +5932,48 @@
   </data>
   <data name="ConsystoUpdateNotesLanguage" xml:space="preserve">
     <value>ru</value>
+  </data>
+  <data name="ConsystoInfoPanePreviewHeader" xml:space="preserve">
+    <value>Превью</value>
+  </data>
+  <data name="ConsystoInfoPaneDetailsHeader" xml:space="preserve">
+    <value>Сведения</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingUnits" xml:space="preserve">
+    <value>ед.</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingBoundsFormat" xml:space="preserve">
+    <value>Габарит: {0} × {1} {2}</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingDistanceFormat" xml:space="preserve">
+    <value>Расстояние: {0} {1} (ΔX {2}, ΔY {3})</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingCentresFormat" xml:space="preserve">
+    <value>Между центрами: {0} {1}, между краями: {2} {1} (ΔX {3}, ΔY {4})</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingDistancePrompt" xml:space="preserve">
+    <value>Щёлкните две точки; у отверстия берётся центр, с Ctrl — точная точка</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingRadiusPrompt" xml:space="preserve">
+    <value>Щёлкните дугу или окружность</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingNoArc" xml:space="preserve">
+    <value>Это не дуга и не окружность</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingAnglePrompt" xml:space="preserve">
+    <value>Щёлкните две линии</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingUnitsUnknown" xml:space="preserve">
+    <value>В файле не указаны единицы, размеры в единицах чертежа</value>
+  </data>
+  <data name="ConsystoCadCuttingSection" xml:space="preserve">
+    <value>Резка</value>
+  </data>
+  <data name="ConsystoCadCutLength" xml:space="preserve">
+    <value>Длина реза</value>
+  </data>
+  <data name="ConsystoCadPierces" xml:space="preserve">
+    <value>Врезки</value>
   </data>
   <data name="ConsystoUpdateInstall" xml:space="preserve">
     <value>Обновить</value>

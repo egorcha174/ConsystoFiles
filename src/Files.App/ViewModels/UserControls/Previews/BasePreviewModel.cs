@@ -10,8 +10,6 @@ namespace Files.App.ViewModels.Previews
 {
 	public abstract partial class BasePreviewModel : ObservableObject
 	{
-		private readonly IUserSettingsService userSettingsService = Ioc.Default.GetRequiredService<IUserSettingsService>();
-
 		public ListedItem Item { get; }
 
 		protected BaseStorageFile PreviewFile
@@ -85,14 +83,11 @@ namespace Files.App.ViewModels.Previews
 			await Task.Run(async () =>
 			{
 				DetailsFromPreview = await LoadPreviewAndDetailsAsync();
-				if (userSettingsService.InfoPaneSettingsService.SelectedTab == InfoPaneTabs.Details)
-				{
-					// Add the details from the preview function, then the system file properties
-					DetailsFromPreview?.ForEach(i => detailsFull.Add(i));
-					List<FileProperty>? props = await GetSystemFilePropertiesAsync();
-					if (props is not null)
-						detailsFull.AddRange(props);
-				}
+				// Add the details from the preview function, then the system file properties
+				DetailsFromPreview?.ForEach(i => detailsFull.Add(i));
+				List<FileProperty>? props = await GetSystemFilePropertiesAsync();
+				if (props is not null)
+					detailsFull.AddRange(props);
 			});
 
 			Item.FileDetails = new System.Collections.ObjectModel.ObservableCollection<FileProperty>(detailsFull);
@@ -138,6 +133,10 @@ namespace Files.App.ViewModels.Previews
 				return null;
 			if (Item.ItemFile is null)
 				return null;
+			// Consysto fork: a file read through a Win32 handle has no shell property store behind it, so the facts the
+			// file list already knows are shown instead
+			if (Item.ItemFile is NativeStorageFile)
+				return BasicFileProperties();
 
 			var list = await FileProperty.RetrieveAndInitializePropertiesAsync(Item.ItemFile,
 				Constants.ResourceFilePaths.PreviewPaneDetailsPropertiesJsonPath);
@@ -161,6 +160,15 @@ namespace Files.App.ViewModels.Previews
 
 			return list.Where(i => i.ValueText is not null).ToList();
 		}
+
+		private List<FileProperty> BasicFileProperties()
+			=> new[]
+			{
+				GetFileProperty("PropertyItemTypeText", Item.ItemType),
+				GetFileProperty("Size", Item.FileSize),
+				GetFileProperty("PropertyDateModified", Item.ItemDateModified),
+				GetFileProperty("PropertyDateCreated", Item.ItemDateCreated),
+			}.Where(i => !string.IsNullOrEmpty(i.ValueText)).ToList();
 
 		private sealed partial class DetailsOnlyPreviewModel : BasePreviewModel
 		{

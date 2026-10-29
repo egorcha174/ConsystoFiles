@@ -5507,6 +5507,57 @@
   <data name="ConsystoCadPrintTime" xml:space="preserve">
     <value>Print time</value>
   </data>
+  <data name="ConsystoCadMeasureBounds" xml:space="preserve">
+    <value>Overall dimensions</value>
+  </data>
+  <data name="ConsystoCadMeasureDistance" xml:space="preserve">
+    <value>Distance</value>
+  </data>
+  <data name="ConsystoCadMeasureRadius" xml:space="preserve">
+    <value>Radius and diameter</value>
+  </data>
+  <data name="ConsystoCadMeasureAngle" xml:space="preserve">
+    <value>Angle</value>
+  </data>
+  <data name="ConsystoCadMeasureClear" xml:space="preserve">
+    <value>Clear measurements</value>
+  </data>
+  <data name="ConsystoCadMeasureMillimeters" xml:space="preserve">
+    <value>mm</value>
+  </data>
+  <data name="ConsystoCadMeasureBoundsFormat" xml:space="preserve">
+    <value>Overall: {0} × {1} × {2} {3}</value>
+  </data>
+  <data name="ConsystoCadMeasureDistanceFormat" xml:space="preserve">
+    <value>Distance: {0} {1} (ΔX {2}, ΔY {3}, ΔZ {4})</value>
+  </data>
+  <data name="ConsystoCadMeasureCentresFormat" xml:space="preserve">
+    <value>Between centres: {0} {1}, between edges: {2} {1} (ΔX {3}, ΔY {4}, ΔZ {5})</value>
+  </data>
+  <data name="ConsystoCadMeasureRadiusFormat" xml:space="preserve">
+    <value>Radius {0} {2}, diameter {1} {2}</value>
+  </data>
+  <data name="ConsystoCadMeasureAngleFormat" xml:space="preserve">
+    <value>Angle: {0}°</value>
+  </data>
+  <data name="ConsystoCadMeasureDistancePrompt" xml:space="preserve">
+    <value>Click two points on the model; a hole is taken at its centre, hold Ctrl for the exact point</value>
+  </data>
+  <data name="ConsystoCadMeasureRadiusPrompt" xml:space="preserve">
+    <value>Click a round edge or face, or three points on an arc</value>
+  </data>
+  <data name="ConsystoCadMeasureRadiusPointsPrompt" xml:space="preserve">
+    <value>No circle found here: click points on the arc ({0} of 3)</value>
+  </data>
+  <data name="ConsystoCadMeasureAnglePrompt" xml:space="preserve">
+    <value>Click two faces or edges</value>
+  </data>
+  <data name="ConsystoCadMeasurePreparing" xml:space="preserve">
+    <value>Preparing the model for measuring…</value>
+  </data>
+  <data name="ConsystoCadMeasureUnitsAssumed" xml:space="preserve">
+    <value>The file does not state its units; millimetres are assumed</value>
+  </data>
   <data name="ConsystoTorrentDefault" xml:space="preserve">
     <value>Download torrents with Files</value>
   </data>
@@ -5882,6 +5933,48 @@
   </data>
   <data name="ConsystoUpdateNotesLanguage" xml:space="preserve">
     <value>en</value>
+  </data>
+  <data name="ConsystoInfoPanePreviewHeader" xml:space="preserve">
+    <value>Preview</value>
+  </data>
+  <data name="ConsystoInfoPaneDetailsHeader" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingUnits" xml:space="preserve">
+    <value>units</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingBoundsFormat" xml:space="preserve">
+    <value>Overall: {0} × {1} {2}</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingDistanceFormat" xml:space="preserve">
+    <value>Distance: {0} {1} (ΔX {2}, ΔY {3})</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingCentresFormat" xml:space="preserve">
+    <value>Between centres: {0} {1}, between edges: {2} {1} (ΔX {3}, ΔY {4})</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingDistancePrompt" xml:space="preserve">
+    <value>Click two points; a hole is taken at its centre, hold Ctrl for the exact point</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingRadiusPrompt" xml:space="preserve">
+    <value>Click an arc or a circle</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingNoArc" xml:space="preserve">
+    <value>This is not an arc or a circle</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingAnglePrompt" xml:space="preserve">
+    <value>Click two lines</value>
+  </data>
+  <data name="ConsystoCadMeasureDrawingUnitsUnknown" xml:space="preserve">
+    <value>The file does not state its units; sizes are in drawing units</value>
+  </data>
+  <data name="ConsystoCadCuttingSection" xml:space="preserve">
+    <value>Cutting</value>
+  </data>
+  <data name="ConsystoCadCutLength" xml:space="preserve">
+    <value>Cut length</value>
+  </data>
+  <data name="ConsystoCadPierces" xml:space="preserve">
+    <value>Pierces</value>
   </data>
   <data name="ConsystoUpdateInstall" xml:space="preserve">
     <value>Update</value>

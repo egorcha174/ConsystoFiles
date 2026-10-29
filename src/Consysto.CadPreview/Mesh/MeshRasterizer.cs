@@ -35,8 +35,6 @@ public enum MeshFit
 /// </summary>
 public sealed class MeshRasterizer
 {
-    private const float MarginFraction = 0.06f;
-
     private const int MaximumSamplePixels = 4 * 1024 * 1024;
 
     // The same neutral steel for thumbnails and the interactive view.
@@ -77,8 +75,8 @@ public sealed class MeshRasterizer
         if (mesh.IsEmpty)
             return image;
 
-        var (right, up, toward) = ViewBasis(mesh.Up, view);
-        var (scale, offsetX, offsetY) = Frame(mesh, right, up, view, fit, sampleWidth, sampleHeight, supersample);
+        var projection = MeshProjection.Create(mesh, sampleWidth, sampleHeight, view, fit, supersample);
+        var (right, up, toward) = (projection.Right, projection.Up, projection.Toward);
 
         // Lights are fixed to the camera: a key light from the upper left and a weak fill from the right.
         var key = Vector3.Normalize(new Vector3(-0.35f, 0.55f, 0.75f));
@@ -103,13 +101,11 @@ public sealed class MeshRasterizer
             float intensity = 0.28f + 0.62f * Math.Max(0, Vector3.Dot(viewNormal, key)) + 0.18f * Math.Max(0, Vector3.Dot(viewNormal, fill));
             byte faceShade = (byte)Math.Clamp(intensity * 255, 0, 255);
 
-            RasterizeTriangle(Project(a), Project(b), Project(c), faceShade, sampleWidth, sampleHeight);
+            RasterizeTriangle(projection.Project(a), projection.Project(b), projection.Project(c), faceShade, sampleWidth, sampleHeight);
         }
 
         Resolve(width, height, sampleWidth, supersample);
         return image;
-
-        Vector3 Project(Vector3 v) => new(offsetX + scale * Vector3.Dot(v, right), offsetY - scale * Vector3.Dot(v, up), Vector3.Dot(v, toward));
     }
 
     private void EnsureBuffers(int samples, int pixelBytes)
@@ -122,62 +118,6 @@ public sealed class MeshRasterizer
 
         if (pixels.Length != pixelBytes)
             pixels = new byte[pixelBytes];
-    }
-
-    private static (Vector3 Right, Vector3 Up, Vector3 Toward) ViewBasis(MeshUp meshUp, MeshView view)
-    {
-        var worldUp = meshUp == MeshUp.Z ? Vector3.UnitZ : Vector3.UnitY;
-        var front = meshUp == MeshUp.Z ? -Vector3.UnitY : Vector3.UnitZ;
-        // Stop just short of the poles, where "right" would flip.
-        float azimuth = view.AzimuthDegrees * MathF.PI / 180f;
-        float elevation = Math.Clamp(view.ElevationDegrees, -89.5f, 89.5f) * MathF.PI / 180f;
-
-        var toward = Vector3.Normalize(
-            front * MathF.Cos(azimuth) * MathF.Cos(elevation)
-            + Vector3.UnitX * MathF.Sin(azimuth) * MathF.Cos(elevation)
-            + worldUp * MathF.Sin(elevation));
-        var right = Vector3.Normalize(Vector3.Cross(worldUp, toward));
-        var up = Vector3.Cross(toward, right);
-        return (right, up, toward);
-    }
-
-    private static (float Scale, float OffsetX, float OffsetY) Frame(Mesh3D mesh, Vector3 right, Vector3 up, MeshView view, MeshFit fit, int sampleWidth, int sampleHeight, int supersample)
-    {
-        float margin = MarginFraction * Math.Min(sampleWidth, sampleHeight);
-        float centerX, centerY, scale;
-
-        if (fit == MeshFit.Sphere)
-        {
-            float radius = Math.Max(mesh.Radius, 1e-6f);
-            scale = (Math.Min(sampleWidth, sampleHeight) / 2f - margin) / radius;
-            centerX = Vector3.Dot(mesh.Center, right);
-            centerY = Vector3.Dot(mesh.Center, up);
-        }
-        else
-        {
-            // The projected vertices, not the bounding box corners: a box seen at an angle wastes a lot of space.
-            float minX = float.PositiveInfinity, maxX = float.NegativeInfinity, minY = float.PositiveInfinity, maxY = float.NegativeInfinity;
-            foreach (var vertex in mesh.Vertices)
-            {
-                float x = Vector3.Dot(vertex, right);
-                float y = Vector3.Dot(vertex, up);
-                minX = Math.Min(minX, x);
-                maxX = Math.Max(maxX, x);
-                minY = Math.Min(minY, y);
-                maxY = Math.Max(maxY, y);
-            }
-
-            float extentX = Math.Max(maxX - minX, 1e-6f);
-            float extentY = Math.Max(maxY - minY, 1e-6f);
-            scale = Math.Min((sampleWidth - 2 * margin) / extentX, (sampleHeight - 2 * margin) / extentY);
-            centerX = (minX + maxX) / 2;
-            centerY = (minY + maxY) / 2;
-        }
-
-        scale *= Math.Max(view.Zoom, 1e-3f);
-        float offsetX = sampleWidth / 2f - scale * centerX + view.PanX * supersample;
-        float offsetY = sampleHeight / 2f + scale * centerY + view.PanY * supersample;
-        return (scale, offsetX, offsetY);
     }
 
     // Screen coordinates in samples; Z grows towards the viewer.
@@ -287,5 +227,113 @@ public sealed class MeshRasterizer
                 pixels[pixel + 3] = (byte)(covered * 255 / samples);
             }
         }
+    }
+}
+
+/// <summary>
+/// Where the orthographic camera of a frame puts the model: screen X to the right and Y down in output units (pixels
+/// or DIPs), Z towards the viewer in model units. Overlays and picking use the same mapping the rasterizer draws with.
+/// </summary>
+public sealed class MeshProjection
+{
+    private const float MarginFraction = 0.06f;
+
+    private MeshProjection(Vector3 right, Vector3 up, Vector3 toward, float scale, float offsetX, float offsetY)
+    {
+        Right = right;
+        Up = up;
+        Toward = toward;
+        Scale = scale;
+        OffsetX = offsetX;
+        OffsetY = offsetY;
+    }
+
+    public Vector3 Right { get; }
+
+    public Vector3 Up { get; }
+
+    public Vector3 Toward { get; }
+
+    /// <summary>Output units per model unit.</summary>
+    public float Scale { get; }
+
+    public float OffsetX { get; }
+
+    public float OffsetY { get; }
+
+    /// <param name="supersample">Samples per output unit; pan is given in output units.</param>
+    public static MeshProjection Create(Mesh3D mesh, float width, float height, MeshView view, MeshFit fit, int supersample = 1)
+    {
+        var (right, up, toward) = ViewBasis(mesh.Up, view);
+        var (scale, offsetX, offsetY) = Frame(mesh, right, up, view, fit, width, height, supersample);
+        return new MeshProjection(right, up, toward, scale, offsetX, offsetY);
+    }
+
+    public Vector3 Project(Vector3 v) => new(OffsetX + Scale * Vector3.Dot(v, Right), OffsetY - Scale * Vector3.Dot(v, Up), Vector3.Dot(v, Toward));
+
+    public Vector2 ToScreen(Vector3 v) => new(OffsetX + Scale * Vector3.Dot(v, Right), OffsetY - Scale * Vector3.Dot(v, Up));
+
+    /// <summary>The line of sight through a screen point: a model point on it and the direction away from the viewer.</summary>
+    public (Vector3 Origin, Vector3 Direction) Ray(Vector2 screen)
+    {
+        float x = (screen.X - OffsetX) / Scale;
+        float y = (OffsetY - screen.Y) / Scale;
+        return (Right * x + Up * y, -Toward);
+    }
+
+    private static (Vector3 Right, Vector3 Up, Vector3 Toward) ViewBasis(MeshUp meshUp, MeshView view)
+    {
+        var worldUp = meshUp == MeshUp.Z ? Vector3.UnitZ : Vector3.UnitY;
+        var front = meshUp == MeshUp.Z ? -Vector3.UnitY : Vector3.UnitZ;
+        // Stop just short of the poles, where "right" would flip.
+        float azimuth = view.AzimuthDegrees * MathF.PI / 180f;
+        float elevation = Math.Clamp(view.ElevationDegrees, -89.5f, 89.5f) * MathF.PI / 180f;
+
+        var toward = Vector3.Normalize(
+            front * MathF.Cos(azimuth) * MathF.Cos(elevation)
+            + Vector3.UnitX * MathF.Sin(azimuth) * MathF.Cos(elevation)
+            + worldUp * MathF.Sin(elevation));
+        var right = Vector3.Normalize(Vector3.Cross(worldUp, toward));
+        var up = Vector3.Cross(toward, right);
+        return (right, up, toward);
+    }
+
+    private static (float Scale, float OffsetX, float OffsetY) Frame(Mesh3D mesh, Vector3 right, Vector3 up, MeshView view, MeshFit fit, float sampleWidth, float sampleHeight, int supersample)
+    {
+        float margin = MarginFraction * Math.Min(sampleWidth, sampleHeight);
+        float centerX, centerY, scale;
+
+        if (fit == MeshFit.Sphere)
+        {
+            float radius = Math.Max(mesh.Radius, 1e-6f);
+            scale = (Math.Min(sampleWidth, sampleHeight) / 2f - margin) / radius;
+            centerX = Vector3.Dot(mesh.Center, right);
+            centerY = Vector3.Dot(mesh.Center, up);
+        }
+        else
+        {
+            // The projected vertices, not the bounding box corners: a box seen at an angle wastes a lot of space.
+            float minX = float.PositiveInfinity, maxX = float.NegativeInfinity, minY = float.PositiveInfinity, maxY = float.NegativeInfinity;
+            foreach (var vertex in mesh.Vertices)
+            {
+                float x = Vector3.Dot(vertex, right);
+                float y = Vector3.Dot(vertex, up);
+                minX = Math.Min(minX, x);
+                maxX = Math.Max(maxX, x);
+                minY = Math.Min(minY, y);
+                maxY = Math.Max(maxY, y);
+            }
+
+            float extentX = Math.Max(maxX - minX, 1e-6f);
+            float extentY = Math.Max(maxY - minY, 1e-6f);
+            scale = Math.Min((sampleWidth - 2 * margin) / extentX, (sampleHeight - 2 * margin) / extentY);
+            centerX = (minX + maxX) / 2;
+            centerY = (minY + maxY) / 2;
+        }
+
+        scale *= Math.Max(view.Zoom, 1e-3f);
+        float offsetX = sampleWidth / 2f - scale * centerX + view.PanX * supersample;
+        float offsetY = sampleHeight / 2f + scale * centerY + view.PanY * supersample;
+        return (scale, offsetX, offsetY);
     }
 }

@@ -229,6 +229,8 @@ namespace Files.App.ViewModels.UserControls
 
 			if (control is not null)
 			{
+				// Consysto fork: the information card lists the iProperties already
+				(control as Files.App.Cad.CadPreview)?.HideProperties();
 				PreviewPaneContent = control;
 				PreviewPaneState = SelectedDriveItem is not null ? PreviewPaneStates.DriveStorageDetailsAvailable : PreviewPaneStates.PreviewAndDetailsAvailable;
 				return;
@@ -237,7 +239,8 @@ namespace Files.App.ViewModels.UserControls
 			var basicModel = new BasicPreviewViewModel(item);
 			await basicModel.LoadAsync();
 
-			control = ShowCloudItemButton ? new BasicPreview(basicModel) : new UnsupportedPreview(basicModel);
+			// Consysto fork: a file with no viewer of its own shows its thumbnail above the details, as the details tab did
+			control = new BasicPreview(basicModel);
 
 			if (token.IsCancellationRequested)
 				return;
@@ -436,16 +439,8 @@ namespace Files.App.ViewModels.UserControls
 				{
 					PreviewPaneState = PreviewPaneStates.LoadingPreview;
 
-					if (SelectedTab == InfoPaneTabs.Preview ||
-						SelectedItem?.PrimaryItemAttribute == StorageItemTypes.Folder)
-					{
-						await LoadPreviewControlAsync(token, downloadItem);
-					}
-					else
-					{
-						await LoadBasicPreviewAsync(token);
-						return;
-					}
+					// Consysto fork: the pane has one view, so the full preview is always loaded and carries the details too
+					await LoadPreviewControlAsync(token, downloadItem);
 				}
 				catch (Exception e)
 				{

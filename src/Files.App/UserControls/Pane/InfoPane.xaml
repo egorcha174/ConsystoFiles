@@ -28,93 +28,6 @@
 
 				<ResourceDictionary>
 					<converters:BoolNegationConverter x:Key="BoolNegationConverter" />
-					<local:EnumToBoolConverter x:Key="EnumToBoolConverter" />
-
-					<Style x:Key="Local.RadioButtonStyle" TargetType="RadioButton">
-						<Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
-						<Setter Property="BorderBrush" Value="{ThemeResource RadioButtonBorderBrush}" />
-						<Setter Property="HorizontalAlignment" Value="Left" />
-						<Setter Property="VerticalAlignment" Value="Center" />
-						<Setter Property="HorizontalContentAlignment" Value="Left" />
-						<Setter Property="VerticalContentAlignment" Value="Top" />
-						<Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
-						<Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}" />
-						<Setter Property="MinWidth" Value="0" />
-						<Setter Property="UseSystemFocusVisuals" Value="{StaticResource UseSystemFocusVisuals}" />
-						<Setter Property="Template">
-							<Setter.Value>
-								<ControlTemplate TargetType="RadioButton">
-									<Grid x:Name="RootGrid">
-										<Grid
-											x:Name="ContainerGrid"
-											Height="32"
-											Background="Transparent"
-											BorderThickness="1"
-											CornerRadius="4">
-											<ContentPresenter
-												x:Name="ContentPresenter"
-												Padding="16,0,16,0"
-												HorizontalAlignment="Stretch"
-												VerticalAlignment="Center"
-												AutomationProperties.AccessibilityView="Raw"
-												Content="{TemplateBinding Content}"
-												ContentTemplate="{TemplateBinding ContentTemplate}"
-												ContentTransitions="{TemplateBinding ContentTransitions}"
-												TextWrapping="Wrap" />
-											<Border
-												x:Name="SelectionPill"
-												Width="16"
-												Height="3"
-												HorizontalAlignment="Center"
-												VerticalAlignment="Bottom"
-												Background="Transparent"
-												CornerRadius="1" />
-										</Grid>
-										<VisualStateManager.VisualStateGroups>
-											<VisualStateGroup x:Name="CommonStates">
-												<VisualState x:Name="Normal" />
-												<VisualState x:Name="PointerOver">
-													<Storyboard>
-														<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-															<DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextFillColorPrimaryBrush}" />
-														</ObjectAnimationUsingKeyFrames>
-													</Storyboard>
-												</VisualState>
-												<VisualState x:Name="Disabled">
-													<Storyboard>
-														<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-															<DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextFillColorDisabledBrush}" />
-														</ObjectAnimationUsingKeyFrames>
-													</Storyboard>
-												</VisualState>
-											</VisualStateGroup>
-											<VisualStateGroup x:Name="CheckStates">
-												<VisualState x:Name="Checked">
-													<Storyboard>
-														<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContainerGrid" Storyboard.TargetProperty="Background">
-															<DiscreteObjectKeyFrame KeyTime="0:0:00.3" Value="{ThemeResource ControlFillColorDefaultBrush}" />
-														</ObjectAnimationUsingKeyFrames>
-														<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContainerGrid" Storyboard.TargetProperty="BorderBrush">
-															<DiscreteObjectKeyFrame KeyTime="0:0:00.3" Value="{ThemeResource ControlElevationBorderBrush}" />
-														</ObjectAnimationUsingKeyFrames>
-														<ObjectAnimationUsingKeyFrames Storyboard.TargetName="SelectionPill" Storyboard.TargetProperty="Background">
-															<DiscreteObjectKeyFrame KeyTime="0:0:00.3" Value="{ThemeResource SystemAccentColor}" />
-														</ObjectAnimationUsingKeyFrames>
-														<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-															<DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextFillColorPrimaryBrush}" />
-														</ObjectAnimationUsingKeyFrames>
-													</Storyboard>
-												</VisualState>
-												<VisualState x:Name="Unchecked" />
-												<VisualState x:Name="Indeterminate" />
-											</VisualStateGroup>
-										</VisualStateManager.VisualStateGroups>
-									</Grid>
-								</ControlTemplate>
-							</Setter.Value>
-						</Setter>
-					</Style>
-
 					<Style
 						x:Key="Local.FileDetailsHeaderTextBlockStyle"
 						BasedOn="{StaticResource CaptionTextBlockStyle}"
@@ -122,6 +35,20 @@
 						<Setter Property="FontWeight" Value="SemiBold" />
 						<Setter Property="Foreground" Value="{ThemeResource TextFillColorTertiaryBrush}" />
 						<Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
+					</Style>
+
+					<!--  The bar between the preview and information cards: only the grip under it is drawn  -->
+					<Style x:Key="Local.CardSplitterStyle" TargetType="controls:GridSplitter">
+						<Setter Property="IsTabStop" Value="True" />
+						<Setter Property="UseSystemFocusVisuals" Value="True" />
+						<Setter Property="Background" Value="Transparent" />
+						<Setter Property="Template">
+							<Setter.Value>
+								<ControlTemplate TargetType="controls:GridSplitter">
+									<Grid Background="{TemplateBinding Background}" />
+								</ControlTemplate>
+							</Setter.Value>
+						</Setter>
 					</Style>
 
 					<Style x:Key="Local.FileDetailsTextBlockStyle" TargetType="TextBlock">
@@ -142,51 +69,37 @@
 		CornerRadius="8">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
-			<RowDefinition Height="2*" />
-			<RowDefinition x:Name="PropertiesRow" Height="3*" />
+			<RowDefinition Height="3*" MinHeight="96" />
+			<RowDefinition Height="2*" MinHeight="96" />
 		</Grid.RowDefinitions>
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="2*" />
-			<ColumnDefinition x:Name="PropertiesColumn" Width="3*" />
+			<ColumnDefinition Width="3*" MinWidth="120" />
+			<ColumnDefinition Width="2*" MinWidth="120" />
 		</Grid.ColumnDefinitions>
 
-		<!--  Panes  -->
-		<StackPanel
+		<!--  Consysto fork: one "Details" view with a preview card on top and an information card below, instead of two tabs  -->
+		<TextBlock
 			Grid.Row="0"
 			Grid.Column="0"
 			Grid.ColumnSpan="2"
 			Margin="12"
-			Padding="-1"
 			HorizontalAlignment="Center"
-			VerticalAlignment="Center"
-			Background="{ThemeResource SubtleFillColorTertiaryBrush}"
-			BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
-			BorderThickness="1"
-			CornerRadius="4"
-			Orientation="Horizontal">
-			<!--  Details  -->
-			<RadioButton
-				Command="{x:Bind Commands.ToggleDetailsPane, Mode=OneWay}"
-				Content="{helpers:ResourceString Name=Details}"
-				IsChecked="{x:Bind ViewModel.SelectedTab, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Details, Mode=OneWay}"
-				Style="{StaticResource Local.RadioButtonStyle}" />
-			<!--  Preview  -->
-			<RadioButton
-				Command="{x:Bind Commands.TogglePreviewPane, Mode=OneWay}"
-				Content="{helpers:ResourceString Name=Preview}"
-				IsChecked="{x:Bind ViewModel.SelectedTab, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Preview, Mode=OneWay}"
-				Style="{StaticResource Local.RadioButtonStyle}" />
-		</StackPanel>
+			Style="{StaticResource BodyStrongTextBlockStyle}"
+			Text="{helpers:ResourceString Name=Details}" />
 
 		<Grid
 			x:Name="RootPreviewGrid"
 			Grid.Row="1"
 			Grid.Column="0"
 			Grid.ColumnSpan="2"
-			Margin="8"
+			Margin="8,0,8,0"
 			HorizontalAlignment="Stretch"
 			VerticalAlignment="Stretch"
-			AutomationProperties.Name="{helpers:ResourceString Name=PreviewPaneFilePreview/AutomationProperties/Name}">
+			AutomationProperties.Name="{helpers:ResourceString Name=PreviewPaneFilePreview/AutomationProperties/Name}"
+			Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+			BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+			BorderThickness="1"
+			CornerRadius="8">
 			<Grid.ContextFlyout>
 				<MenuFlyout>
 					<MenuFlyoutItem
@@ -198,23 +111,30 @@
 				</MenuFlyout>
 			</Grid.ContextFlyout>
 			<Grid.RowDefinitions>
-				<RowDefinition Height="*" />
 				<RowDefinition Height="Auto" />
+				<RowDefinition Height="*" />
 			</Grid.RowDefinitions>
 			<TextBlock
+				Margin="12,8,12,0"
+				Style="{StaticResource Local.FileDetailsHeaderTextBlockStyle}"
+				Text="{helpers:ResourceString Name=ConsystoInfoPanePreviewHeader}" />
+			<TextBlock
 				x:Name="PreviewErrorText"
+				Grid.Row="1"
 				HorizontalAlignment="Center"
 				VerticalAlignment="Center"
 				Text="{helpers:ResourceString Name=NoItemSelected}"
 				TextWrapping="WrapWholeWords" />
 			<ContentPresenter
 				x:Name="PreviewControlPresenter"
+				Grid.Row="1"
 				HorizontalContentAlignment="Stretch"
 				VerticalContentAlignment="Stretch"
 				Content="{x:Bind ViewModel.PreviewPaneContent, Mode=OneWay}"
 				Visibility="Collapsed" />
 			<ProgressRing
 				x:Name="PreviewLoadingIndicator"
+				Grid.Row="1"
 				IsIndeterminate="True"
 				Visibility="Collapsed" />
 		</Grid>
@@ -224,18 +144,28 @@
 			Grid.Row="2"
 			Grid.Column="0"
 			Grid.ColumnSpan="2"
+			Margin="8,8,8,8"
 			AutomationProperties.Name="{helpers:ResourceString Name=PreviewPaneFileDetails/AutomationProperties/Name}"
+			Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+			BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+			BorderThickness="1"
+			CornerRadius="8"
 			Visibility="Visible">
-			<StackPanel Orientation="Vertical">
+			<StackPanel Padding="0,0,0,12" Orientation="Vertical">
+				<TextBlock
+					Margin="12,8,12,4"
+					Style="{StaticResource Local.FileDetailsHeaderTextBlockStyle}"
+					Text="{helpers:ResourceString Name=ConsystoInfoPaneDetailsHeader}" />
 				<TextBlock
 					x:Name="DetailsListHeader"
-					HorizontalAlignment="Center"
+					Margin="12,0,12,0"
+					HorizontalAlignment="Left"
 					FontFamily="{ThemeResource ContentControlThemeFontFamily}"
-					FontSize="20"
-					FontWeight="Bold"
+					FontSize="16"
+					FontWeight="SemiBold"
 					IsTextSelectionEnabled="True"
 					Text="{x:Bind ViewModel.SelectedItem.Name, Mode=OneWay}"
-					TextAlignment="Center"
+					TextAlignment="Left"
 					TextWrapping="Wrap"
 					Visibility="Collapsed" />
 
@@ -324,26 +254,32 @@
 						TextWrapping="Wrap" />
 				</Grid>
 
+				<!--  Consysto fork: one line per property, the name on the left and the value on the right  -->
 				<ItemsControl
 					x:Name="FileDetailsRepeater"
-					Margin="12,12,12,0"
+					Margin="12,6,12,0"
 					ItemsSource="{x:Bind ViewModel.SelectedItem.FileDetails, Mode=OneWay}"
 					Visibility="Collapsed">
 					<ItemsControl.ItemTemplate>
 						<DataTemplate x:DataType="properties:FileProperty">
-							<StackPanel
-								Padding="0,8,0,8"
+							<Grid
+								Padding="0,3,0,3"
 								HorizontalAlignment="Stretch"
 								AutomationProperties.Name="{x:Bind Name, Mode=OneWay}"
-								Orientation="Vertical"
-								Spacing="4">
+								ColumnSpacing="12">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="2*" />
+									<ColumnDefinition Width="3*" />
+								</Grid.ColumnDefinitions>
 
 								<!--  Property  -->
 								<TextBlock
-									HorizontalAlignment="Stretch"
-									VerticalAlignment="Center"
-									Style="{StaticResource Local.FileDetailsHeaderTextBlockStyle}"
-									Text="{x:Bind Name, Mode=OneWay}" />
+									VerticalAlignment="Top"
+									Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+									Style="{StaticResource Local.FileDetailsTextBlockStyle}"
+									Text="{x:Bind Name, Mode=OneWay}"
+									TextTrimming="CharacterEllipsis"
+									ToolTipService.ToolTip="{x:Bind Name, Mode=OneWay}" />
 
 								<!--  Value  -->
 								<TextBlock
@@ -354,7 +290,7 @@
 									Style="{StaticResource Local.FileDetailsTextBlockStyle}"
 									Text="{x:Bind ValueText, Mode=TwoWay}"
 									TextWrapping="Wrap" />
-							</StackPanel>
+							</Grid>
 						</DataTemplate>
 					</ItemsControl.ItemTemplate>
 				</ItemsControl>
@@ -491,6 +427,31 @@
 			</StackPanel>
 		</ScrollViewer>
 
+		<!--  Consysto fork: drag the gap between the cards to give one of them more room  -->
+		<Border
+			x:Name="CardSplitterGrip"
+			Grid.Row="2"
+			Grid.Column="0"
+			Grid.ColumnSpan="2"
+			Width="32"
+			Height="4"
+			Margin="0,2,0,0"
+			HorizontalAlignment="Center"
+			VerticalAlignment="Top"
+			Background="{ThemeResource ControlStrongFillColorDisabledBrush}"
+			CornerRadius="2"
+			IsHitTestVisible="False" />
+		<controls:GridSplitter
+			x:Name="CardSplitter"
+			Grid.Row="2"
+			Grid.Column="0"
+			Grid.ColumnSpan="2"
+			Height="8"
+			HorizontalAlignment="Stretch"
+			VerticalAlignment="Top"
+			ResizeBehavior="BasedOnAlignment"
+			Style="{StaticResource Local.CardSplitterStyle}" />
+
 		<VisualStateManager.VisualStateGroups>
 			<VisualStateGroup>
 				<VisualState x:Name="NoItemSelected">
@@ -571,29 +532,6 @@
 					</VisualState.Setters>
 				</VisualState>
 			</VisualStateGroup>
-			<VisualStateGroup>
-				<VisualState>
-					<VisualState.StateTriggers>
-						<triggers:IsEqualStateTrigger Value="{x:Bind ViewModel.SelectedTab, Mode=OneWay}" To="Details" />
-					</VisualState.StateTriggers>
-					<VisualState.Setters>
-						<Setter Target="RootPropertiesScrollViewer.Visibility" Value="Visible" />
-						<Setter Target="PropertiesRow.Height" Value="3*" />
-						<Setter Target="PropertiesColumn.Width" Value="3*" />
-					</VisualState.Setters>
-				</VisualState>
-				<VisualState>
-					<VisualState.StateTriggers>
-						<triggers:IsEqualStateTrigger Value="{x:Bind ViewModel.SelectedTab, Mode=OneWay}" To="Preview" />
-					</VisualState.StateTriggers>
-					<VisualState.Setters>
-						<Setter Target="RootPropertiesScrollViewer.Visibility" Value="Collapsed" />
-						<Setter Target="PropertiesRow.Height" Value="0" />
-						<Setter Target="PropertiesColumn.Width" Value="0" />
-					</VisualState.Setters>
-				</VisualState>
-			</VisualStateGroup>
-
 			<!--  Orientations  -->
 			<VisualStateGroup x:Name="Orientation">
 				<VisualState x:Name="Vertical">
@@ -604,6 +542,8 @@
 						<Setter Target="RootPropertiesScrollViewer.(Grid.ColumnSpan)" Value="2" />
 						<Setter Target="RootPreviewGrid.(Grid.ColumnSpan)" Value="2" />
 						<Setter Target="RootPreviewGrid.(Grid.RowSpan)" Value="1" />
+						<Setter Target="RootPreviewGrid.Margin" Value="8,0,8,0" />
+						<Setter Target="RootPropertiesScrollViewer.Margin" Value="8,8,8,8" />
 					</VisualState.Setters>
 				</VisualState>
 				<VisualState x:Name="Horizontal">
@@ -614,6 +554,25 @@
 						<Setter Target="RootPreviewGrid.(Grid.ColumnSpan)" Value="1" />
 						<Setter Target="RootPreviewGrid.(Grid.RowSpan)" Value="2" />
 						<Setter Target="RootPropertiesScrollViewer.(Grid.Row)" Value="1" />
+						<Setter Target="RootPreviewGrid.Margin" Value="8,0,0,8" />
+						<Setter Target="RootPropertiesScrollViewer.Margin" Value="8,0,8,8" />
+						<Setter Target="CardSplitter.(Grid.Row)" Value="1" />
+						<Setter Target="CardSplitter.(Grid.RowSpan)" Value="2" />
+						<Setter Target="CardSplitter.(Grid.Column)" Value="1" />
+						<Setter Target="CardSplitter.(Grid.ColumnSpan)" Value="1" />
+						<Setter Target="CardSplitter.Width" Value="8" />
+						<Setter Target="CardSplitter.Height" Value="Auto" />
+						<Setter Target="CardSplitter.HorizontalAlignment" Value="Left" />
+						<Setter Target="CardSplitter.VerticalAlignment" Value="Stretch" />
+						<Setter Target="CardSplitterGrip.(Grid.Row)" Value="1" />
+						<Setter Target="CardSplitterGrip.(Grid.RowSpan)" Value="2" />
+						<Setter Target="CardSplitterGrip.(Grid.Column)" Value="1" />
+						<Setter Target="CardSplitterGrip.(Grid.ColumnSpan)" Value="1" />
+						<Setter Target="CardSplitterGrip.Width" Value="4" />
+						<Setter Target="CardSplitterGrip.Height" Value="32" />
+						<Setter Target="CardSplitterGrip.Margin" Value="2,0,0,0" />
+						<Setter Target="CardSplitterGrip.HorizontalAlignment" Value="Left" />
+						<Setter Target="CardSplitterGrip.VerticalAlignment" Value="Center" />
 					</VisualState.Setters>
 				</VisualState>
 			</VisualStateGroup>
