@@ -374,13 +374,16 @@ namespace Files.App.Services.Settings
 			set => Set(value);
 		}
 
+		// Consysto fork: off by default, closing the window ends the program
 		public bool LeaveAppRunning
 		{
-#if RELEASE
-			get => Get(true);
-#else
 			get => Get(false);
-#endif
+			set => Set(value);
+		}
+
+		public bool WasLeaveAppRunningReset
+		{
+			get => Get(false);
 			set => Set(value);
 		}
 

@@ -30,6 +30,7 @@ namespace Files.App
 
 		private static FlyoutBase? _LastOpenedFlyout;
 		private static bool _isWindowTeardownCompleted;
+		private static EventWaitHandle? _quitEvent;
 		public static FlyoutBase? LastOpenedFlyout
 		{
 			set
@@ -158,6 +159,14 @@ namespace Files.App
 				}
 
 				var userSettingsService = Ioc.Default.GetRequiredService<IUserSettingsService>();
+
+				// Consysto fork: background running used to be on by default and is now off; turn it off once for earlier installs
+				if (!userSettingsService.GeneralSettingsService.WasLeaveAppRunningReset)
+				{
+					userSettingsService.GeneralSettingsService.LeaveAppRunning = false;
+					userSettingsService.GeneralSettingsService.WasLeaveAppRunningReset = true;
+				}
+
 				var isLeaveAppRunning = userSettingsService.GeneralSettingsService.LeaveAppRunning;
 
 				if (!isStartupTask || !isLeaveAppRunning)
@@ -189,6 +198,7 @@ namespace Files.App
 				// Hook events for the window
 				MainWindow.Instance.Closed += Window_Closed;
 				MainWindow.Instance.Activated += Window_Activated;
+				ListenForQuitRequest();
 
 				Logger.LogInformation($"App launched. Launch args type: {appActivationArguments.Data.GetType().Name}");
 
@@ -219,7 +229,7 @@ namespace Files.App
 						SystemTrayIcon.Show();
 
 					// Sleep current instance
-					var pool = new Semaphore(0, 1, $"Files-{AppLifecycleHelper.AppEnvironment}-Instance");
+					var pool = new Semaphore(0, 1, AppLifecycleHelper.InstanceSemaphoreName);
 					Program.Pool = pool;
 
 					var cts = new CancellationTokenSource();
@@ -232,6 +242,13 @@ namespace Files.App
 					pool.Dispose();
 					if (ReferenceEquals(Program.Pool, pool))
 						Program.Pool = null;
+
+					// Woken to quit: nothing has been opened yet
+					if (AppModel.ForceProcessTermination)
+					{
+						Current.Exit();
+						return;
+					}
 				}
 
 				await AppLifecycleHelper.InitializeAppComponentsAsync();
@@ -385,7 +402,7 @@ namespace Files.App
 				AppStorage.LocalSettings["INSTANCE_ACTIVE"] = -Environment.ProcessId;
 
 				// Sleep current instance
-				var pool = new Semaphore(0, 1, $"Files-{AppLifecycleHelper.AppEnvironment}-Instance");
+				var pool = new Semaphore(0, 1, AppLifecycleHelper.InstanceSemaphoreName);
 				Program.Pool = pool;
 
 				// Displays a notification the first time the app goes to the background
@@ -450,6 +467,37 @@ namespace Files.App
 				_isWindowTeardownCompleted = true;
 				MainWindow.Instance.Close();
 			}
+		}
+
+		/// <summary>
+		/// Consysto fork: lets the installer close a copy that sleeps in the background. A copy with a window open is left alone.
+		/// </summary>
+		private static void ListenForQuitRequest()
+		{
+			try
+			{
+				_quitEvent = new EventWaitHandle(false, EventResetMode.AutoReset, AppLifecycleHelper.QuitEventName);
+			}
+			catch (Exception ex)
+			{
+				Logger.LogWarning(ex, "Could not create the quit event");
+				return;
+			}
+
+			var dispatcher = MainWindow.Instance.DispatcherQueue;
+			ThreadPool.RegisterWaitForSingleObject(
+				_quitEvent,
+				(_, _) => dispatcher.TryEnqueue(() =>
+				{
+					if (Program.Pool is not { } pool)
+						return;
+
+					AppModel.ForceProcessTermination = true;
+					SafetyExtensions.IgnoreExceptions(() => pool.Release());
+				}),
+				null,
+				Timeout.InfiniteTimeSpan,
+				executeOnlyOnce: false);
 		}
 
 		private static async Task WaitOneAsync(WaitHandle handle)
