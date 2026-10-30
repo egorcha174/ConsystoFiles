@@ -311,6 +311,11 @@ namespace Files.App.Data.Contracts
 		bool LeaveAppRunning { get; set; }
 
 		/// <summary>
+		/// Gets or sets a value indicating whether the earlier default of <see cref="LeaveAppRunning"/> has been turned off once.
+		/// </summary>
+		bool WasLeaveAppRunningReset { get; set; }
+
+		/// <summary>
 		/// Gets or sets a value indicating whether or not to show Files in the system tray.
 		/// </summary>
 		bool ShowSystemTrayIcon { get; set; }

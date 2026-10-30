@@ -43,6 +43,7 @@ if (-not $NsisPath) {
     $candidates = @(
         $(if ($command) { $command.Source }),
         $(if (${env:ProgramFiles(x86)}) { Join-Path ${env:ProgramFiles(x86)} 'NSIS\makensis.exe' }),
+        (Join-Path (Split-Path $repo -Parent) 'ConsystoCore\build\.tools\nsis-3.12\makensis.exe'),
         (Join-Path (Split-Path $repo -Parent) 'Consysto\build\joint\.tools\nsis-3.12\makensis.exe')
     )
     $NsisPath = $candidates | Where-Object { $_ -and (Test-Path -LiteralPath $_ -PathType Leaf) } |
@@ -66,6 +67,13 @@ $ErrorActionPreference='Stop';try{foreach($p in Get-Process){if($p.ProcessName -
 '@
 $encodedCheck = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($processCheck))
 
+# Просьба закрыться к копии, которая спит в фоне без окна. Имя события — как AppLifecycleHelper.QuitEventName.
+# Строка команды в NSIS ограничена 1024 знаками, поэтому сценарий в одну короткую строку.
+$quitRequest = @'
+$h=[Security.Cryptography.SHA256]::Create().ComputeHash([Text.Encoding]::UTF8.GetBytes((Split-Path $env:CONSYSTO_SETUP_TARGET).ToUpperInvariant()));$e=$null;if([Threading.EventWaitHandle]::TryOpenExisting('ConsystoFiles-Quit-'+(-join($h[0..7]|%{'{0:X2}'-f$_})),[ref]$e)){[void]$e.Set()}
+'@
+$encodedQuit = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($quitRequest))
+
 # Временные файлы компилятора также остаются в artifacts, а не в профиле пользователя.
 $scratch = Join-Path $artifacts '.setup-tmp'
 New-Item -ItemType Directory -Path $scratch -Force | Out-Null
@@ -75,7 +83,7 @@ try {
     $env:TEMP = $scratch
     $env:TMP = $scratch
     & $NsisPath /NOCONFIG /INPUTCHARSET UTF8 /WX /V3 "/DPAYLOAD=$payload" "/DOUTPUT=$output" `
-        "/DVERSION=$Version" "/DESTIMATED_SIZE=$sizeKB" "/DPROCESS_CHECK=$encodedCheck" `
+        "/DVERSION=$Version" "/DESTIMATED_SIZE=$sizeKB" "/DPROCESS_CHECK=$encodedCheck" "/DQUIT_REQUEST=$encodedQuit" `
         (Join-Path $PSScriptRoot 'setup\ConsystoFiles-setup.nsi')
     if ($LASTEXITCODE -ne 0) { throw "makensis завершился с кодом $LASTEXITCODE." }
 }

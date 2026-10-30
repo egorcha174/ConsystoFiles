@@ -48,7 +48,7 @@ namespace Files.App
 			// paths like "." against the terminal's CWD rather than its own. (#16982)
 			AppStorage.LocalSettings[LaunchCwdKey] = Environment.CurrentDirectory;
 
-			var pool = new Semaphore(0, 1, $"Files-{AppLifecycleHelper.AppEnvironment}-Instance", out var isNew);
+			var pool = new Semaphore(0, 1, AppLifecycleHelper.InstanceSemaphoreName, out var isNew);
 
 			if (!isNew)
 			{

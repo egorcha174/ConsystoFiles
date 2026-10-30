@@ -78,6 +78,24 @@ namespace Files.App.Helpers
 
 
 		/// <summary>
+		/// Gets the name of the semaphore a closed window sleeps on. Consysto fork: it is per program folder, because several
+		/// portable copies share one environment and would otherwise wake each other's sleeping instance.
+		/// </summary>
+		public static string InstanceSemaphoreName => $"Files-{AppEnvironment}-Instance-{_folderHash.Value}";
+
+		/// <summary>
+		/// Gets the name of the event the installer sets to close a copy sleeping in the background.
+		/// Build-ConsystoSetup.ps1 computes the same name from the install folder.
+		/// </summary>
+		public static string QuitEventName => $"ConsystoFiles-Quit-{_folderHash.Value}";
+
+		private static readonly Lazy<string> _folderHash = new(() =>
+		{
+			var path = Encoding.UTF8.GetBytes(AppStorage.EffectivePath.ToUpperInvariant());
+			return Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(path), 0, 8);
+		});
+
+		/// <summary>
 		/// Gets application package version.
 		/// </summary>
 		public static Version AppVersion { get; } =

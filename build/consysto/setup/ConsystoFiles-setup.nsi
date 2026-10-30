@@ -92,7 +92,15 @@ Function ${PREFIX}CheckFiles
     SetErrorLevel 20
     Abort
   ${EndIf}
-  ; Программа, запустившая обновление, закрывается сама: даём ей до 30 секунд
+  ; Копию, которая спит в фоне без окна, просим закрыться; копию с открытым окном она не трогает
+  nsExec::ExecToStack /TIMEOUT=30000 '"$WINDIR\Sysnative\WindowsPowerShell\v1.0\powershell.exe" -NoLogo -NoProfile -NonInteractive -EncodedCommand ${QUIT_REQUEST}'
+  Pop $0
+  Pop $1
+  ; Программа, запустившая обновление, закрывается сама: даём ей до 30 секунд, спящей копии — до 10
+  StrCpy $3 10
+  ${If} $IsUpdate == 1
+    StrCpy $3 30
+  ${EndIf}
   StrCpy $2 0
 check:
   ; NSIS — x86; Sysnative даёт 64-битный PowerShell, который читает путь x64 Files.exe.
@@ -100,8 +108,7 @@ check:
   Pop $0
   Pop $1
   ${If} $0 == 10
-  ${AndIf} $IsUpdate == 1
-  ${AndIf} $2 < 30
+  ${AndIf} $2 < $3
     IntOp $2 $2 + 1
     Sleep 1000
     Goto check
