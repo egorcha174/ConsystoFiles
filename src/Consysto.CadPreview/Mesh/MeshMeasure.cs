@@ -45,6 +45,7 @@ public sealed class MeshMeasure
     private readonly Vector3[] positions = [];
     private readonly Dictionary<long, Edge> edges = new(EdgeKeyComparer.Instance);
     private readonly Dictionary<int, List<int>> sharpNeighbours = [];
+    private readonly TriangleTree? tree;
 
     public MeshMeasure(Mesh3D mesh)
     {
@@ -61,6 +62,7 @@ public sealed class MeshMeasure
         if (mesh.TriangleCount > MaximumTopologyTriangles)
             return;
 
+        tree = new TriangleTree(vertices, normals);
         (corners, positions) = Weld(mesh);
         for (int t = 0; t < normals.Length; t++)
         {
@@ -91,21 +93,40 @@ public sealed class MeshMeasure
     /// <summary>False on meshes too large to recover their edges: then snapping stops at corners of the hit face.</summary>
     public bool HasEdges => positions.Length > 0;
 
+    /// <summary>Picking looks only at triangles near the line of sight, so it can follow the cursor.</summary>
+    public bool IsQuickToPick => tree is not null;
+
     /// <summary>The nearest face under a screen point, snapped to a vertex or a sharp edge within the tolerance.</summary>
     public MeshPick? Pick(MeshProjection projection, Vector2 screen, float snapDistance)
     {
         var (origin, direction) = projection.Ray(screen);
         var vertices = mesh.Vertices;
-        int hit = -1;
-        float nearest = float.PositiveInfinity;
-        for (int t = 0; t < normals.Length; t++)
+
+        // The line of sight is given through a plane across the model's origin, which may lie inside the model or far
+        // from it. It is started in front of the whole model instead: every face then lies ahead, the nearest hit is
+        // the face the viewer sees, and the hit point is worked out close to the model, not thousands of units away.
+        float ahead = Vector3.Dot(mesh.Center - origin, projection.Toward) + Math.Max(mesh.Radius, 1e-6f) * 1.01f;
+        origin += projection.Toward * ahead;
+
+        int hit;
+        float nearest;
+        if (tree is not null)
         {
-            if (normals[t] == Vector3.Zero)
-                continue;
-            if (Intersect(origin, direction, vertices[t * 3], vertices[t * 3 + 1], vertices[t * 3 + 2], out float distance) && distance < nearest)
+            hit = tree.Intersect(origin, direction, out nearest);
+        }
+        else
+        {
+            hit = -1;
+            nearest = float.PositiveInfinity;
+            for (int t = 0; t < normals.Length; t++)
             {
-                nearest = distance;
-                hit = t;
+                if (normals[t] == Vector3.Zero)
+                    continue;
+                if (Intersect(origin, direction, vertices[t * 3], vertices[t * 3 + 1], vertices[t * 3 + 2], out float distance) && distance >= 0 && distance < nearest)
+                {
+                    nearest = distance;
+                    hit = t;
+                }
             }
         }
 
@@ -351,8 +372,8 @@ public sealed class MeshMeasure
         return (corners, positions.ToArray());
     }
 
-    // Möller–Trumbore, both sides; the distance may be negative: an orthographic ray starts in the middle of the model.
-    private static bool Intersect(Vector3 origin, Vector3 direction, Vector3 a, Vector3 b, Vector3 c, out float distance)
+    // Möller–Trumbore, both sides; the distance is signed, callers keep the hits ahead of the origin.
+    internal static bool Intersect(Vector3 origin, Vector3 direction, Vector3 a, Vector3 b, Vector3 c, out float distance)
     {
         distance = 0;
         var ab = b - a;

@@ -51,6 +51,9 @@ public sealed partial class CadDrawingView : UserControl
     private MeasureTool _tool;
     private DrawingMeasure? _measure;
     private bool _measurePreparing;
+
+    // Counts the drawings given to the view, so that preparation started for an earlier one is recognised and dropped.
+    private int _measureGeneration;
     private readonly List<DrawingPick> _pending = [];
     private readonly List<Measurement> _measurements = [];
     private DrawingPick? _hover;
@@ -173,6 +176,7 @@ public sealed partial class CadDrawingView : UserControl
             _fitPending = true;
             _measure = null;
             _measurePreparing = false;
+            _measureGeneration++;
             _pending.Clear();
             _measurements.Clear();
             _hover = null;
@@ -360,14 +364,30 @@ public sealed partial class CadDrawingView : UserControl
             return;
 
         _measurePreparing = true;
-        _ = Task.Run(() => new DrawingMeasure(drawing)).ContinueWith(task => DispatcherQueue.TryEnqueue(() =>
+        _ = PrepareMeasureAsync(drawing, _measureGeneration);
+    }
+
+    private async Task PrepareMeasureAsync(Drawing2D drawing, int generation)
+    {
+        DrawingMeasure? measure = null;
+        try
         {
-            if (!ReferenceEquals(_drawing, drawing))
-                return;
-            _measurePreparing = false;
-            _measure = task.IsCompletedSuccessfully ? task.Result : null;
-            UpdateOverlay();
-        }), TaskScheduler.Default);
+            measure = await Task.Run(() => new DrawingMeasure(drawing));
+        }
+        catch (Exception ex)
+        {
+            CadViewLog.Write?.Invoke($"The drawing of {drawing.Primitives.Count} primitives could not be prepared for measuring", ex);
+        }
+
+        // Continues on the UI thread. A newer drawing has its own preparation running, and its state is not touched.
+        if (generation != _measureGeneration)
+            return;
+
+        _measurePreparing = false;
+        _measure = measure;
+        if (measure is null)
+            _notice = _text.MeasureFailed;
+        UpdateOverlay();
     }
 
     private void ClearMeasurements()

@@ -62,6 +62,7 @@ namespace Files.App.Cad
 			RadiusPointsPrompt = Strings.ConsystoCadMeasureRadiusPointsPrompt.GetLocalizedResource(),
 			AnglePrompt = Strings.ConsystoCadMeasureAnglePrompt.GetLocalizedResource(),
 			Preparing = Strings.ConsystoCadMeasurePreparing.GetLocalizedResource(),
+			MeasureFailed = Strings.ConsystoCadMeasureMeasureFailed.GetLocalizedResource(),
 			UnitsAssumed = Strings.ConsystoCadMeasureUnitsAssumed.GetLocalizedResource(),
 			DrawingUnits = Strings.ConsystoCadMeasureDrawingUnits.GetLocalizedResource(),
 			DrawingBoundsFormat = Strings.ConsystoCadMeasureDrawingBoundsFormat.GetLocalizedResource(),

@@ -44,6 +44,8 @@ public sealed class CadMeasureText
 
     public string Preparing { get; init; } = "Preparing the model for measuring…";
 
+    public string MeasureFailed { get; init; } = "This model could not be prepared for measuring";
+
     public string UnitsAssumed { get; init; } = "The file does not state its units; millimetres are assumed";
 
     // The 2D drawing view

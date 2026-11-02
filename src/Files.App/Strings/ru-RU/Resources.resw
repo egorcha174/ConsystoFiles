@@ -5554,6 +5554,9 @@
   <data name="ConsystoCadMeasurePreparing" xml:space="preserve">
     <value>Подготовка модели к измерению…</value>
   </data>
+  <data name="ConsystoCadMeasureMeasureFailed" xml:space="preserve">
+    <value>Не удалось подготовить модель к измерению</value>
+  </data>
   <data name="ConsystoCadMeasureUnitsAssumed" xml:space="preserve">
     <value>В файле не указаны единицы — считаются миллиметры</value>
   </data>

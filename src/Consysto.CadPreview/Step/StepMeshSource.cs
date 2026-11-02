@@ -1,7 +1,4 @@
-using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Numerics;
-using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using Consysto.CadPreview.Mesh;
@@ -16,13 +13,11 @@ namespace Consysto.CadPreview.Step;
 public static class StepMeshSource
 {
     private const string FormatVersion = "csmesh1";
-    private const int HeaderBytes = 16;
-    private const int TriangleBytes = 36;
 
     private static readonly string[] SupportedExtensions = [".step", ".stp", ".iges", ".igs"];
 
     // One mesher run per file at a time: the pane and the thumbnail often ask for the same file together.
-    private static readonly ConcurrentDictionary<string, object> Gates = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly MeshGates Gates = new();
 
     // Each run already meshes on every core; a folder full of STEP files must not start a dozen of them at once.
     private static readonly SemaphoreSlim MesherSlots = new(2);
@@ -47,7 +42,7 @@ public static class StepMeshSource
         Directory.CreateDirectory(CacheDirectory);
         string cachePath = Path.Combine(CacheDirectory, CacheKey(file) + ".csmesh");
 
-        lock (Gates.GetOrAdd(cachePath, _ => new object()))
+        lock (Gates.For(cachePath))
         {
             if (!File.Exists(cachePath))
             {
@@ -55,6 +50,7 @@ public static class StepMeshSource
                 try
                 {
                     RunMesher(file.FullName, cachePath, cancellationToken);
+                    MeshCache.StampUnits(cachePath, MesherUnits);
                 }
                 finally
                 {
@@ -157,21 +153,19 @@ public static class StepMeshSource
         _ => $"exit code 0x{code:X8}",
     };
 
+    /// <summary>
+    /// What the mesher writes: STEPControl_Reader and IGESControl_Reader convert lengths into xstep.cascade.unit, which
+    /// stays at its default of millimetres, whatever unit the file was drawn in.
+    /// </summary>
+    internal static MeshUnits MesherUnits => MeshUnits.StatedMillimeters;
+
     private static Mesh3D ReadMesh(string cachePath)
     {
-        var bytes = File.ReadAllBytes(cachePath);
-        if (bytes.Length < HeaderBytes || !bytes.AsSpan(0, 8).SequenceEqual("CSMESH1\0"u8))
-            throw new InvalidDataException("The cached STEP mesh is damaged.");
+        // Inventor exports STEP in its own frame, Y up.
+        var mesh = MeshCache.Read(cachePath, MeshUp.Y);
 
-        uint triangles = BitConverter.ToUInt32(bytes, 8);
-        if (triangles > MeshBuilder.MaximumTriangles || HeaderBytes + (long)triangles * TriangleBytes != bytes.Length)
-            throw new InvalidDataException("The cached STEP mesh is damaged.");
-
-        // Nine little-endian float32 per triangle map straight onto three Vector3.
-        var vertices = new Vector3[triangles * 3];
-        MemoryMarshal.Cast<byte, Vector3>(bytes.AsSpan(HeaderBytes)).CopyTo(vertices);
-        // Inventor exports STEP in its own frame, Y up. OpenCascade converts lengths to millimetres while it reads.
-        return new Mesh3D(vertices, MeshUp.Y) { Units = MeshUnits.StatedMillimeters };
+        // Entries cached before the unit was stamped came from the same mesher, so they are in its unit too.
+        return mesh.Units.IsStated ? mesh : new Mesh3D(mesh.Vertices, mesh.Up) { Units = MesherUnits };
     }
 
     private static string CacheKey(FileInfo file)

@@ -5555,6 +5555,9 @@
   <data name="ConsystoCadMeasurePreparing" xml:space="preserve">
     <value>Preparing the model for measuring…</value>
   </data>
+  <data name="ConsystoCadMeasureMeasureFailed" xml:space="preserve">
+    <value>This model could not be prepared for measuring</value>
+  </data>
   <data name="ConsystoCadMeasureUnitsAssumed" xml:space="preserve">
     <value>The file does not state its units; millimetres are assumed</value>
   </data>
