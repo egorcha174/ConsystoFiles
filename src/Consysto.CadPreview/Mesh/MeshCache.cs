@@ -6,6 +6,8 @@ namespace Consysto.CadPreview.Mesh;
 /// <summary>
 /// Meshes kept on disk between runs. Tessellating a part takes seconds, and the pane, the thumbnail and the gallery all
 /// ask for the same file, so the triangles are written once in the plainest form there is: nine floats per triangle.
+/// The word after the triangle count holds the stated unit as millimetres per model unit (float32), or 0 when the
+/// source named none; the STEP mesher writes 0 there.
 /// </summary>
 internal static class MeshCache
 {
@@ -21,6 +23,7 @@ internal static class MeshCache
 
 		Signature.CopyTo(bytes);
 		BitConverter.TryWriteBytes(bytes.AsSpan(8), (uint)triangles);
+		BitConverter.TryWriteBytes(bytes.AsSpan(12), mesh.Units.IsStated ? (float)mesh.Units.Millimeters : 0f);
 		MemoryMarshal.AsBytes(mesh.Vertices.AsSpan(0, triangles * 3)).CopyTo(bytes.AsSpan(HeaderBytes));
 
 		File.WriteAllBytes(path, bytes);
@@ -40,6 +43,25 @@ internal static class MeshCache
 		var vertices = new Vector3[triangles * 3];
 		MemoryMarshal.Cast<byte, Vector3>(bytes.AsSpan(HeaderBytes)).CopyTo(vertices);
 
-		return new Mesh3D(vertices, up);
+		return new Mesh3D(MeshBuilder.WithoutBrokenTriangles(vertices), up) { Units = ReadUnits(bytes) };
+	}
+
+	/// <summary>Records the unit in a mesh file written by someone else, such as the STEP mesher.</summary>
+	public static void StampUnits(string path, MeshUnits units)
+	{
+		using var stream = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+		if (stream.Length < HeaderBytes)
+			throw new InvalidDataException("The cached mesh is damaged.");
+
+		Span<byte> word = stackalloc byte[4];
+		BitConverter.TryWriteBytes(word, units.IsStated ? (float)units.Millimeters : 0f);
+		stream.Position = 12;
+		stream.Write(word);
+	}
+
+	private static MeshUnits ReadUnits(byte[] bytes)
+	{
+		float millimeters = BitConverter.ToSingle(bytes, 12);
+		return float.IsFinite(millimeters) && millimeters > 0 ? new MeshUnits(millimeters, true) : MeshUnits.AssumedMillimeters;
 	}
 }

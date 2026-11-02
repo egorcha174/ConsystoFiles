@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Numerics;
 using System.Security.Cryptography;
@@ -41,7 +40,7 @@ public static class CadMeshSource
 	/// <summary>Below this, a document is treated as having no usable mesh of its own and the surfaces are tried instead.</summary>
 	private const int MeaningfulTriangles = 8;
 
-	private static readonly ConcurrentDictionary<string, object> Gates = new(StringComparer.OrdinalIgnoreCase);
+	private static readonly MeshGates Gates = new();
 
 	// The helper is heavy; a folder full of parts must not start a dozen of them at once
 	private static readonly SemaphoreSlim Slots = new(2);
@@ -84,12 +83,13 @@ public static class CadMeshSource
 			Directory.CreateDirectory(CacheDirectory);
 			var cachePath = CachePath(file);
 
-			lock (Gates.GetOrAdd(cachePath, _ => new object()))
+			lock (Gates.For(cachePath))
 			{
 				if (File.Exists(cachePath))
 				{
 					try
 					{
+						// Entries written before the unit was kept in the file are millimetres as well
 						return InMillimeters(MeshCache.Read(cachePath));
 					}
 					catch (InvalidDataException)
@@ -118,8 +118,9 @@ public static class CadMeshSource
 					Log?.Invoke($"cadmpeg gave no shape for {file.Name}", null);
 
 				// An empty shape is kept too, so a document the helper cannot read is not tried again on every visit
+				mesh = InMillimeters(mesh);
 				MeshCache.Write(cachePath, mesh);
-				return InMillimeters(mesh);
+				return mesh;
 			}
 		}
 		catch (OperationCanceledException)
@@ -289,7 +290,7 @@ public static class CadMeshSource
 		}
 
 		// These documents stand on the XY plane, as 3MF build plates do
-		return new Mesh3D([.. vertices], MeshUp.Z);
+		return new Mesh3D(MeshBuilder.WithoutBrokenTriangles([.. vertices]), MeshUp.Z);
 	}
 
 	private static Vector3 ReadPoint(JsonElement point)

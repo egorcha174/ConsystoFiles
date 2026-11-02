@@ -80,7 +80,7 @@ internal sealed class MeshBuilder
 
     public void AddTriangle(Vector3 a, Vector3 b, Vector3 c)
     {
-        if (!IsFinite(a) || !IsFinite(b) || !IsFinite(c))
+        if (!IsUsable(a) || !IsUsable(b) || !IsUsable(c))
             return;
         if (TriangleCount >= MaximumTriangles)
             throw new InvalidDataException($"The mesh has more than {MaximumTriangles} triangles.");
@@ -92,5 +92,42 @@ internal sealed class MeshBuilder
 
     public Mesh3D ToMesh(MeshUp up, MeshUnits? units = null) => new(vertices.ToArray(), up) { Units = units ?? MeshUnits.AssumedMillimeters };
 
-    private static bool IsFinite(Vector3 v) => float.IsFinite(v.X) && float.IsFinite(v.Y) && float.IsFinite(v.Z);
+    /// <summary>
+    /// Drops triangles with a corner that is not a number or so far out that the size of the model overflows; returns
+    /// the same array when there are none.
+    /// </summary>
+    public static Vector3[] WithoutBrokenTriangles(Vector3[] vertices)
+    {
+        int count = vertices.Length / 3 * 3;
+        int broken = 0;
+        for (int i = 0; i < count; i += 3)
+        {
+            if (!IsUsable(vertices[i]) || !IsUsable(vertices[i + 1]) || !IsUsable(vertices[i + 2]))
+                broken++;
+        }
+
+        if (broken == 0 && count == vertices.Length)
+            return vertices;
+
+        var kept = new Vector3[count - broken * 3];
+        int next = 0;
+        for (int i = 0; i < count; i += 3)
+        {
+            if (!IsUsable(vertices[i]) || !IsUsable(vertices[i + 1]) || !IsUsable(vertices[i + 2]))
+                continue;
+            kept[next++] = vertices[i];
+            kept[next++] = vertices[i + 1];
+            kept[next++] = vertices[i + 2];
+        }
+
+        return kept;
+    }
+
+    // Finite is not enough: the diagonal of a box with a corner at 1e38 overflows, and the camera, the weld grid and
+    // every measurement with it.
+    private const float MaximumCoordinate = 1e15f;
+
+    private static bool IsUsable(Vector3 v)
+        => float.IsFinite(v.X) && float.IsFinite(v.Y) && float.IsFinite(v.Z)
+            && MathF.Abs(v.X) < MaximumCoordinate && MathF.Abs(v.Y) < MaximumCoordinate && MathF.Abs(v.Z) < MaximumCoordinate;
 }

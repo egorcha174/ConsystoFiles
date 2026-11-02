@@ -3,6 +3,7 @@
 using Consysto.CadPreview;
 using Consysto.CadPreview.Step;
 using Consysto.CadPreview.Parasolid;
+using Consysto.CadPreview.WinUI;
 using Microsoft.Extensions.Logging;
 using Windows.Storage;
 
@@ -21,6 +22,7 @@ namespace Files.App.Cad
 			ParasolidMeshSource.CacheDirectory = SystemIO.Path.Combine(AppStorage.LocalCacheFolderPath, "parasolid-meshes");
 			CadMeshSource.CacheDirectory = SystemIO.Path.Combine(AppStorage.LocalCacheFolderPath, "cad-shapes");
 			CadMeshSource.Log = (message, ex) => App.Logger.LogWarning(ex, "CAD preview: {Message}", message);
+			CadViewLog.Write = (message, ex) => App.Logger.LogWarning(ex, "CAD preview: {Message}", message);
 			return true;
 		});
 

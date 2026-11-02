@@ -41,9 +41,6 @@ public sealed partial class CadMeshView : UserControl
     private const float SnapDistance = 8f;
     private const float ClickSlop = 4f;
 
-    // Hover feedback scans every triangle on each pointer move; above this a click still measures, the hover does not.
-    private const int MaximumHoverTriangles = 500_000;
-
     private readonly CanvasControl _canvas = new();
     private readonly MeshRasterizer _rasterizer = new();
     private readonly DispatcherQueueTimer _settleTimer;
@@ -65,10 +62,17 @@ public sealed partial class CadMeshView : UserControl
     private CanvasBitmap? _frame;
     private (MeshView View, int Width, int Height, bool Interacting) _frameKey;
 
+    // The frame's size in DIPs at the scale it was drawn with. Pixel sizes are whole numbers, so this differs a little
+    // from the control's size, and overlays and picks have to use it to land on the picture.
+    private Size _frameSize;
+
     private CadMeasureText _text = new();
     private MeasureTool _tool;
     private MeshMeasure? _measure;
     private bool _measurePreparing;
+
+    // Counts the models given to the view, so that preparation started for an earlier one is recognised and dropped.
+    private int _measureGeneration;
     private readonly List<MeshPick> _pending = [];
 
     // With the distance tool: the hole each pending pick was taken from the centre of, or null for a plain point.
@@ -193,6 +197,8 @@ public sealed partial class CadMeshView : UserControl
             _mesh = value;
             _measure = null;
             _measurePreparing = false;
+            _measureGeneration++;
+            DropFrame();
             ClearPending();
             _measurements.Clear();
             _hover = null;
@@ -265,11 +271,16 @@ public sealed partial class CadMeshView : UserControl
             _frame?.Dispose();
             _frame = CanvasBitmap.CreateFromBytes(sender, image.Pixels, image.Width, image.Height, DirectXPixelFormat.B8G8R8A8UIntNormalized);
             _frameKey = key;
+
+            // One scale for both sides: stretching the frame to the control's size separately in width and height
+            // would shift the picture against the overlay by up to a frame pixel, several DIPs while the model moves.
+            double pixelsPerFrameDip = pixelsPerDip * _rasterizer.LastResolution;
+            _frameSize = new Size(image.Width / pixelsPerFrameDip, image.Height / pixelsPerFrameDip);
         }
 
         args.DrawingSession.DrawImage(
             _frame,
-            new Rect(0, 0, sender.ActualWidth, sender.ActualHeight),
+            new Rect(0, 0, _frameSize.Width, _frameSize.Height),
             new Rect(0, 0, _frame.SizeInPixels.Width, _frame.SizeInPixels.Height),
             1f,
             CanvasImageInterpolation.Linear);
@@ -285,7 +296,10 @@ public sealed partial class CadMeshView : UserControl
 
     // The mapping the frame was drawn with, in DIPs: overlays and picks line up with the picture.
     private MeshProjection Projection()
-        => MeshProjection.Create(_mesh!, (float)_canvas.ActualWidth, (float)_canvas.ActualHeight, _view, MeshFit.Sphere);
+    {
+        var size = _frame is not null ? _frameSize : new Size(_canvas.ActualWidth, _canvas.ActualHeight);
+        return MeshProjection.Create(_mesh!, (float)size.Width, (float)size.Height, _view, MeshFit.Sphere);
+    }
 
     // Frame time grows with the pixel count; step one octave at a time so the picture does not flicker between sizes.
     private void AdaptResolution(double frameMilliseconds)
@@ -347,7 +361,8 @@ public sealed partial class CadMeshView : UserControl
         var current = new Vector2((float)position.X, (float)position.Y);
         if (_drag == DragMode.None)
         {
-            if (_tool != MeasureTool.None && _measure is { } measure && _mesh!.TriangleCount <= MaximumHoverTriangles)
+            // Without its tree, a pick scans every triangle: fine for a click, too slow to follow the cursor.
+            if (_tool != MeasureTool.None && _measure is { IsQuickToPick: true } measure)
                 SetHover(measure.Pick(Projection(), current, SnapDistance));
             return;
         }
@@ -429,14 +444,30 @@ public sealed partial class CadMeshView : UserControl
             return;
 
         _measurePreparing = true;
-        _ = Task.Run(() => new MeshMeasure(mesh)).ContinueWith(task => DispatcherQueue.TryEnqueue(() =>
+        _ = PrepareMeasureAsync(mesh, _measureGeneration);
+    }
+
+    private async Task PrepareMeasureAsync(Mesh3D mesh, int generation)
+    {
+        MeshMeasure? measure = null;
+        try
         {
-            if (!ReferenceEquals(_mesh, mesh))
-                return;
-            _measurePreparing = false;
-            _measure = task.IsCompletedSuccessfully ? task.Result : null;
-            UpdateOverlay();
-        }), TaskScheduler.Default);
+            measure = await Task.Run(() => new MeshMeasure(mesh));
+        }
+        catch (Exception ex)
+        {
+            CadViewLog.Write?.Invoke($"The model of {mesh.TriangleCount} triangles could not be prepared for measuring", ex);
+        }
+
+        // Continues on the UI thread. A newer model has its own preparation running, and its state is not touched.
+        if (generation != _measureGeneration)
+            return;
+
+        _measurePreparing = false;
+        _measure = measure;
+        if (measure is null)
+            _notice = _text.MeasureFailed;
+        UpdateOverlay();
     }
 
     private void ClearMeasurements()

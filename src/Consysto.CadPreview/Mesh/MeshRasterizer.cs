@@ -50,6 +50,12 @@ public sealed class MeshRasterizer
         return new RasterImage(image.Width, image.Height, image.Pixels);
     }
 
+    /// <summary>
+    /// Output pixels per requested pixel in the last frame: below 1 when the frame was too large for the sample budget.
+    /// The host scales the frame back by this factor, the same on both sides.
+    /// </summary>
+    public double LastResolution { get; private set; } = 1;
+
     /// <returns>An image over this instance's buffer: valid until the next frame.</returns>
     public RasterImage RenderFrame(Mesh3D mesh, int width, int height, MeshView view, MeshFit fit, int supersample)
     {
@@ -64,6 +70,7 @@ public sealed class MeshRasterizer
             maximumOutputPixels / (double)Math.Max(width, height)));
         width = Math.Max(1, (int)(width * resolution));
         height = Math.Max(1, (int)(height * resolution));
+        LastResolution = resolution;
         view = view with { PanX = view.PanX * (float)resolution, PanY = view.PanY * (float)resolution };
         int sampleWidth = width * supersample;
         int sampleHeight = height * supersample;
